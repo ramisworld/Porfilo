@@ -21,7 +21,7 @@ export default async function SitePage({
     <iframe
       title="portfolio"
       srcDoc={portfolio.code}
-      sandbox="allow-scripts allow-popups"
+      sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
       className="fixed inset-0 h-screen w-screen border-0"
     />
   );
