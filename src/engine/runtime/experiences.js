@@ -83,8 +83,33 @@
   }
 
   function tnHead(num, a, b) {
-    return '<div class="xp-tn-head"><span class="xp-tn-num">' + num + '</span>' +
-      '<h2 class="xp-tn-h2">' + a + ' <i>//</i> ' + b + '</h2><span class="xp-tn-rule"></span></div>';
+    return '<div class="xp-tn-head">' +
+      '<h2 class="xp-tn-h2">' + a + ' <i>//</i> ' + b + '</h2>' +
+      '<span class="xp-tn-rule"></span><span class="xp-tn-idx">0:' + num + '</span></div>';
+  }
+
+  // Render a string as a real-looking `hexdump -C` block (offset, hex pairs, ASCII
+  // column) — the killer hacker detail, built from the user's actual tech stack.
+  function tnHexdump(s) {
+    s = String(s).slice(0, 96);
+    var out = "";
+    for (var off = 0; off < s.length; off += 16) {
+      var chunk = s.slice(off, off + 16);
+      var hex = "", ascii = "";
+      for (var i = 0; i < 16; i++) {
+        if (i < chunk.length) {
+          var c = chunk.charCodeAt(i) & 0xff;
+          hex += (c < 16 ? "0" : "") + c.toString(16) + " ";
+          ascii += (c >= 32 && c < 127) ? chunk.charAt(i) : ".";
+        } else { hex += "   "; }
+        if (i === 7) hex += " ";
+      }
+      var offStr = ("0000" + off.toString(16)).slice(-4);
+      out += '<div class="xp-tn-hexline"><span class="xp-tn-hexoff">' + offStr + '</span>' +
+        '<span class="xp-tn-hexb">' + hex + '</span>' +
+        '<span class="xp-tn-hexa">|' + esc(ascii) + '|</span></div>';
+    }
+    return out;
   }
 
   function terminalNexus(data) {
@@ -101,24 +126,34 @@
       return '<a href="#' + it.id + '" class="' + (i === 0 ? "active" : "") + '"><em>' + it.k + '</em><span>' + esc(it.label) + '</span></a>';
     }).join("") + '</nav>';
 
+    // top OS status bar — frames the whole page as a live terminal OS
+    var osnav = items.slice(1).map(function (it) {
+      return '<a href="#' + it.id + '">./' + esc(it.label.toLowerCase()) + '</a>';
+    }).join("");
+    var osbar = '<header class="xp-tn-osbar">' +
+      '<span class="xp-tn-os-brand">GHOST_OS <b>v2.6</b> <i>//</i> ROOT</span>' +
+      '<nav class="xp-tn-os-nav">' + osnav + '</nav>' +
+      '<span class="xp-tn-os-stat">UPLINK: <b>SECURE</b> <i>//</i> <span class="xp-tn-clock">00:00:00</span> UTC</span>' +
+      '</header>';
+
     var stats = arr(data.stats).slice(0, 3).map(function (s) {
       return '<div class="xp-tn-stat reveal"><b>' + esc(s.value) + '</b><span>' + esc(s.label) + '</span></div>';
     }).join("");
     var mods = abilities(data).map(function (a, i) {
       return '<div class="xp-tn-mod reveal"><em>' + String(i + 1).padStart(2, "0") + '</em><span>' + esc(a.label) + '</span></div>';
     }).join("");
-    var langs = arr(data.languages).map(function (x) { return '<span>' + esc(x.label) + '</span>'; }).join("");
+    var stackStr = arr(data.languages).map(function (x) { return x.label; }).join(", ");
+    if (!stackStr) stackStr = abilities(data).map(function (a) { return a.label; }).join(", ");
     var repos = arr(data.projects).slice(0, 6).map(function (p) {
-      var tech = arr(p.tech).slice(0, 4).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("");
-      var stars = p.stars ? '<small>&#9733; ' + esc(p.stars) + '</small>' : "";
+      var lang = arr(p.tech)[0] ? '<span class="xp-tn-lang"><i></i>' + esc(arr(p.tech)[0]) + '</span>' : "";
+      var stars = p.stars ? '<span class="xp-tn-star">&#9733; ' + esc(p.stars) + '</span>' : "";
       return '<a class="xp-tn-card reveal" href="' + esc(p.repoUrl) + '" target="_blank" rel="noreferrer">' +
-        '<header><span class="xp-tn-path">&gt; ./' + esc(p.name) + '</span>' + stars + '</header>' +
+        '<div class="xp-tn-cardname">./' + esc(p.name) + '</div>' +
         '<p>' + esc(p.blurb || "Repository.") + '</p>' +
-        '<div class="xp-tn-tech">' + tech + '</div><i class="xp-tn-go">&#8599;</i></a>';
+        '<div class="xp-tn-cardmeta">' + lang + stars + '<i class="xp-tn-go">&#8599;</i></div></a>';
     }).join("");
 
-    return '<div class="xp xp-terminalNexus xp-ghost">' + rail +
-      '<div class="xp-tn-frame"></div>' +
+    return '<div class="xp xp-terminalNexus xp-ghost">' + osbar + rail +
       '<main class="xp-tn-main">' +
       '<section id="hero" class="xp-tn-hero xp-hero"><div class="xp-tn-hero-inner">' +
       '<div class="xp-tn-status">LOC_INTERNET <i>//</i> SYS_STATUS: <b>ONLINE</b></div>' +
@@ -129,16 +164,25 @@
       (l.github ? '<a class="xp-tn-btn" href="' + esc(l.github) + '" target="_blank" rel="noreferrer">PING_USER</a>' : "") +
       '</div></div></section>' +
       '<section id="sys" class="xp-tn-section">' + tnHead("01", "SYS_INFO", "ABOUT") +
-      '<div class="xp-tn-win"><div class="xp-tn-winbar"><i></i><i></i><i></i><span>user@ghost:~$ cat about.txt</span></div>' +
-      '<div class="xp-tn-winbody"><p class="xp-tn-bio">' + esc(headline(data)) + '</p>' +
-      '<div class="xp-tn-stats">' + stats + '</div></div></div></section>' +
+      '<div class="xp-tn-sysgrid">' +
+      '<div class="xp-tn-win"><div class="xp-tn-winbar"><span>root@ghost:~# ./whoami.sh</span></div>' +
+      '<div class="xp-tn-winbody"><div class="xp-tn-kv">' +
+      '<div><em>[USER_ID]</em><span>' + esc(name(data)) + '</span></div>' +
+      '<div><em>[ROLE]</em><span>' + esc(role(data)) + '</span></div>' +
+      (loc ? '<div><em>[LOC]</em><span>' + esc(loc) + '</span></div>' : "") +
+      '<div><em>[STATUS]</em><span class="xp-tn-ok">ACTIVE</span></div>' +
+      '</div><p class="xp-tn-bio">&gt; ' + esc(headline(data)) + '</p></div></div>' +
+      '<div class="xp-tn-stats">' + stats + '</div>' +
+      '</div></section>' +
       '<section id="mods" class="xp-tn-section">' + tnHead("02", "MODULES", "CAPABILITIES") +
       '<div class="xp-tn-mods">' + mods + '</div>' +
-      (langs ? '<div class="xp-tn-langs"><span class="xp-tn-langlabel">RUNTIME</span>' + langs + '</div>' : "") + '</section>' +
+      (stackStr ? '<div class="xp-tn-hex reveal"><div class="xp-tn-prompt">root@ghost:~# hexdump -C /var/tech_stack.bin</div>' +
+        '<div class="xp-tn-hexdump">' + tnHexdump(stackStr) + '</div></div>' : "") + '</section>' +
       '<section id="repos" class="xp-tn-section">' + tnHead("03", "DIR_LIST", "PROJECTS") +
+      '<div class="xp-tn-prompt xp-tn-lsprompt">root@ghost:~# ls -lA --sort=stars /var/repos/</div>' +
       '<div class="xp-tn-grid">' + repos + '</div></section>' +
       '<section id="ping" class="xp-tn-section xp-tn-ping">' + tnHead("04", "PING", "CONTACT") +
-      '<div class="xp-tn-console"><div class="xp-tn-winbar"><i></i><i></i><i></i><span>ssh // secure_channel</span></div>' +
+      '<div class="xp-tn-console"><div class="xp-tn-winbar"><span>root@ghost:~# ./ping --secure</span></div>' +
       '<div class="xp-tn-consolebody"><div class="xp-tn-handshake xp-scramble" data-text="INITIATE_HANDSHAKE">INITIATE_HANDSHAKE</div>' +
       (email(data) ? '<button class="xp-tn-mail xp-copy" data-copy="' + esc(email(data)) + '">' + esc(email(data)) + '<i>&#10697;</i></button>' : '<span class="xp-tn-mail">CHANNEL_OPEN</span>') +
       '<div class="xp-tn-links">' +
@@ -503,6 +547,12 @@
         setTimeout(function () { el.removeAttribute("data-copied"); }, 1400);
       });
     });
+    var clock = document.querySelector(".xp-tn-clock");
+    if (clock) {
+      var tick = function () { clock.textContent = new Date().toISOString().slice(11, 19); };
+      tick();
+      setInterval(tick, 1000);
+    }
     var navLinks = document.querySelectorAll(".xp-nav a");
     if ("IntersectionObserver" in window && navLinks.length) {
       var byId = {};

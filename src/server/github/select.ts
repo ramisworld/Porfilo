@@ -43,10 +43,12 @@ export function compactReadme(text: string | null): string | null {
   s = s.replace(/^---\r?\n[\s\S]*?\r?\n---\s*/, ""); // fenced YAML frontmatter
   s = s.replace(/<!--[\s\S]*?-->/g, ""); // HTML comments
   s = s.replace(/<[^>]+>/g, ""); // HTML tags
-  s = s.replace(/!\[[^\]]*\]\([^)]*\)/g, ""); // images / badges
+  s = s.replace(/!\[[^\]]*\]\([^)]*\)/g, ""); // images / badges (inline)
+  s = s.replace(/!\[[^\]]*\]\[[^\]]*\]/g, ""); // images / badges (reference-style)
   s = s.replace(/^\[[^\]]*\]:\s*\S+.*$/gm, ""); // reference-style link defs
   s = s.replace(/^\s*[-*]\s*\[[^\]]*\]\([^)]*\)\s*$/gm, ""); // badge-only list items
   s = s.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1"); // inline links -> link text (empty links vanish)
+  s = s.replace(/\[([^\]]*)\]\[[^\]]*\]/g, "$1"); // reference-style links -> link text
   s = s.replace(/`([^`]*)`/g, "$1"); // inline code ticks
   s = s.replace(/\*\*([^*]+)\*\*/g, "$1"); // bold
   s = s.replace(/(?<!\*)\*(?!\*)([^*\n]+)\*(?!\*)/g, "$1"); // italic

@@ -73,11 +73,14 @@ export function initWebGL(
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
-    antialias: true,
+    // Bloom softens edges, so MSAA on the fullbleed scene is wasted GPU.
+    antialias: contained,
     alpha: true,
     powerPreference: "high-performance",
   });
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  // Cap DPR hard — a fullbleed bloom scene at 2× retina is 4× the fragments for
+  // no visible gain. 1.5 keeps it crisp while cutting GPU/heat dramatically.
+  renderer.setPixelRatio(Math.min(contained ? 2 : 1.5, window.devicePixelRatio || 1));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
   // Fullbleed: opaque dark void so bloom glows over solid black instead of
@@ -144,8 +147,43 @@ export function initWebGL(
   let progress = 0;
   let vel = 0;
   let mode: SceneMode = "calm";
+
+  // ---- thermal governor ----
+  // 1) frame-cap to ~40fps (don't render every 120Hz tick).
+  // 2) pause entirely when the tab is hidden.
+  // 3) fade + pause once the hero is scrolled away — the static void shows through
+  //    and the GPU goes idle while the visitor reads (the big heat win).
+  const TARGET_DT = 1 / 40;
+  let acc = 0;
+  let visible = !document.hidden;
+  document.addEventListener("visibilitychange", () => {
+    visible = !document.hidden;
+    clock.getDelta(); // drop the gap so we don't fast-forward on resume
+  });
+
   const loop = () => {
-    const dt = Math.min(clock.getDelta(), 0.05);
+    requestAnimationFrame(loop);
+    if (!visible) return;
+
+    // Fullbleed: the object owns the hero, then recedes as the hero scrolls out of
+    // view so the content sections stay clean (static void + starfield show
+    // through). Tie this to viewport scroll (robust on short AND long pages), not
+    // the global progress fraction. Gone by ~0.7 viewport scrolled → idle the GPU.
+    if (!contained) {
+      const vh = window.innerHeight || 1;
+      const sy =
+        window.scrollY || document.documentElement.scrollTop || 0;
+      const out = sy / (vh * 0.8);
+      const fade = out <= 0.22 ? 1 : Math.max(0, 1 - (out - 0.22) * 1.7);
+      canvas.style.opacity = String(fade);
+      if (fade <= 0.001) return; // hero gone — idle the GPU
+    }
+
+    acc += clock.getDelta();
+    if (acc < TARGET_DT) return; // frame cap
+    const dt = Math.min(acc, 0.05);
+    acc = 0;
+
     const next = modeFor(progress);
     if (next !== mode) {
       mode = next;
@@ -156,13 +194,7 @@ export function initWebGL(
       bloomBoost *= 0.92;
       bloom.strength = baseBloom + bloomBoost * 1.6;
     }
-    // Fullbleed objects are dramatic in the hero but must RECEDE for the content
-    // sections below, or they wash text out. Fade the canvas as scroll leaves the
-    // hero (1.0 at top → 0.22 by ~40% scroll). Contained objects stay full.
-    // Canvas stays fully opaque (dark void always covers the viewport — never
-    // reveals the page background). The object + rain fade THEMSELVES on scroll.
     composer.render();
-    requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
 
