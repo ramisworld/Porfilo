@@ -46,6 +46,10 @@ export function compactReadme(text: string | null): string | null {
   s = s.replace(/!\[[^\]]*\]\([^)]*\)/g, ""); // images / badges
   s = s.replace(/^\[[^\]]*\]:\s*\S+.*$/gm, ""); // reference-style link defs
   s = s.replace(/^\s*[-*]\s*\[[^\]]*\]\([^)]*\)\s*$/gm, ""); // badge-only list items
+  s = s.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1"); // inline links -> link text (empty links vanish)
+  s = s.replace(/`([^`]*)`/g, "$1"); // inline code ticks
+  s = s.replace(/\*\*([^*]+)\*\*/g, "$1"); // bold
+  s = s.replace(/(?<!\*)\*(?!\*)([^*\n]+)\*(?!\*)/g, "$1"); // italic
   s = s.replace(/^\s+/, "");
   // unfenced frontmatter-ish lead (key: value / "- item" lines) at the very top
   s = s.replace(/^(?:[A-Za-z][\w-]*:[ \t].*\r?\n|\s*-[ \t].*\r?\n)+/, "");

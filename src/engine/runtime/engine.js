@@ -30,6 +30,13 @@
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
   PH.rgba = function (hex, a) { var c = hexToRgb(hex); return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"; };
+  // WCAG relative luminance + contrast ratio — the taste/safety net.
+  function relLum(rgb) {
+    var c = rgb.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  function contrast(a, b) { var la = relLum(a), lb = relLum(b), hi = Math.max(la, lb), lo = Math.min(la, lb); return (hi + 0.05) / (lo + 0.05); }
+  PH.relLum = relLum; PH.contrast = contrast; PH.hexToRgb = hexToRgb;
 
   // ---- theme ----
   function applyTheme(spec) {
@@ -38,6 +45,13 @@
     r.setProperty("--muted", t.muted); r.setProperty("--border", t.border);
     r.setProperty("--accent", t.accent); r.setProperty("--accent2", t.accent2);
     r.setProperty("--glow", t.glow);
+    // Contrast guarantees (no roll is ever unreadable):
+    //  --on-accent: text/icon color that sits ON an accent fill (buttons, active nav).
+    //  --accent-ink: accent used AS text on the page bg; if it fails large-text
+    //                contrast (3:1) we fall back to --fg so it always reads.
+    var aRgb = hexToRgb(t.accent), bgRgb = hexToRgb(t.bg);
+    r.setProperty("--on-accent", relLum(aRgb) > 0.42 ? "#0a0a0a" : "#ffffff");
+    r.setProperty("--accent-ink", contrast(aRgb, bgRgb) >= 3 ? t.accent : t.fg);
     r.setProperty("--radius", { sharp: "2px", soft: "14px", round: "26px" }[t.radius] || "14px");
     var glass = clamp01(t.glass);
     r.setProperty("--card-bg", glass > 0.05 ? PH.rgba(t.surface, 0.35 + glass * 0.4) : t.surface);

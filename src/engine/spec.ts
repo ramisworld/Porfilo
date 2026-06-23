@@ -22,12 +22,12 @@ export const ARCHETYPES = [
 
 export const EXPERIENCE_PACKS = [
   "classic", // backwards-compatible v2 layout
+  "instrument", // engineered Swiss grid + contained 3D viewport (flagship)
+  "brutalist", // hard-edged print/editorial bands + contained exploding cube
+  "aurora", // light/soft premium, rounded frosted cards + contained glowing orb
+  "generative", // parameterized — chrome/hero/container/density rolled from seed
   "terminalNexus", // cyber terminal, telemetry rail, command modules
-  "directorCut", // cinematic acts, letterbox, timeline scrubber
-  "desktopOS", // app windows, taskbar, file explorer metaphor
-  "gameHud", // RPG/player profile, abilities, inventory, quests
-  "liquidGlass", // premium glass/prism editorial system
-  "cosmicLab", // scientific console, orbital cards, star telemetry
+  "directorCut", // cinematic acts, letterbox, fullbleed plasma object
 ] as const;
 
 export const BACKGROUNDS = [
@@ -72,6 +72,15 @@ export const SECTIONS = [
 export const RADII = ["sharp", "soft", "round"] as const;
 export const SCALES = ["compact", "normal", "large"] as const;
 
+// Generative LAYOUT axes — rolled from seed+temperament so the whole page
+// composition (not just the object) varies per run. See the generative engine doc.
+export const CHROMES = ["topbar", "pill", "rail"] as const; // nav style
+export const HEROES = ["split", "centered", "mirror"] as const; // hero composition
+export const CONTAINERS = ["band", "card", "panel"] as const; // section container
+export const DENSITIES = ["tight", "normal", "airy"] as const; // spacing rhythm
+export const BORDERS = ["hairline", "heavy", "none"] as const;
+export const STAGES = ["fullbleed", "viewport", "orb", "bare"] as const; // how the object sits
+
 export const PROJECT_CARD_SKINS = [
   "terminalWindow",
   "glass",
@@ -90,9 +99,22 @@ export const WEBGL_SCENES = [
   "starfield",
   "glassOrb",
   "energyCube",
+  "energySphere",
+  "morphObject", // procedural object — rolled from seed+temperament (generative engine)
   "prismField",
   "voidRings",
   "off",
+] as const;
+
+// Generative engine: a "temperament" centers every rolled knob (object form,
+// motion, layout) so a roll is coherent; the seed + biases add per-run variation
+// within bounds. See docs/SPECKIT-generative-engine.md.
+export const TEMPERAMENTS = [
+  "engineered", // crisp, technical, measured (≈ instrument)
+  "raw", // shattered, heavy, snappy (≈ brutalist)
+  "serene", // calm, floaty, soft (≈ aurora)
+  "cinematic", // dramatic, slow, monolithic
+  "playful", // lively, clustered, bouncy
 ] as const;
 export const CURSORS = ["square", "circle", "dot", "none"] as const;
 export const BOOTS = ["system", "off"] as const;
@@ -154,6 +176,61 @@ export const designSpecSchema = z.object({
     nav: z.enum(NAV_SKINS),
     button: z.enum(BUTTON_SKINS),
   }),
+  // Generative engine knobs. The art-director emits only these few values; the
+  // engine rolls the full object/layout recipe deterministically from `seed`,
+  // centered on `temperament`, nudged by the biases. Kept tiny on purpose.
+  generative: z
+    .object({
+      seed: z.string().default("porthub"),
+      temperament: z.enum(TEMPERAMENTS).default("engineered"),
+      objectComplexity: z.number().min(0).max(1).default(0.5),
+      motionEnergy: z.number().min(0).max(1).default(0.5),
+      density: z.number().min(0).max(1).default(0.5),
+    })
+    .default({
+      seed: "porthub",
+      temperament: "engineered",
+      objectComplexity: 0.5,
+      motionEnergy: 0.5,
+      density: 0.5,
+    }),
+  // Generative LAYOUT recipe — rolled (server-side) from the seed+temperament so
+  // the page composition rolls within ranges. Consumed by the `generative`
+  // experience renderer. Optional/defaulted so legacy specs stay valid.
+  layout: z
+    .object({
+      chrome: z.enum(CHROMES).default("topbar"),
+      hero: z.enum(HEROES).default("split"),
+      container: z.enum(CONTAINERS).default("panel"),
+      density: z.enum(DENSITIES).default("normal"),
+      borders: z.enum(BORDERS).default("hairline"),
+      stage: z.enum(STAGES).default("viewport"),
+      upper: z.boolean().default(true), // uppercase headings
+      accentBlock: z.boolean().default(false), // role shown in an accent block
+    })
+    .default({
+      chrome: "topbar", hero: "split", container: "panel", density: "normal",
+      borders: "hairline", stage: "viewport", upper: true, accentBlock: false,
+    }),
+  // LEXICON — the world's vocabulary. The generative pack routes every label
+  // through this so the page reads bespoke (a "raw" world says THE RECORD /
+  // TRANSMIT, an engineered one INDEX / SIGNAL). Mock fills it from temperament;
+  // the live art-director will write these strings per invented metaphor.
+  lexicon: z
+    .object({
+      nav: z.array(z.string().max(24)).length(4).default(["Home", "About", "Work", "Contact"]),
+      about: z.string().max(40).default("About"),
+      work: z.string().max(40).default("Selected work"),
+      contact: z.string().max(40).default("Contact"),
+      cta: z.string().max(40).default("Let's build"),
+      worksIn: z.string().max(24).default("Works in"),
+      kicker: z.string().max(40).default("Portfolio"),
+    })
+    .default({
+      nav: ["Home", "About", "Work", "Contact"],
+      about: "About", work: "Selected work", contact: "Contact",
+      cta: "Let's build", worksIn: "Works in", kicker: "Portfolio",
+    }),
   // Bespoke escape hatch — CSS only, bounded. Safe inside the sandboxed iframe.
   signatureCss: z.string().max(1200).optional(),
 });
@@ -163,7 +240,7 @@ export type DesignSpec = z.infer<typeof designSpecSchema>;
 /** A guaranteed-valid spec used as the fallback when art-direction fails. */
 export const DEFAULT_SPEC: DesignSpec = {
   archetype: "minimal",
-  experience: "liquidGlass",
+  experience: "generative",
   theme: {
     mode: "dark",
     bg: "#0a0a0f",
@@ -197,5 +274,21 @@ export const DEFAULT_SPEC: DesignSpec = {
     langBar: "bars",
     nav: "bar",
     button: "solid",
+  },
+  generative: {
+    seed: "porthub",
+    temperament: "engineered",
+    objectComplexity: 0.5,
+    motionEnergy: 0.5,
+    density: 0.5,
+  },
+  layout: {
+    chrome: "topbar", hero: "split", container: "panel", density: "normal",
+    borders: "hairline", stage: "viewport", upper: true, accentBlock: false,
+  },
+  lexicon: {
+    nav: ["Home", "About", "Work", "Contact"],
+    about: "About", work: "Selected work", contact: "Contact",
+    cta: "Let's build", worksIn: "Works in", kicker: "Portfolio",
   },
 };

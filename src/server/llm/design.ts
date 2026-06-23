@@ -1,13 +1,15 @@
 import "server-only";
+import { z } from "zod";
 import {
   DEFAULT_SPEC,
-  EXPERIENCE_PACKS,
+  TEMPERAMENTS,
   designSpecSchema,
   type DesignSpec,
 } from "~/engine/spec";
 import type { ProfileData } from "~/server/profile/model";
 import { anthropic, isMock, MODELS, textOf } from "./anthropic";
 import { buildUsageRecord, logUsage, type UsageRecord } from "./cost";
+import { rollLayout, modeForTemperament } from "./roll";
 
 /**
  * Layer 2 — Art-director. Emits a tiny `DesignSpec` (palette + which archetype /
@@ -32,26 +34,49 @@ function pickArchetype(v: string): Archetype {
   return "minimal";
 }
 
-function pickExperience(v: string, arch: Archetype): Experience {
-  if (has(v, "film", "movie", "cinema", "cinematic", "director", "scene", "action", "credits"))
-    return "directorCut";
-  if (has(v, "desktop", "os", "window", "finder", "filesystem", "mac", "linux", "workspace"))
-    return "desktopOS";
-  if (has(v, "game", "rpg", "arcade", "player", "quest", "inventory", "hud", "level"))
-    return "gameHud";
-  if (has(v, "glass", "liquid", "premium", "luxury", "crystal", "prism", "fluid", "water"))
-    return "liquidGlass";
-  if (has(v, "space", "cosmic", "orbit", "lab", "science", "astral", "galaxy", "stellar"))
-    return "cosmicLab";
-  if (has(v, "terminal", "hacker", "cyber", "matrix", "console", "command", "crt", "sys"))
+function pickExperience(v: string): Experience {
+  // Terminal world for hacker/cyber vibes; everything else goes to the GENERATIVE
+  // pack — chrome/hero/container/density/object all rolled from seed+temperament
+  // so every run is unique. (instrument/brutalist/aurora remain in code as the
+  // anchor references the generative ranges were derived from; the old
+  // full-screen-wash packs were removed.)
+  if (has(v, "terminal", "hacker", "cyber", "matrix", "console", "crt", "hacking", "command line"))
     return "terminalNexus";
-  return {
-    terminal: "terminalNexus",
-    editorial: "liquidGlass",
-    brutalist: "directorCut",
-    minimal: "liquidGlass",
-    bento: "gameHud",
-  }[arch] as Experience;
+  if (has(v, "cinematic", "film", "movie", "dramatic", "epic", "noir", "trailer", "title sequence", "directed"))
+    return "directorCut";
+  return "generative";
+}
+
+type Temperament = DesignSpec["generative"]["temperament"];
+
+// The temperament centers every rolled knob (object form, motion). Vibe keywords
+// choose it; otherwise it falls back to the anchor for the chosen experience pack.
+function pickTemperament(v: string, experience: Experience): Temperament {
+  if (has(v, "brutal", "raw", "punk", "industrial", "harsh", "aggressive", "grunge", "mono", "print"))
+    return "raw";
+  if (has(v, "calm", "soft", "serene", "zen", "peaceful", "premium", "elegant", "airy", "gentle", "glass", "luxury", "minimal", "clean"))
+    return "serene";
+  if (has(v, "cinematic", "dramatic", "film", "noir", "epic", "moody", "story", "movie"))
+    return "cinematic";
+  if (has(v, "playful", "fun", "vibrant", "colorful", "bouncy", "friendly", "pop", "lively", "energetic"))
+    return "playful";
+  if (has(v, "engineer", "technical", "precise", "swiss", "grid", "system", "instrument", "blueprint"))
+    return "engineered";
+  // fall back to the anchor temperament of the chosen pack
+  const anchor: Partial<Record<Experience, Temperament>> = {
+    instrument: "engineered",
+    brutalist: "raw",
+    aurora: "serene",
+    terminalNexus: "engineered",
+  };
+  return anchor[experience] ?? "engineered";
+}
+
+// 0..1 bias from "more/less" keyword pairs, default 0.5 (neutral).
+function biasFrom(v: string, more: string[], less: string[]): number {
+  if (has(v, ...more)) return 0.78;
+  if (has(v, ...less)) return 0.24;
+  return 0.5;
 }
 
 // vibe color word → accent hex
@@ -77,7 +102,7 @@ function pickAccent(v: string, arch: Archetype): string {
 
 const SECONDARY: Record<string, string> = {
   "#39ff14": "#00e5ff", "#22c55e": "#0ea5e9", "#22d3ee": "#6366f1", "#14b8a6": "#6366f1",
-  "#3b82f6": "#a855f7", "#6366f1": "#ec4899", "#8b5cf6": "#ec4899", "#ec4899": "#8b5cf6",
+  "#3b82f6": "#a855f7", "#6366f1": "#8b5cf6", "#8b5cf6": "#6366f1", "#ec4899": "#8b5cf6",
   "#ef4444": "#f59e0b", "#f97316": "#ec4899", "#f59e0b": "#ef4444", "#84cc16": "#22d3ee",
   "#c0613a": "#2d6a5f", "#ff3b00": "#0040ff", "#ff5fa2": "#6c7bff", "#6c7bff": "#9a6cff",
 };
@@ -141,36 +166,45 @@ function webglFor(
   arch: Archetype,
   experience: Experience,
 ): DesignSpec["webgl"] {
+  // Contained packs get the GENERATIVE object — rolled per seed+temperament so
+  // every run is unique (energyCube/energySphere are now just two points in that
+  // space). terminalNexus keeps starfield (it's a background, not a stage object).
+  if (experience === "generative" || experience === "instrument" || experience === "brutalist" || experience === "aurora") {
+    return { scene: "morphObject", intensity: 0.6 };
+  }
+  // Bespoke worlds pin their signature fullbleed object (keywords don't override).
+  if (experience === "terminalNexus") return { scene: "energyCube", intensity: 0.9 };
+  if (experience === "directorCut") return { scene: "energySphere", intensity: 1 };
+  // NOTE: only starfield, glassOrb, energyCube, energySphere are implemented; the
+  // others land in later deliverables. Keep routing within the implemented set so
+  // no portfolio shows an empty (invisible-fallback) background.
   let scene: DesignSpec["webgl"]["scene"];
-  if (has(v, "cube", "reactor", "energy", "explosion", "shatter", "artifact"))
+  if (has(v, "cube", "box", "block", "shatter", "explode", "explosion", "reactor"))
     scene = "energyCube";
-  else if (has(v, "prism", "glass", "liquid", "water", "crystal", "bubble", "fluid"))
-    scene = "prismField";
-  else if (has(v, "rings", "orbit", "portal", "void", "black hole"))
-    scene = "voidRings";
-  else if (has(v, "orb", "sphere"))
-    scene = "glassOrb";
-  else if (has(v, "star", "space", "galaxy", "cosmos", "hyper", "warp", "speed", "matrix", "void"))
+  else if (
+    has(v, "sphere", "sun", "orb", "ball", "energy", "plasma", "molten", "core",
+      "liquid", "water", "watery", "fluid", "glass", "crystal", "bubble", "wave")
+  )
+    scene = "energySphere";
+  else if (has(v, "star", "space", "galaxy", "cosmos", "hyper", "warp", "speed", "matrix", "void", "particle"))
     scene = "starfield";
   else
     scene = {
-      classic: { terminal: "starfield", editorial: "glassOrb", brutalist: "off", bento: "glassOrb", minimal: "starfield" }[arch],
+      classic: { terminal: "starfield", editorial: "energySphere", brutalist: "off", bento: "starfield", minimal: "starfield" }[arch],
+      instrument: "energySphere",
+      brutalist: "energyCube",
+      aurora: "energySphere",
       terminalNexus: "energyCube",
-      directorCut: "energyCube",
-      desktopOS: "prismField",
-      gameHud: "voidRings",
-      liquidGlass: "prismField",
-      cosmicLab: "starfield",
+      directorCut: "energySphere",
     }[experience] as DesignSpec["webgl"]["scene"];
   const intensity = {
+    instrument: 0.5,
+    brutalist: 0.7,
+    aurora: 0.6,
     terminalNexus: 0.9,
-    directorCut: 0.9,
-    desktopOS: 0.55,
-    gameHud: 0.8,
-    liquidGlass: 0.65,
-    cosmicLab: 0.85,
+    directorCut: 1,
     classic: { terminal: 0.8, editorial: 0.4, brutalist: 0.3, bento: 0.7, minimal: 0.5 }[arch],
-  }[experience] as number;
+  }[experience];
   return { scene, intensity };
 }
 
@@ -210,18 +244,69 @@ function radiusGlass(arch: Archetype): { radius: DesignSpec["theme"]["radius"]; 
   }[arch];
 }
 
-function mockSpec(_data: ProfileData, vibe: string): DesignSpec {
+// The compact "art direction" — the creative choices only. The MOCK derives it
+// from vibe keywords; the LIVE LLM emits it directly. `assembleSpec` expands it
+// (with deterministic seeded rolls) into the full DesignSpec. One expansion path,
+// two sources — so the live output is exactly as good as the mock.
+interface Direction {
+  archetype: Archetype;
+  experience: Experience;
+  temperament: Temperament;
+  accent: string;
+  accent2?: string;
+  mode: "light" | "dark";
+  objectComplexity: number;
+  motionEnergy: number;
+  density: number;
+}
+
+// Live picks the temperament; archetype (which drives fonts/skins/gimmick) follows
+// from it so the two never disagree.
+const ARCH_FOR_TEMPERAMENT: Record<Temperament, Archetype> = {
+  engineered: "minimal",
+  raw: "brutalist",
+  serene: "editorial",
+  cinematic: "editorial",
+  playful: "bento",
+};
+
+// Per-temperament vocabulary for the generative pack. Title-case here; the engine
+// uppercases where `layout.upper` is set. (Live: the model writes these per metaphor.)
+const LEXICONS: Record<Temperament, DesignSpec["lexicon"]> = {
+  engineered: { nav: ["Index", "System", "Builds", "Signal"], about: "System", work: "Builds", contact: "Signal", cta: "Open channel", worksIn: "Stack", kicker: "Portfolio" },
+  raw: { nav: ["Profile", "Record", "Work", "Transmit"], about: "The record", work: "Selected work", contact: "Transmit", cta: "Let's build", worksIn: "Works in", kicker: "Portfolio" },
+  serene: { nav: ["Home", "About", "Work", "Contact"], about: "About", work: "Selected work", contact: "Contact", cta: "Let's talk", worksIn: "Works in", kicker: "Portfolio" },
+  cinematic: { nav: ["Prologue", "Arc", "Reel", "Credits"], about: "Character arc", work: "The reel", contact: "End of line", cta: "Roll credits", worksIn: "Filmed in", kicker: "A film by" },
+  playful: { nav: ["Hi", "Story", "Stuff", "Say hi"], about: "The story", work: "Cool stuff", contact: "Say hi", cta: "Let's play", worksIn: "Plays with", kicker: "Portfolio" },
+};
+
+function assembleSpec(data: ProfileData, vibe: string, dir: Direction): DesignSpec {
   const v = vibe.toLowerCase();
-  const arch = pickArchetype(v);
-  const experience = pickExperience(v, arch);
-  const mode = pickMode(v, arch);
-  const accent = pickAccent(v, arch);
+  const arch = dir.archetype;
+  const experience = dir.experience;
+  const generative = {
+    // seed = stable per (user, vibe): same input reproduces, different rolls anew
+    seed: `${data.identity.name}·${vibe}`.toLowerCase().trim(),
+    temperament: dir.temperament,
+    objectComplexity: dir.objectComplexity,
+    motionEnergy: dir.motionEnergy,
+    density: dir.density,
+  };
   const { radius, glass } = radiusGlass(arch);
+  const layout = rollLayout(generative.seed, dir.temperament);
+  // A fullbleed additive-glow object only reads on a DARK page — force it, so the
+  // light-mode palettes don't wash the object out.
+  const effMode = layout.stage === "fullbleed" ? "dark" : dir.mode;
+  const theme = { ...palette(effMode, dir.accent), radius, glass };
+  if (dir.accent2) {
+    theme.accent2 = dir.accent2;
+    theme.glow = dir.accent;
+  }
 
   const spec: DesignSpec = {
     archetype: arch,
     experience,
-    theme: { ...palette(mode, accent), radius, glass },
+    theme,
     typography: fontsFor(arch),
     background: { mode: pickBackground(v, arch), intensity: 0.6, speed: 0.5, parallax: 0.6 },
     webgl: webglFor(v, arch, experience),
@@ -232,18 +317,74 @@ function mockSpec(_data: ProfileData, vibe: string): DesignSpec {
     heroGimmick: { type: pickGimmick(v, arch) },
     sections: [{ type: "hero" }, { type: "stats" }, { type: "languages" }, { type: "projects" }, { type: "contact" }],
     skins: skinsFor(arch),
+    generative,
+    layout,
+    lexicon: LEXICONS[dir.temperament] ?? LEXICONS.engineered,
   };
   // Guarantee validity; fall back to default if anything is off.
   const parsed = designSpecSchema.safeParse(spec);
   return parsed.success ? parsed.data : DEFAULT_SPEC;
 }
 
-// ---- live (wired for next chunk; not exercised while MOCK_LLM=true) ----
+function mockSpec(data: ProfileData, vibe: string): DesignSpec {
+  const v = vibe.toLowerCase();
+  const arch = pickArchetype(v);
+  const experience = pickExperience(v);
+  const temperament = pickTemperament(v, experience);
+  // Mode: explicit vibe words win; else the temperament decides (generative pack)
+  // or the dark-pack rule (terminal etc.).
+  const DARK_PACKS = new Set(["instrument", "terminalNexus", "directorCut"]);
+  const askedLight = has(v, "light", "paper", "white", "bright", "day", "cream");
+  const askedDark = has(v, "dark", "night", "black", "noir", "midnight");
+  const mode: "light" | "dark" = askedLight
+    ? "light"
+    : askedDark
+      ? "dark"
+      : experience === "generative"
+        ? modeForTemperament(temperament)
+        : DARK_PACKS.has(experience)
+          ? "dark"
+          : pickMode(v, arch);
+  return assembleSpec(data, vibe, {
+    archetype: arch,
+    experience,
+    temperament,
+    accent: pickAccent(v, arch),
+    mode,
+    objectComplexity: biasFrom(v, ["complex", "intricate", "detailed", "dense", "busy", "many"], ["simple", "clean", "minimal", "sparse"]),
+    motionEnergy: biasFrom(v, ["energetic", "lively", "dynamic", "fast", "animated", "bouncy", "kinetic"], ["calm", "still", "subtle", "slow", "static", "serene"]),
+    density: biasFrom(v, ["dense", "packed", "rich", "busy", "maximal"], ["airy", "spacious", "minimal", "sparse", "clean"]),
+  });
+}
 
-const ART_SYSTEM = `You are an art-director for developer portfolios. Output ONLY a JSON DesignSpec (no prose, no code fences) that maps the user's vibe to a bold, cohesive design. Pick from the allowed enums; choose a striking, accessible palette as hex; optionally add a small CSS-only "signatureCss" flourish (<1KB). The hand-built engine renders it.
+// ---- live art-director: the LLM emits a TINY "direction"; the engine expands it ----
 
-Experience packs: ${EXPERIENCE_PACKS.join(", ")}.
-The experience pack controls the whole portfolio world. Prefer a distinctive pack over generic minimalism.`;
+const hexColor = z.string().regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "hex color");
+
+// Exactly what the model must return — small, so the call stays ~cents.
+const directionSchema = z.object({
+  temperament: z.enum(TEMPERAMENTS),
+  accent: hexColor,
+  accent2: hexColor.optional(),
+  mode: z.enum(["light", "dark"]),
+  experience: z.enum(["generative", "terminalNexus"]).default("generative"),
+  objectComplexity: z.number().min(0).max(1).default(0.5),
+  motionEnergy: z.number().min(0).max(1).default(0.5),
+  density: z.number().min(0).max(1).default(0.5),
+});
+
+const ART_SYSTEM = `You are the art-director for a developer-portfolio generator. Given a USER VIBE, output ONLY a tiny JSON "direction" object — no prose, no code fences, no markdown. The engine expands it into a full interactive design.
+
+Fields:
+- "temperament": one of ${TEMPERAMENTS.map((t) => `"${t}"`).join(", ")} — the personality. engineered = crisp/technical/dark; raw = bold/print/high-contrast; serene = soft/light/premium/calm; cinematic = dramatic/dark/monolithic; playful = light/colorful/lively.
+- "accent": a striking, accessible hex color that fits the vibe (e.g. "#6366f1").
+- "accent2" (optional): a harmonious secondary hex; omit to auto-derive.
+- "mode": "light" or "dark" — the page background tone.
+- "experience": "generative" for almost everything; "terminalNexus" ONLY for explicit hacker/terminal/matrix/CRT vibes.
+- "objectComplexity", "motionEnergy", "density": numbers 0..1 nudging 3D-object detail, motion liveliness, and layout density.
+
+Choose decisively to match the vibe. Example:
+{"temperament":"serene","accent":"#6366f1","mode":"light","experience":"generative","objectComplexity":0.3,"motionEnergy":0.2,"density":0.4}`;
 
 function stripFences(s: string): string {
   return s.replace(/^\s*```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
@@ -252,17 +393,37 @@ function stripFences(s: string): string {
 async function liveDesignSpec(
   data: ProfileData,
   vibe: string,
-): Promise<{ spec: DesignSpec; usage: UsageRecord }> {
-  const msg = await anthropic().messages.create({
-    model: MODELS.design,
-    max_tokens: 2000,
-    system: ART_SYSTEM,
-    messages: [{ role: "user", content: `VIBE: ${vibe}\nNAME: ${data.identity.name}\nROLE: ${data.identity.role}\nReturn the DesignSpec JSON.` }],
+): Promise<{ spec: DesignSpec; usage: UsageRecord | null }> {
+  // $0 test seam: STUB_DIRECTION lets us exercise the live parse→expand→render
+  // pipeline with a hand-written direction JSON and NO API call.
+  const stub = process.env.STUB_DIRECTION;
+  let rawText: string;
+  let usage: UsageRecord | null = null;
+  if (stub) {
+    rawText = stub;
+  } else {
+    const msg = await anthropic().messages.create({
+      model: MODELS.design,
+      max_tokens: 400,
+      system: ART_SYSTEM,
+      messages: [{ role: "user", content: `VIBE: ${vibe}\nNAME: ${data.identity.name}\nROLE: ${data.identity.role}` }],
+    });
+    usage = buildUsageRecord("design (art)", MODELS.design, msg.usage);
+    logUsage(usage);
+    rawText = stripFences(textOf(msg));
+  }
+  const d = directionSchema.parse(JSON.parse(rawText));
+  const spec = assembleSpec(data, vibe, {
+    archetype: ARCH_FOR_TEMPERAMENT[d.temperament],
+    experience: d.experience,
+    temperament: d.temperament,
+    accent: d.accent,
+    accent2: d.accent2,
+    mode: d.mode,
+    objectComplexity: d.objectComplexity,
+    motionEnergy: d.motionEnergy,
+    density: d.density,
   });
-  const usage = buildUsageRecord("design (art)", MODELS.design, msg.usage);
-  logUsage(usage);
-  const raw: unknown = JSON.parse(stripFences(textOf(msg)));
-  const spec = designSpecSchema.parse(raw);
   return { spec, usage };
 }
 

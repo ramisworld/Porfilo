@@ -28,25 +28,28 @@ import { prefersReducedMotion, webglSupported } from "./support";
     document.body.appendChild(sl);
   }
 
-  // WebGL background, or hand off to the engine's 2D background as a fallback.
-  let webgl: WebGLHandle | null = null;
-  const wantsWebGL = spec.webgl.scene !== "off";
-  if (wantsWebGL && webglSupported() && !reduce) {
-    try {
-      webgl = initWebGL(spec);
-    } catch {
-      webgl = null;
-      window.__PHP_FALLBACK_BG = true;
-    }
-  } else {
-    window.__PHP_FALLBACK_BG = true;
-  }
+  // Decide synchronously (engine.boot reads __PHP_FALLBACK_BG before domReady),
+  // but mount the canvas in onReady so a pack's contained #ph-stage exists first.
+  const useWebGL =
+    spec.webgl.scene !== "off" && webglSupported() && !reduce;
+  if (!useWebGL) window.__PHP_FALLBACK_BG = true;
 
   // The base engine calls this once it has built the DOM into #ph-app.
   let ran = false;
   const onReady = () => {
     if (ran) return;
     ran = true;
+    let webgl: WebGLHandle | null = null;
+    if (useWebGL) {
+      try {
+        // A pack may give the object a contained stage; else full-screen.
+        const stage = document.getElementById("ph-stage");
+        webgl = initWebGL(spec, stage);
+      } catch {
+        webgl = null;
+        window.__PHP_FALLBACK_BG = true;
+      }
+    }
     if (webgl && window.PH) {
       const wg = webgl;
       window.PH.onScroll((s) => wg.setProgress(s.progress, s.vel));
