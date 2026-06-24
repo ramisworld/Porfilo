@@ -27,8 +27,12 @@
     return s.replace(/^https?:\/\/(www\.)?/, "").replace(/\/.*$/, "");
   }
   function l_safe(v) { return v || ""; }
-  // one aligned key/value row for the whoami windows
-  function tnKv(k, v) { return '<div><em>' + esc(k) + '</em><span>' + esc(v) + '</span></div>'; }
+  // one aligned key/value row for the terminal readouts. `mod` adds a class so
+  // the hero session can tint labels differently from the SYS_INFO panel.
+  function tnKv(k, v, mod) {
+    return '<div' + (mod ? ' class="' + mod + '"' : '') + '><em>' + esc(k) +
+      '</em><span>' + esc(v) + '</span></div>';
+  }
 
   function abilities(data) {
     var out = arr(data.abilities);
@@ -98,13 +102,13 @@
   }
 
   function tnHead(num, a, b) {
-    return '<div class="xp-tn-head">' +
+    return '<div class="xp-tn-head reveal">' +
       '<h2 class="xp-tn-h2">' + a + ' <i>//</i> ' + b + '</h2>' +
       '<span class="xp-tn-rule"></span><span class="xp-tn-idx">0:' + num + '</span></div>';
   }
 
-  // Render a string as a real-looking `hexdump -C` block (offset, hex pairs, ASCII
-  // column) — the killer hacker detail, built from the user's actual tech stack.
+  // Render a string as a real `hexdump -C` block (offset, hex pairs, ASCII
+  // column) — a hacker detail built from the user's actual tech stack.
   function tnHexdump(s) {
     s = String(s).slice(0, 96);
     var out = "";
@@ -127,114 +131,116 @@
     return out;
   }
 
+  // Authored focus line — ProfileData has no `focus` field, so the engine owns a
+  // sensible, role-aware default an AI engineer can edit. Kept terse on purpose.
+  function tnFocus(data) {
+    var r = (role(data) || "").toLowerCase();
+    if (/ai|ml|machine|agent|llm|model/.test(r)) return "LLMs \u00b7 agents \u00b7 developer tooling";
+    if (/full.?stack|backend|frontend|web/.test(r)) return "Systems \u00b7 interfaces \u00b7 tooling";
+    return "Systems \u00b7 tooling \u00b7 interfaces";
+  }
+
+  // FIELD_LOG — authored entries in an AI-engineer's voice. Specific, technical,
+  // no lorem. Lives in the shared engine as the showcase's "lab notes" feed.
+  var TN_LOG = [
+    { hash: "a1f9c2", t: "2026-06-21", k: "agent eval harness",
+      b: "Wired a deterministic grader into the agent loop. Trace-level scoring cut false-positive tool calls by ~40% on the eval set. Still hunting the last retry storm." },
+    { hash: "7e0b18", t: "2026-06-14", k: "QLoRA on a 7B base",
+      b: "Ran QLoRA with synthetic + LLM-judged pairs. Judge tracked the human rubric within 0.08 kappa. Cheaper than expected \u2014 latency is the real constraint." },
+    { hash: "c43d77", t: "2026-06-07", k: "streaming UX",
+      b: "Swapped request/response for token streaming with a cancelable abort. First token under 300ms, perceived latency collapsed. It finally feels like a conversation." },
+    { hash: "0e8a5b", t: "2026-05-29", k: "RAG that doesn't lie",
+      b: "Added citations plus a retrieval guard that refuses when grounding is weak. Accuracy up \u2014 but people trust the \u2018I don\u2019t know\u2019 more than the confident answer. Noted." },
+  ];
+  function tnFieldLog() {
+    return TN_LOG.map(function (e) {
+      return '<div class="xp-tn-logentry reveal"><span class="xp-tn-loghash">' + esc(e.hash) + '</span>' +
+        '<span class="xp-tn-logtime">' + esc(e.t) + '</span>' +
+        '<p><b>' + esc(e.k) + '</b> \u2014 ' + esc(e.b) + '</p></div>';
+    }).join("");
+  }
+
   function terminalNexus(data) {
     var l = links(data);
     var loc = identity(data).location || "";
+    var handle = ghHandle(data) || name(data);
+    var host = siteHost(data);
+    var brand = (handle || name(data) || "ghost").toUpperCase();
+    var user = brand.toLowerCase();
+
     var items = [
       { id: "hero", k: "00", label: "ROOT" },
-      { id: "sys", k: "01", label: "SYS_INFO" },
-      { id: "mods", k: "02", label: "MODULES" },
-      { id: "repos", k: "03", label: "DIR_LIST" },
-      { id: "ping", k: "04", label: "PING" },
+      { id: "status", k: "01", label: "STATUS" },
+      { id: "systems", k: "02", label: "SYSTEMS" },
+      { id: "log", k: "03", label: "FIELD_LOG" },
+      { id: "ping", k: "04", label: "SIGNAL" },
     ];
     var rail = '<nav class="xp-nav xp-tn-rail" aria-label="Sections">' + items.map(function (it, i) {
       return '<a href="#' + it.id + '" class="' + (i === 0 ? "active" : "") + '"><em>' + it.k + '</em><span>' + esc(it.label) + '</span></a>';
     }).join("") + '</nav>';
 
-    // ---- top: slim terminal HUD strip only (no fake browser chrome) ----
+    // ---- top telemetry HUD strip ----
     var strip = '<header class="xp-tn-strip">' +
-      '<span class="xp-tn-strip-brand">RAMISWORLD <b>&gt;_</b></span>' +
-      '<span class="xp-tn-strip-up">UPLINK: <b>SECURE</b> <i class="xp-tn-blink">&#9679;</i></span>' +
+      '<span class="xp-tn-strip-brand"><b>&gt;_</b> ' + esc(brand) +
+      (host ? '<i>//</i><span class="xp-tn-host">' + esc(host) + '</span>' : '') + '</span>' +
+      '<span class="xp-tn-strip-mid"><span class="xp-tn-up">UPLINK <b>SECURE</b></span>' +
+      '<i class="xp-tn-blink">&#9679;</i><span class="xp-tn-lat">LAT <b>24</b>ms</span></span>' +
       '<span class="xp-tn-strip-r">TMP <b class="xp-tn-temp">41.2&#176;C</b> <i>//</i> <span class="xp-tn-clock">00:00:00</span> UTC</span>' +
       '</header>';
 
-    // upper-right hero nav (visual; not wired to the section IO)
-    var hnavItems = [
-      { id: "repos", label: "Work" }, { id: "repos", label: "Projects" },
-      { id: "mods", label: "Notes" }, { id: "sys", label: "About" }, { id: "ping", label: "Contact" },
-    ];
-    var hnav = '<nav class="xp-tn-hnav">' + hnavItems.map(function (it, i) {
-      return '<a href="#' + it.id + '"' + (i === 0 ? ' class="active"' : "") + '>' + esc(it.label) + '</a>';
-    }).join("") + '</nav>';
+    var progress = '<div class="xp-tn-progress" aria-hidden="true"><i></i></div>';
 
-    var chrome = strip;
+    // ---- macOS liquid-glass terminal (hero centerpiece; carries ALL identity) ----
+    // No mac-dot chrome repeats the identity chips — whoami lives in here only.
+    var term = '<div class="xp-tn-term reveal" id="ph-term">' +
+      '<div class="xp-tn-term-glow" aria-hidden="true"></div>' +
+      '<div class="xp-tn-term-bar"><span class="xp-tn-term-dots"><i></i><i></i><i></i></span>' +
+      '<span class="xp-tn-term-title">' + esc(user) + '@' + esc(user) + ' \u2014 bash \u2014 96\u00d728</span>' +
+      '<span class="xp-tn-term-meta"><i class="xp-tn-term-dot"></i>PTY/0</span></div>' +
+      '<div class="xp-tn-term-body" id="ph-term-out"></div>' +
+      '<div class="xp-tn-term-in"><span class="xp-tn-term-pr">' + esc(user) + '@' + esc(user) + ':~$</span>' +
+      '<input id="ph-term-input" class="xp-tn-term-field" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="terminal input" /></div>' +
+      '<div class="xp-tn-term-hint">type <b>help</b> \u2192 commands &nbsp;\u00b7&nbsp; \u2191\u2193 history &nbsp;\u00b7&nbsp; <b>tab</b> complete</div>' +
+      '</div>';
 
-    var stats = arr(data.stats).slice(0, 3).map(function (s) {
-      return '<div class="xp-tn-stat reveal"><b>' + esc(s.value) + '</b><span>' + esc(s.label) + '</span></div>';
+    // ---- STATUS telemetry band (real stats) ----
+    var stats = arr(data.stats).slice(0, 4).map(function (s, i) {
+      return '<div class="xp-tn-tstat reveal" style="--i:' + i + '"><b>' + esc(s.value) + '</b><span>' + esc(s.label) + '</span></div>';
     }).join("");
-    var mods = abilities(data).map(function (a, i) {
-      return '<div class="xp-tn-mod reveal"><em>' + String(i + 1).padStart(2, "0") + '</em><span>' + esc(a.label) + '</span></div>';
-    }).join("");
-    var stackStr = arr(data.languages).map(function (x) { return x.label; }).join(", ");
-    if (!stackStr) stackStr = abilities(data).map(function (a) { return a.label; }).join(", ");
-    var repos = arr(data.projects).slice(0, 6).map(function (p) {
-      var lang = arr(p.tech)[0] ? '<span class="xp-tn-lang"><i></i>' + esc(arr(p.tech)[0]) + '</span>' : "";
+
+    // ---- SYSTEMS — minimal horizontal project grid (3 up / 3 down), shaped ----
+    var repos = arr(data.projects).slice(0, 6).map(function (p, i) {
+      var tech = arr(p.tech).slice(0, 3).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("");
       var stars = p.stars ? '<span class="xp-tn-star">&#9733; ' + esc(p.stars) + '</span>' : "";
-      return '<a class="xp-tn-card reveal" href="' + esc(p.repoUrl) + '" target="_blank" rel="noreferrer">' +
-        '<div class="xp-tn-cardname">./' + esc(p.name) + '</div>' +
+      return '<a class="xp-tn-card reveal" style="--i:' + i + '" href="' + esc(p.repoUrl) + '" target="_blank" rel="noreferrer">' +
+        '<div class="xp-tn-card-glow" aria-hidden="true"></div>' +
+        '<div class="xp-tn-card-top"><span class="xp-tn-card-idx">' + String(i + 1).padStart(2, "0") + '</span>' + stars + '</div>' +
+        '<div class="xp-tn-cardname">' + esc(p.name) + '</div>' +
         '<p>' + esc(p.blurb || "Repository.") + '</p>' +
-        '<div class="xp-tn-cardmeta">' + lang + stars + '<i class="xp-tn-go">&#8599;</i></div></a>';
+        '<div class="xp-tn-card-foot"><div class="xp-tn-tech">' + tech + '</div><i class="xp-tn-go">&#8599;</i></div></a>';
     }).join("");
 
-    // hero whoami.sh — curated, compact key/values (§4a). Top 3 abilities + top
-    // 5 langs (stack capped ~52 chars, else drop to 4). Omit any absent line.
-    var focus3 = abilities(data).slice(0, 3).map(function (a) { return a.label; }).join(", ");
-    var langs5 = arr(data.languages).slice(0, 5).map(function (x) { return x.label; }).join(", ");
-    if (langs5 && langs5.length > 52) {
-      langs5 = arr(data.languages).slice(0, 4).map(function (x) { return x.label; }).join(", ");
-    }
-    // hero whoami.sh — hand-crafted target readout (exact copy for the showcase
-    // hero). Labels green, values off-white, $ prompts, one blinking cursor.
-    var whoami = '<div class="xp-tn-whoami">' +
-      '<div class="xp-tn-wbar"><div class="xp-tn-dots"><i></i><i></i><i></i></div><span>whoami.sh</span></div>' +
-      '<div class="xp-tn-wbody">' +
-      '<div class="xp-tn-wprompt">$ whoami.sh</div>' +
-      '<div class="xp-tn-kv">' +
-      tnKv("name", "Rami Alobaidy") +
-      tnKv("role", "AI Engineer") +
-      tnKv("location", "Auckland, New Zealand") +
-      tnKv("focus", "LLMs, agents, interfaces") +
-      tnKv("stack", "Python, TypeScript, PyTorch, LangChain, Next.js") +
-      tnKv("email", "rami@ramisworld.dev") +
-      tnKv("site", "ramisworld.dev") +
-      tnKv("github", "@RAMISWORLD") +
-      '</div>' +
-      '<div class="xp-tn-wprompt">$ <span class="xp-tn-caret"></span></div>' +
-      '</div></div>';
-
-    return '<div class="xp xp-terminalNexus xp-ghost">' + chrome + hnav + rail +
-      '<div class="xp-tn-scanlines" aria-hidden="true"></div>' +
+    return '<div class="xp xp-terminalNexus xp-ghost">' + strip + progress + rail +
       '<div class="xp-tn-vignette" aria-hidden="true"></div>' +
       '<section id="hero" class="xp-tn-hero xp-hero"><div class="xp-tn-hero-inner">' +
-      '<div class="xp-tn-vidx"><span>01</span><i class="xp-tn-vidx-dot"></i></div>' +
-      '<div class="xp-tn-eyebrow">AI ENGINEER</div>' +
-      '<h1 class="ph-display xp-tn-name xp-scramble" data-text="Rami Alobaidy">Rami Alobaidy</h1>' +
-      '<div class="xp-tn-underline"></div>' +
-      '<p class="xp-tn-copy">Building AI systems, agents, and interfaces.</p>' +
-      whoami +
+      '<div class="xp-tn-eyebrow">// SECURE_SHELL \u2014 session established</div>' +
+      '<h1 class="ph-display xp-tn-name xp-scramble" data-text="' + esc(brand) + '">' + esc(brand) + '</h1>' +
+      '<div class="xp-tn-roleline"><i class="xp-tn-role-dot"></i><span class="xp-tn-role">' + esc(role(data)) + '</span><span class="xp-tn-caret"></span></div>' +
+      term +
       '</div></section>' +
       '<main class="xp-tn-main">' +
-      '<section id="sys" class="xp-tn-section">' + tnHead("01", "SYS_INFO", "ABOUT") +
-      '<div class="xp-tn-sysgrid">' +
-      '<div class="xp-tn-win"><div class="xp-tn-winbar"><span>root@ghost:~# ./whoami.sh</span></div>' +
-      '<div class="xp-tn-winbody"><div class="xp-tn-kv">' +
-      '<div><em>[USER_ID]</em><span>' + esc(name(data)) + '</span></div>' +
-      '<div><em>[ROLE]</em><span>' + esc(role(data)) + '</span></div>' +
-      (loc ? '<div><em>[LOC]</em><span>' + esc(loc) + '</span></div>' : "") +
-      '<div><em>[STATUS]</em><span class="xp-tn-ok">ACTIVE</span></div>' +
-      '</div><p class="xp-tn-bio">&gt; ' + esc(headline(data)) + '</p></div></div>' +
-      '<div class="xp-tn-stats">' + stats + '</div>' +
-      '</div></section>' +
-      '<section id="mods" class="xp-tn-section">' + tnHead("02", "MODULES", "CAPABILITIES") +
-      '<div class="xp-tn-mods">' + mods + '</div>' +
-      (stackStr ? '<div class="xp-tn-hex reveal"><div class="xp-tn-prompt">root@ghost:~# hexdump -C /var/tech_stack.bin</div>' +
-        '<div class="xp-tn-hexdump">' + tnHexdump(stackStr) + '</div></div>' : "") + '</section>' +
-      '<section id="repos" class="xp-tn-section">' + tnHead("03", "DIR_LIST", "PROJECTS") +
-      '<div class="xp-tn-prompt xp-tn-lsprompt">root@ghost:~# ls -lA --sort=stars /var/repos/</div>' +
+      '<section id="status" class="xp-tn-section xp-tn-status">' + tnHead("01", "STATUS", "TELEMETRY") +
+      '<div class="xp-tn-prompt xp-tn-lsprompt">root@' + esc(user) + ':~# proc/status --live</div>' +
+      '<div class="xp-tn-tstats">' + stats + '</div></section>' +
+      '<section id="systems" class="xp-tn-section xp-tn-systems">' + tnHead("02", "SYSTEMS", "DIR_LIST") +
+      '<div class="xp-tn-prompt xp-tn-lsprompt">root@' + esc(user) + ':~# ls -lA --sort=stars /var/repos/ \u00b7 6 found</div>' +
       '<div class="xp-tn-grid">' + repos + '</div></section>' +
-      '<section id="ping" class="xp-tn-section xp-tn-ping">' + tnHead("04", "PING", "CONTACT") +
-      '<div class="xp-tn-console"><div class="xp-tn-winbar"><span>root@ghost:~# ./ping --secure</span></div>' +
-      '<div class="xp-tn-consolebody"><div class="xp-tn-handshake xp-scramble" data-text="INITIATE_HANDSHAKE">INITIATE_HANDSHAKE</div>' +
+      '<section id="log" class="xp-tn-section">' + tnHead("03", "FIELD_LOG", "NOTES") +
+      '<div class="xp-tn-prompt xp-tn-lsprompt">root@' + esc(user) + ':~# tail -n 4 /var/log/field.log</div>' +
+      '<div class="xp-tn-log">' + tnFieldLog() + '</div></section>' +
+      '<section id="ping" class="xp-tn-section xp-tn-ping">' + tnHead("04", "SIGNAL", "PING") +
+      '<div class="xp-tn-console"><div class="xp-tn-panelbar"><span>root@' + esc(user) + ':~# ./ping --secure</span><i class="xp-tn-panel-dot"></i></div>' +
+      '<div class="xp-tn-consolebody"><div class="xp-tn-handshake xp-scramble" data-text="initiate_handshake">initiate_handshake</div>' +
       (email(data) ? '<button class="xp-tn-mail xp-copy" data-copy="' + esc(email(data)) + '">' + esc(email(data)) + '<i>&#10697;</i></button>' : '<span class="xp-tn-mail">CHANNEL_OPEN</span>') +
       '<div class="xp-tn-links">' +
       (l.github ? '<a href="' + esc(l.github) + '" target="_blank" rel="noreferrer">GITHUB &#8599;</a>' : "") +
@@ -242,7 +248,7 @@
       (loc ? '<span class="xp-tn-loc">' + esc(loc) + '</span>' : "") +
       '</div></div></div></section>' +
       '</main>' +
-      '<footer class="xp-tn-foot"><span>ENCRYPTED_CONNECTION</span><span>' + esc(name(data)) + '</span><span>&#169; 2026 &#47;&#47; INTERNET</span></footer>' +
+      '<footer class="xp-tn-foot"><span>ENCRYPTED_CONNECTION</span><span>' + esc(brand) + '</span><span>&#169; 2026 &#47;&#47; INTERNET</span></footer>' +
       '</div>';
   }
 
@@ -580,7 +586,7 @@
   }
 
   function mount() {
-    document.querySelectorAll(".xp-card,.xp-project,.xp-action,.xp-window").forEach(function (el) {
+    document.querySelectorAll(".xp-card,.xp-project,.xp-action,.xp-window,.xp-tn-card").forEach(function (el) {
       el.addEventListener("pointermove", function (e) {
         var r = el.getBoundingClientRect();
         el.style.setProperty("--mx", (e.clientX - r.left) + "px");
@@ -626,12 +632,300 @@
     }
   }
 
+  // ---- GHOST//SHELL mount: interactive terminal + matrix rain + live signal ----
+  function tnMount(data, spec) {
+    mount(data, spec); // shared wiring (cursor-glow, scramble, copy, clock, nav)
+
+    var user = (ghHandle(data) || name(data) || "ghost").toLowerCase();
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var coarse = window.matchMedia && window.matchMedia("(pointer:coarse)").matches;
+
+    // scroll-progress hairline under the HUD
+    var pbar = document.querySelector(".xp-tn-progress > i");
+    if (pbar && window.PH && typeof window.PH.onScroll === "function") {
+      window.PH.onScroll(function (s) {
+        pbar.style.transform = "scaleX(" + (s.progress).toFixed(3) + ")";
+      });
+    }
+
+    // drifting latency — feels alive, never noisy
+    var latEl = document.querySelector(".xp-tn-lat b");
+    if (latEl) {
+      setInterval(function () {
+        latEl.textContent = String(18 + Math.round(Math.sin(Date.now() / 4700) * 6 + Math.random() * 4));
+      }, 1600);
+    }
+
+    if (!reduce && !coarse) {
+      tnNameTilt();
+      tnCardTilt();
+    }
+    tnTerminal(data, user);
+  }
+
+  // RAMISWORLD — 3D parallax tilt toward the cursor + glow follows. The name
+  // leans in space under your hand; scramble fires on enter (via mount()).
+  function tnNameTilt() {
+    var nameEl = document.querySelector(".xp-tn-name");
+    var hero = document.querySelector(".xp-tn-hero");
+    if (!nameEl || !hero) return;
+    var raf = 0, nx = 0, ny = 0, tx = 0, ty = 0;
+    function apply() {
+      raf = 0;
+      nx += (tx - nx) * 0.12; ny += (ty - ny) * 0.12;
+      nameEl.style.setProperty("--nx", nx.toFixed(2) + "deg");
+      nameEl.style.setProperty("--ny", ny.toFixed(2) + "deg");
+    }
+    hero.addEventListener("pointermove", function (e) {
+      var r = nameEl.getBoundingClientRect();
+      var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      tx = ((e.clientX - cx) / (window.innerWidth / 2)) * 7;
+      ty = -((e.clientY - cy) / (window.innerHeight / 2)) * 5;
+      if (!raf) raf = requestAnimationFrame(apply);
+    });
+    hero.addEventListener("pointerleave", function () {
+      tx = 0; ty = 0;
+      if (!raf) raf = requestAnimationFrame(apply);
+    });
+  }
+
+  // Project cards — 3D tilt toward the cursor (the radial glow follows via the
+  // --mx/--my pointer handler in mount()). Brings the grid alive under the hand.
+  function tnCardTilt() {
+    document.querySelectorAll(".xp-tn-card").forEach(function (card) {
+      card.addEventListener("pointermove", function (e) {
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.setProperty("--rx", (-py * 9).toFixed(2) + "deg");
+        card.style.setProperty("--ry", (px * 11).toFixed(2) + "deg");
+      });
+      card.addEventListener("pointerleave", function () {
+        card.style.setProperty("--rx", "0deg");
+        card.style.setProperty("--ry", "0deg");
+      });
+    });
+  }
+
+  // The interactive terminal — the hero centerpiece. Real commands operate on
+  // the live ProfileData; history + autocomplete-ish prefix matching included.
+  function tnTerminal(data, user) {
+    var term = document.getElementById("ph-term");
+    var out = document.getElementById("ph-term-out");
+    var input = document.getElementById("ph-term-input");
+    if (!term || !out || !input) return;
+    var pr = user + "@" + user + ":~$";
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var projects = arr(data.projects);
+    var langs = arr(data.languages);
+    var l = links(data);
+    var host = siteHost(data);
+    var loc = identity(data).location || "";
+    var stackStr = langs.map(function (x) { return x.label; }).join(", ") || "\u2014";
+    var hist = [], hc = -1;
+
+    function line(html, cls) {
+      var d = document.createElement("div");
+      d.className = "xp-tn-tout" + (cls ? " " + cls : "");
+      d.innerHTML = html;
+      out.appendChild(d);
+      out.scrollTop = out.scrollHeight;
+      // cap scrollback
+      while (out.childNodes.length > 240) out.removeChild(out.firstChild);
+    }
+    function plain(t, cls) { line(esc(t), cls); }
+    function echo(cmd) { line('<span class="xp-tn-tpr">' + esc(pr) + '</span> ' + esc(cmd), "xp-tn-techo"); }
+    function blank() { line(""); }
+
+    var kv = function (k, v, sig) {
+      return '<div class="xp-tn-tkv"><em>' + esc(k) + '</em><span' + (sig ? ' class="sig"' : "") + '>' + esc(v) + '</span></div>';
+    };
+
+    var cmds = {
+      help: function () {
+        plain("available commands:", "dim");
+        line('<span class="grid">  <b>whoami</b> identity readout    <b>ls</b> list systems\n  <b>cat &lt;name&gt;</b> open a system    <b>stack</b> tech stack dump\n  <b>stats</b> telemetry    <b>contact</b> signal channels\n  <b>social</b> outbound links    <b>neofetch</b> system summary\n  <b>history</b> command log    <b>clear</b> wipe screen\n  <b>date</b> system clock</span>');
+      },
+      whoami: function () {
+        line('<div class="xp-tn-twhoami">' +
+          kv("name", name(data)) + kv("role", role(data)) +
+          (loc ? kv("location", loc) : "") + kv("focus", tnFocus(data)) +
+          kv("stack", stackStr) + kv("status", "ACTIVE", true) +
+          kv("uplink", "SECURE", true) +
+          (host ? kv("site", host) : "") +
+          (ghHandle(data) ? kv("github", "@" + ghHandle(data)) : "") +
+          (email(data) ? kv("email", email(data)) : "") + "</div>");
+      },
+      ls: function () { return cmds.dir(); },
+      dir: function () {
+        if (!projects.length) { plain("(empty) no systems indexed", "dim"); return; }
+        projects.forEach(function (p, i) {
+          var st = p.stars ? ' <span class="amber">\u2605 ' + esc(p.stars) + "</span>" : "";
+          line('<span class="xp-tn-trow"><em>' + String(i + 1).padStart(2, "0") + "</em> ./" +
+            esc(p.name) + st + ' <span class="dim">\u2014 ' + esc((p.blurb || "").slice(0, 60)) + "</span></span>");
+        });
+        plain("  \u2014 " + projects.length + " systems \u00b7 use `cat <name>` to inspect", "dim");
+      },
+      projects: function () { return cmds.dir(); },
+      cat: function (arg) {
+        if (!arg) { plain("usage: cat <system-name>", "dim"); return; }
+        var q = arg.toLowerCase();
+        var p = null;
+        for (var i = 0; i < projects.length; i++) {
+          if (projects[i].name.toLowerCase().indexOf(q) !== -1) { p = projects[i]; break; }
+        }
+        if (!p) { plain("cat: " + arg + ": no such system", "err"); return; }
+        line('<div class="xp-tn-twhoami">' + kv("name", p.name) + kv("blurb", p.blurb || "\u2014") +
+          (arr(p.tech).length ? kv("tech", arr(p.tech).join(", ")) : "") +
+          (p.stars != null ? kv("stars", String(p.stars), true) : "") +
+          kv("repo", p.repoUrl) + "</div>");
+        line('<a class="xp-tn-tlink" href="' + esc(p.repoUrl) + '" target="_blank" rel="noreferrer">open in browser \u2197</a>');
+      },
+      open: function (a) { return cmds.cat(a); },
+      stack: function () {
+        if (!stackStr || stackStr === "\u2014") { plain("(no stack data)", "dim"); return; }
+        line('<span class="dim">root@' + esc(user) + ':~# hexdump -C /var/stack.bin</span>');
+        line('<div class="xp-tn-thex">' + tnHexdump(stackStr) + "</div>");
+      },
+      stats: function () {
+        if (!arr(data.stats).length) { plain("(no telemetry)", "dim"); return; }
+        arr(data.stats).forEach(function (s) {
+          line('<span class="xp-tn-trow"><b>' + esc(s.value) + "</b> <span class=\"dim\">" + esc(s.label) + "</span></span>");
+        });
+      },
+      contact: function () {
+        if (email(data)) line('<button class="xp-tn-temail xp-copy" data-copy="' + esc(email(data)) + '">' + esc(email(data)) + " \u2197</button>");
+        else plain("(no email channel)", "dim");
+        cmds.social();
+      },
+      social: function () {
+        var rows = "";
+        if (l.github) rows += '<span class="xp-tn-trow"><em>github</em><a href="' + esc(l.github) + '" target="_blank" rel="noreferrer">' + esc(l.github.replace(/^https?:\/\//, "")) + " \u2197</a></span>";
+        if (l.site) rows += '<span class="xp-tn-trow"><em>site</em><a href="' + esc(l.site) + '" target="_blank" rel="noreferrer">' + esc(host || l.site) + " \u2197</a></span>";
+        line(rows || '<span class="dim">(no outbound links)</span>');
+      },
+      neofetch: function () {
+        var upH = Math.floor((Date.now() / 3600000) % 24), upM = Math.floor((Date.now() / 60000) % 60), upS = Math.floor((Date.now() / 1000) % 60);
+        var up = String(upH).padStart(2, "0") + ":" + String(upM).padStart(2, "0") + ":" + String(upS).padStart(2, "0");
+        var logo = [
+          "   \u2584\u2580\u2584  ",
+          "  \u2588 o o \u2588  ",
+          "  \u2588\\___/\u2588  ",
+          "  /  W  \\  ",
+          "  \\_____/  "
+        ];
+        var info = [
+          user + "@" + user,
+          "─────────────",
+          "OS:     GHOST//SHELL v2",
+          "ROLE:   " + role(data),
+          "UPTIME: " + up,
+          "STACK:  " + (stackStr.length > 34 ? stackStr.slice(0, 31) + "..." : stackStr),
+          "REPOS:  " + projects.length,
+          "STATUS: \u25cf ACTIVE"
+        ];
+        var rows = "";
+        for (var i = 0; i < Math.max(logo.length, info.length); i++) {
+          rows += '<span class="xp-tn-trow nf">' + (logo[i] || "           ") + "  " + (info[i] || "") + "</span>";
+        }
+        line('<div class="xp-tn-tnf">' + rows + "</div>");
+      },
+      history: function () {
+        if (!hist.length) { plain("(empty history)", "dim"); return; }
+        hist.forEach(function (h, i) { line('<span class="dim">' + String(i + 1).padStart(3, " ") + "  " + esc(h) + "</span>"); });
+      },
+      date: function () { plain(new Date().toString(), "dim"); },
+      clear: function () { out.innerHTML = ""; },
+      sudo: function () { plain("permission denied: you are not in the sudoers file. this incident will be reported.", "err"); },
+      exit: function () { plain("connection held by remote \u2014 you cannot leave.", "amber"); }
+    };
+
+    function run(raw) {
+      var cmd = (raw || "").trim();
+      if (!cmd) return;
+      hist.push(cmd); hc = hist.length;
+      echo(cmd);
+      var parts = cmd.split(/\s+/);
+      var head = parts[0].toLowerCase();
+      var arg = parts.slice(1).join(" ");
+      if (cmds[head]) cmds[head](arg);
+      else plain("command not found: " + head + " \u2014 type 'help'", "err");
+    }
+
+    // boot sequence — auto-runs whoami so the hero is rich without typing
+    function bootSeq() {
+      line('<span class="dim">GHOST//SHELL v2 \u2014 secure shell established</span>');
+      line('<span class="dim">type <b>help</b> for commands, or inspect a system with <b>cat &lt;name&gt;</b></span>');
+      blank();
+      cmds.whoami();
+      blank();
+    }
+
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        run(input.value);
+        input.value = "";
+        if (hc !== hist.length) hc = hist.length;
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (!hist.length) return;
+        hc = Math.max(0, hc - 1);
+        input.value = hist[hc] || "";
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (!hist.length) return;
+        hc = Math.min(hist.length, hc + 1);
+        input.value = hist[hc] || "";
+      } else if (e.key === "Tab") {
+        e.preventDefault();
+        var v = input.value.trim().toLowerCase();
+        if (!v) return;
+        var names = Object.keys(cmds).concat(projects.map(function (p) { return p.name.toLowerCase(); }));
+        var hit = null;
+        for (var i = 0; i < names.length; i++) { if (names[i].indexOf(v) === 0) { hit = names[i]; break; } }
+        if (hit) input.value = hit;
+      } else if (e.key === "l" && e.ctrlKey) {
+        e.preventDefault(); cmds.clear();
+      }
+    });
+
+    // click anywhere in the terminal → focus the input
+    term.addEventListener("click", function () { input.focus(); });
+    // prefix-link clicks inside output (e.g. open-in-browser) shouldn't steal focus oddly
+    out.addEventListener("click", function (e) {
+      if (e.target.closest("a,button")) return;
+      input.focus();
+    });
+
+    if (reduce) { bootSeq(); }
+    else {
+      // type the boot line, then show whoami
+      var bt = "GHOST//SHELL v2 \u2014 secure shell established", bi = 0;
+      var bLine = document.createElement("div");
+      bLine.className = "xp-tn-tout dim";
+      out.appendChild(bLine);
+      var typer = setInterval(function () {
+        bi++;
+        bLine.textContent = bt.slice(0, bi) + (bi < bt.length ? "\u2588" : "");
+        out.scrollTop = out.scrollHeight;
+        if (bi >= bt.length) {
+          clearInterval(typer);
+          line('<span class="dim">type <b>help</b> for commands, or inspect a system with <b>cat &lt;name&gt;</b></span>');
+          blank();
+          cmds.whoami();
+          blank();
+          input.focus();
+        }
+      }, 22);
+    }
+  }
+
   PH.experiences = {
     generative: { render: generative, mount: mount },
     instrument: { render: instrument, mount: mount },
     brutalist: { render: brutalist, mount: mount },
     aurora: { render: aurora, mount: mount },
-    terminalNexus: { render: terminalNexus, mount: mount },
+    terminalNexus: { render: terminalNexus, mount: tnMount },
     directorCut: { render: directorCut, mount: mount },
   };
 })();

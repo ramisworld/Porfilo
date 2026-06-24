@@ -4,8 +4,8 @@ import type { SceneHandle, SceneMode, SceneOpts } from "../scene-types";
 /**
  * ghostObject — the GHOST_PROTOCOL centerpiece. A flowing PARTICLE FLOW FIELD:
  * ~14k fine points seeded in a hollow rounded shell and advected through layered
- * vector-noise, so neighbours move together into long cyan filaments that coil
- * and breathe — bright white-cyan where streams bunch, hollow + dim at the core.
+ * vector-noise, so neighbours move together into long green filaments that coil
+ * and breathe — bright white-green where streams bunch, hollow + dim at the core.
  * It lives off to the RIGHT of the hero so the identity column reads on the left.
  *
  * Mouse: points near the cursor are swirled + brightened (the field reacts under
@@ -86,31 +86,33 @@ const VERT = `
 
 const FRAG = `
   precision highp float;
-  uniform vec3 uCyan,uGreen;
+  uniform vec3 uLite,uGreen;
   varying float vBright;
   void main(){
     vec2 uv = gl_PointCoord - 0.5;
     float d = length(uv);
     if(d > 0.5) discard;
     float soft = smoothstep(0.5, 0.0, d);
-    // soft cyan-to-green gradient → white-hot where streams bunch. Reads as a
-    // wireframe ribbon of white/cyan/green dots, not a saturated blue cloud.
-    vec3 col = mix(uGreen*0.55, uCyan, clamp(vBright, 0.0, 1.0));
-    col = mix(col, vec3(0.92, 1.0, 1.0), smoothstep(0.7, 1.3, vBright));
-    float a = soft * (0.14 + vBright*0.42);
-    gl_FragColor = vec4(col*(0.5 + vBright*0.85), a);
+    // green-to-pale-green gradient, white-hot only where streams bunch. Reads
+    // as a wireframe ribbon of green/white dots — never blue, never a cloud.
+    vec3 col = mix(uGreen*0.5, uLite, clamp(vBright, 0.0, 1.0));
+    col = mix(col, vec3(0.94, 1.0, 0.95), smoothstep(0.75, 1.3, vBright));
+    float a = soft * (0.11 + vBright*0.34);
+    gl_FragColor = vec4(col*(0.45 + vBright*0.8), a);
   }`;
 
 export function createGhostObject(opts: SceneOpts): SceneHandle {
   const group = new THREE.Group();
 
   const green = opts.accent.clone();
-  const cyan = opts.accent2.clone();
+  // Pale green-white for bright cores — derived from the signal green, never the
+  // theme's amber accent2 (kept neutral so the core never reads blue/amber).
+  const lite = green.clone().lerp(new THREE.Color(0.95, 1.0, 0.95), 0.72);
 
-  // Seed ~14k points in a HOLLOW rounded shell (center stays dark like the ref),
-  // slightly stretched vertically. The flow field warps the shell into the
-  // organic coiling silhouette.
-  const N = 14000;
+  // Seed ~9k points in a HOLLOW rounded shell (center stays dark), slightly
+  // stretched vertically. The flow field warps the shell into an organic
+  // coiling silhouette. Fewer points than v1 → dimmer, more restrained.
+  const N = 9000;
   const pos = new Float32Array(N * 3);
   const rnd = new Float32Array(N);
   for (let i = 0; i < N; i++) {
@@ -132,9 +134,9 @@ export function createGhostObject(opts: SceneOpts): SceneHandle {
   const uniforms = {
     uTime: { value: 0 },
     uProgress: { value: 0 },
-    uChurn: { value: 0.06 + opts.intensity * 0.03 },
+    uChurn: { value: 0.05 + opts.intensity * 0.026 },
     uGreen: { value: green },
-    uCyan: { value: cyan },
+    uLite: { value: lite },
     uPointer: { value: new THREE.Vector2(0, 0) },
     uPointerAmt: { value: 0 },
   };
@@ -171,11 +173,11 @@ export function createGhostObject(opts: SceneOpts): SceneHandle {
   const stars = new THREE.Points(
     starGeo,
     new THREE.PointsMaterial({
-      color: new THREE.Color(0xdceef8),
+      color: new THREE.Color(0xdfeee4),
       size: 0.05,
       sizeAttenuation: true,
       transparent: true,
-      opacity: 0.62,
+      opacity: 0.5,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     }),

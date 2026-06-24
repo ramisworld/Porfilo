@@ -84,7 +84,7 @@ function decryptHeadings(): void {
 function magneticButtons(): void {
   if (reduce || window.matchMedia?.("(hover: none)").matches) return;
   const btns = document.querySelectorAll<HTMLElement>(
-    "#ph-app .xp-tn-btn, #ph-app .xp-gen-btn, #ph-app .xp-action, #ph-app [data-magnetic]",
+    "#ph-app .xp-tn-btn, #ph-app .xp-tn-mail, #ph-app .xp-gen-btn, #ph-app .xp-action, #ph-app [data-magnetic]",
   );
   btns.forEach((b) => {
     const xTo = gsap.quickTo(b, "x", { duration: 0.4, ease: "power3" });

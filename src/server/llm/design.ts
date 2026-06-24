@@ -5,10 +5,11 @@ import type { ProfileData } from "~/server/profile/model";
 import type { UsageRecord } from "./cost";
 
 /**
- * GHOST_PROTOCOL — a single, hand-crafted design: dark hacker-terminal × matrix ×
- * liquid-glass × cyberpunk. Every generation renders this world. The vibe is
- * stored but does not (yet) branch the design; the GitHub copy comes from the
- * facts layer. (Multiple worlds + vibe→world selection is a post-launch feature.)
+ * GHOST_PROTOCOL — a single, hand-crafted design: an encrypted AI workstation.
+ * A near-black cold void, monospace throughout, restrained green signal + cyan
+ * telemetry, a slow liquid-glass particle core, and deliberate (not noisy)
+ * motion. Every generation renders this world. The vibe is stored but does not
+ * (yet) branch the design; the GitHub copy comes from the facts layer.
  */
 function ghostSpec(): z.input<typeof designSpecSchema> {
   return {
@@ -16,25 +17,25 @@ function ghostSpec(): z.input<typeof designSpecSchema> {
     experience: "terminalNexus",
     theme: {
       mode: "dark",
-      bg: "#000202",
-      surface: "#020606",
-      fg: "#f2f5f2",
-      muted: "#9aa6a6",
-      border: "#15392a",
-      accent: "#35e88a", // refined terminal green
-      accent2: "#53eaff", // electric cyan
-      glow: "#35e88a",
+      bg: "#080a0a", // near-black, neutral — never blue
+      surface: "#0b0e0e",
+      fg: "#dfe3e0", // clean cool off-white — not muddy
+      muted: "#6a7072", // neutral dim grey — not green-tinted
+      border: "#141a18",
+      accent: "#34d399", // emerald 400 — refined signal, not lime
+      accent2: "#6ee7b7", // emerald 300 — subtle mint secondary
+      glow: "#34d399",
       radius: "sharp",
-      glass: 0.7,
+      glass: 0.55,
     },
     typography: { display: "mono", body: "mono", scale: "normal" },
-    background: { mode: "matrix", intensity: 0.7, speed: 0.6, parallax: 0.6 },
-    webgl: { scene: "ghostObject", intensity: 0.85 },
-    postfx: { bloom: 0.34, chromatic: 0.28, scanlines: true },
+    background: { mode: "matrix", intensity: 0.5, speed: 0.5, parallax: 0.5 },
+    webgl: { scene: "ghostObject", intensity: 0.7 },
+    postfx: { bloom: 0.22, chromatic: 0.06, scanlines: true },
     cursor: "square",
     boot: "system",
-    motion: "energetic",
-    heroGimmick: { type: "glitch" },
+    motion: "subtle",
+    heroGimmick: { type: "none" },
     sections: [
       { type: "hero" },
       { type: "stats" },

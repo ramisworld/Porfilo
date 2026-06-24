@@ -7,14 +7,15 @@ export interface BootHandle {
 }
 
 /**
- * Boot overlay that covers the engine/WebGL load, then fades. Its STYLE follows
- * the rolled temperament so the pre-load matches the page it reveals.
- *   log     (engineered/cinematic/terminal) — GHOST OS boot sequence: POST, kernel
- *           modules, encrypted uplink, identity decrypt — typed out line by line
- *           with [ OK ]/[WARN] tags, a data-stream bar, and the name decrypting
- *           out of glyph-noise. Holds a realistic minimum duration.
- *   minimal (serene/playful)               — centered name + hairline progress
- *   stark   (raw)                          — huge name + heavy accent bar
+ * Boot overlay that covers the engine/WebGL load, then fades.
+ *
+ *   log       (engineered/cinematic/terminal) — a proper Linux/systemd boot:
+ *             firmware banner → dmesg kernel log with incrementing timestamps →
+ *             kernel modules → crypto/identity → systemd services → login prompt
+ *             with the name decrypting out of glyph noise. Braille spinner, CRT
+ *             scanlines + vignette, emerald signal only. Holds a realistic min.
+ *   minimal   (serene/playful) — centered name + hairline progress
+ *   stark     (raw) — huge name + heavy accent bar
  */
 export function mountBoot(
   spec: DesignSpec,
@@ -24,172 +25,301 @@ export function mountBoot(
   if (spec.boot === "off") return { finish: () => undefined };
 
   const temp = spec.generative.temperament;
-  const style =
-    temp === "serene" || temp === "playful" ? "minimal" : temp === "raw" ? "stark" : "log";
+  const style: "log" | "minimal" | "stark" =
+    temp === "serene" || temp === "playful"
+      ? "minimal"
+      : temp === "raw"
+        ? "stark"
+        : "log";
   const rawName = data.identity.name ?? "user";
+  const brand = rawName.toUpperCase();
   const name = escapeHtml(rawName);
   const startedAt =
     typeof performance !== "undefined" ? performance.now() : Date.now();
-  // Hold the boot long enough to read as a real boot, even if the engine is ready
-  // instantly. finish() resolves at max(MIN_MS, engine-ready).
-  const MIN_MS = opts.reduce ? 0 : 4400;
+  const MIN_MS = opts.reduce ? 0 : 4600;
+
+  // inject the blink keyframe (the engine CSS may not be applied yet)
+  const blinkStyle = document.createElement("style");
+  blinkStyle.textContent = "@keyframes ph-boot-blink{50%{opacity:0}}";
+  document.head.appendChild(blinkStyle);
 
   const overlay = document.createElement("div");
   overlay.id = "ph-boot";
   const base =
-    "position:fixed;inset:0;z-index:1000;background:var(--bg,#06060a);" +
-    "transition:opacity .55s ease;display:flex;flex-direction:column;";
+    "position:fixed;inset:0;z-index:1000;background:var(--bg,#080a0a);" +
+    "transition:opacity .5s ease;display:flex;flex-direction:column;";
 
-  const log = document.createElement("div");
   const bar = document.createElement("div");
   const pct = document.createElement("div");
-  const nameEl = document.createElement("div");
+  const spinner = document.createElement("span");
 
   if (style === "log") {
     overlay.style.cssText =
       base +
-      "padding:clamp(24px,5vw,56px);color:var(--accent,#39ff14);" +
-      "font-family:ui-monospace,Menlo,monospace;";
+      "padding:clamp(20px,4vw,44px) clamp(20px,4vw,52px);" +
+      "color:var(--fg,#dfe3e0);font-family:ui-monospace,'JetBrains Mono',Menlo,Consolas,monospace;";
 
-    // top — secure-shell header + the name decrypting out of glyph noise
+    // CRT scanlines + vignette (behind the content)
+    const scan = document.createElement("div");
+    scan.style.cssText =
+      "position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.13;" +
+      "background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.3) 3px,rgba(0,0,0,0) 4px);";
+    const vig = document.createElement("div");
+    vig.style.cssText =
+      "position:absolute;inset:0;z-index:0;pointer-events:none;" +
+      "background:radial-gradient(120% 100% at 50% 50%,transparent 48%,rgba(0,0,0,.45) 100%);";
+    overlay.append(scan, vig);
+
+    // top — firmware banner
     const top = document.createElement("div");
-    top.style.cssText = "flex:none;";
-    const head = document.createElement("div");
-    head.style.cssText =
-      "font-size:12px;letter-spacing:.34em;color:var(--accent2,#00e5ff);opacity:.85;";
-    head.textContent = "GHOST_OS v2.6 :: SECURE BOOT";
-    nameEl.style.cssText =
-      "margin-top:14px;font-size:clamp(1.9rem,7vw,4.4rem);font-weight:800;letter-spacing:.04em;" +
-      "line-height:1;color:var(--fg,#d8ffe9);text-shadow:0 0 30px var(--accent,#39ff14);";
-    top.append(head, nameEl);
+    top.style.cssText = "flex:none;position:relative;z-index:1;margin-bottom:4px;";
+    const fw1 = document.createElement("div");
+    fw1.style.cssText =
+      "font-size:13px;font-weight:600;letter-spacing:.08em;color:var(--accent,#34d399);";
+    fw1.textContent = "GHOST//SHELL";
+    const fw2 = document.createElement("div");
+    fw2.style.cssText =
+      "font-size:10px;letter-spacing:.14em;color:var(--muted,#6a7072);margin-top:3px;";
+    fw2.textContent = "BIOS v2.6  \u00b7  Copyright (C) 2026 Ghost Systems";
+    top.append(fw1, fw2);
 
-    // middle — the boot log, anchored to the bottom so newest lines stay visible
+    // middle — boot log (anchored to bottom; old lines clip at top)
     const logWrap = document.createElement("div");
     logWrap.style.cssText =
       "flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;" +
-      "overflow:hidden;margin:22px 0;";
-    log.style.cssText = "font-size:12.5px;line-height:1.85;";
+      "overflow:hidden;margin:16px 0;position:relative;z-index:1;";
+    const log = document.createElement("div");
+    log.style.cssText = "font-size:12px;line-height:1.75;";
     logWrap.appendChild(log);
 
-    // bottom — data-stream bar + percentage
+    // bottom — progress + status + login
     const bottom = document.createElement("div");
-    bottom.style.cssText = "flex:none;";
+    bottom.style.cssText = "flex:none;position:relative;z-index:1;";
     bar.style.cssText =
-      "height:3px;width:0;border-radius:2px;transition:width .3s ease;" +
-      "background:linear-gradient(90deg,var(--accent,#39ff14),var(--accent2,#00e5ff));" +
-      "box-shadow:0 0 16px var(--accent,#39ff14);";
-    pct.style.cssText =
-      "font-size:11px;letter-spacing:.22em;color:var(--accent,#39ff14);opacity:.7;margin-top:9px;";
-    bottom.append(bar, pct);
+      "height:2px;width:0;transition:width .3s ease;background:var(--accent,#34d399);" +
+      "box-shadow:0 0 8px color-mix(in srgb,var(--accent,#34d399) 55%,transparent);";
+    const statusRow = document.createElement("div");
+    statusRow.style.cssText =
+      "display:flex;align-items:center;justify-content:space-between;margin-top:10px;" +
+      "font-size:11px;letter-spacing:.08em;";
+    pct.style.cssText = "color:var(--muted,#6a7072);";
+    spinner.style.cssText =
+      "color:var(--accent,#34d399);font-size:14px;line-height:1;";
+    statusRow.append(pct, spinner);
 
+    // login prompt (fades in after boot completes)
+    const login = document.createElement("div");
+    login.style.cssText =
+      "margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);" +
+      "font-size:13px;color:var(--fg,#dfe3e0);opacity:0;transition:opacity .35s;";
+    const loginPre = document.createElement("span");
+    loginPre.style.cssText = "color:var(--muted,#6a7072);";
+    loginPre.textContent = "ghost login: ";
+    const loginName = document.createElement("span");
+    loginName.style.cssText =
+      "color:var(--accent,#34d399);font-weight:600;letter-spacing:.02em;";
+    login.append(loginPre, loginName);
+
+    bottom.append(bar, statusRow, login);
     overlay.append(top, logWrap, bottom);
+    document.body.appendChild(overlay);
 
-    // decrypt the name out of glyph noise, resolving left→right
-    const GLYPHS = "01<>/\\[]{}#$%&*+=ABCDEF░▒▓§¥";
-    const target = rawName.toUpperCase();
-    const totalFrames = 30;
-    let frame = 0;
-    const tick = () => {
-      frame++;
-      const revealed = Math.floor((frame / totalFrames) * target.length);
-      let out = "";
-      for (let c = 0; c < target.length; c++) {
-        if (target[c] === " ") out += " ";
-        else out += c < revealed ? target[c] : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+    // ---- helpers ----
+    const OK_TAG = "[  OK  ]";
+    const SKIP_TAG = "[ SKIP ]";
+    const ts = (s: number) => "[" + ("    " + s.toFixed(6)).slice(-10) + "]";
+    const dim = (s: string) =>
+      '<span style="color:var(--muted,#6a7072)">' + s + "</span>";
+    const green = (s: string) =>
+      '<span style="color:var(--accent,#34d399)">' + s + "</span>";
+
+    // append one boot line; if `tag` is given it's pushed right (dmesg style).
+    function bootLine(leftHtml: string, tag?: string) {
+      const row = document.createElement("div");
+      if (tag) {
+        row.style.cssText = "display:flex;align-items:baseline;gap:12px;";
+        const l = document.createElement("span");
+        l.style.cssText = "flex:1;min-width:0;";
+        l.innerHTML = leftHtml;
+        const t = document.createElement("span");
+        t.style.cssText =
+          "flex:none;white-space:nowrap;color:var(--accent,#34d399);";
+        t.textContent = tag;
+        row.append(l, t);
+      } else {
+        row.innerHTML = leftHtml;
       }
-      nameEl.textContent = out;
-      if (frame >= totalFrames) {
-        nameEl.textContent = target;
-        clearInterval(decrypt);
+      log.appendChild(row);
+    }
+
+    // ---- the boot sequence: dmesg kernel → modules → crypto → systemd → login ----
+    type Step = { html: string; tag?: string };
+    const steps: Step[] = [
+      // dmesg — kernel
+      { html: dim(ts(0.0)) + " GHOST kernel 6.6.0-ghost #1 SMP PREEMPT" },
+      { html: dim(ts(0.001)) + " Memory: 16384M available / 2048M reserved" },
+      { html: dim(ts(0.014)) + " CPU: 8x GHOST-CORE @ 4.2GHz" },
+      { html: dim(ts(0.028)) + " NVMe GHOST-X 2TB: initialized" },
+      { html: dim(ts(0.042)) + " Loading kernel modules" },
+      // modules — indented, tag at end
+      { html: "&nbsp;&nbsp;\u2192 vector-noise.ko", tag: OK_TAG },
+      { html: "&nbsp;&nbsp;\u2192 glass-compositor.ko", tag: OK_TAG },
+      { html: "&nbsp;&nbsp;\u2192 neon-shader.ko", tag: OK_TAG },
+      // crypto + identity — tag at end
+      { html: dim(ts(0.081)) + " Crypto: AES-256/SHA-512", tag: OK_TAG },
+      { html: dim(ts(0.095)) + " Mounting /dev/identity", tag: OK_TAG },
+      { html: dim(ts(0.109)) + " Encrypted uplink :443", tag: OK_TAG },
+      {
+        html: dim(ts(0.121)) + " Fetching profile: " + brand,
+        tag: OK_TAG,
+      },
+      // systemd — tag at start (inline)
+      { html: green(OK_TAG) + " Started Repository Indexer" },
+      { html: green(OK_TAG) + " Started Render Surface (WebGL2)" },
+      {
+        html:
+          '<span style="color:var(--muted,#6a7072)">' +
+          SKIP_TAG +
+          "</span> Skipped Firewall Bypass \u2014 direct route",
+      },
+      { html: green(OK_TAG) + " Reached Target Graphical Interface" },
+    ];
+    const total = steps.length;
+
+    // braille spinner
+    const SPIN = "\u280b\u2819\u2839\u2838\u283c\u2834\u2826\u2827\u2807\u280f";
+    let spinI = 0;
+    const spinTimer = setInterval(() => {
+      spinner.textContent = SPIN[spinI % SPIN.length]!;
+      spinI++;
+    }, 70);
+
+    let i = 0;
+    const step = () => {
+      if (i >= total) {
+        // all lines shown — reveal login + decrypt the name
+        clearInterval(spinTimer);
+        spinner.textContent = "\u2713";
+        spinner.style.opacity = ".8";
+        login.style.opacity = "1";
+
+        const GLYPHS = "01<>/\\[]{}#$%&*+=\u2591\u2592\u2593\u00a7\u00a5";
+        const target = brand;
+        const frames = 14;
+        let f = 0;
+        const decrypt = setInterval(() => {
+          f++;
+          const rev = Math.floor((f / frames) * target.length);
+          let out = "";
+          for (let c = 0; c < target.length; c++) {
+            if (target[c] === " ") out += " ";
+            else
+              out +=
+                c < rev
+                  ? target[c]
+                  : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+          }
+          loginName.textContent = out;
+          if (f >= frames) {
+            loginName.textContent = target;
+            const cursor = document.createElement("span");
+            cursor.textContent = "\u2588";
+            cursor.style.cssText =
+              "margin-left:2px;color:var(--accent,#34d399);animation:ph-boot-blink 1s steps(2) infinite;";
+            login.appendChild(cursor);
+            clearInterval(decrypt);
+          }
+        }, 45);
+        return;
+      }
+      const s = steps[i]!;
+      bootLine(s.html, s.tag);
+      bar.style.width = Math.round(((i + 1) / total) * 100) + "%";
+      i++;
+      if (opts.reduce) step();
+      else {
+        const jitter = 130 + Math.random() * 120;
+        setTimeout(step, jitter);
       }
     };
-    const decrypt = setInterval(tick, 60);
+
     if (opts.reduce) {
-      clearInterval(decrypt);
-      nameEl.textContent = target;
+      // instant — show everything at once
+      while (i < total) {
+        const s = steps[i]!;
+        bootLine(s.html, s.tag);
+        i++;
+      }
+      bar.style.width = "100%";
+      pct.textContent = "100%";
+      clearInterval(spinTimer);
+      spinner.textContent = "\u2713";
+      login.style.opacity = "1";
+      loginName.textContent = brand;
+      const cursor = document.createElement("span");
+      cursor.textContent = "\u2588";
+      cursor.style.cssText =
+        "margin-left:2px;color:var(--accent,#34d399);animation:ph-boot-blink 1s steps(2) infinite;";
+      login.appendChild(cursor);
+    } else {
+      step();
     }
   } else if (style === "stark") {
     overlay.style.cssText =
-      base + "justify-content:center;padding:clamp(24px,7vw,90px);color:var(--fg,#111);";
-    log.style.cssText =
+      base + "justify-content:center;padding:clamp(24px,7vw,90px);color:var(--fg,#dfe3e0);";
+    const nameEl = document.createElement("div");
+    nameEl.style.cssText =
       "font-family:var(--font-display);font-weight:800;text-transform:uppercase;" +
       "letter-spacing:-.03em;line-height:.9;font-size:clamp(2.6rem,9vw,7rem);";
-    log.innerHTML = name;
+    nameEl.innerHTML = name;
     bar.style.cssText =
-      "height:10px;width:0;margin-top:28px;max-width:560px;background:var(--accent);transition:width .3s ease";
-    overlay.append(log, bar);
+      "height:10px;width:0;margin-top:28px;max-width:560px;background:var(--accent,#34d399);transition:width .3s ease";
+    overlay.append(nameEl, bar);
+    document.body.appendChild(overlay);
   } else {
     // minimal
     overlay.style.cssText =
-      base + "justify-content:center;align-items:center;text-align:center;color:var(--fg,#111);";
-    log.style.cssText =
+      base +
+      "justify-content:center;align-items:center;text-align:center;color:var(--fg,#dfe3e0);";
+    const nameEl = document.createElement("div");
+    nameEl.style.cssText =
       "font-family:var(--font-display);font-weight:700;letter-spacing:-.02em;" +
       "text-transform:uppercase;font-size:clamp(1.3rem,3vw,2rem);margin-bottom:18px;opacity:.92;";
-    log.innerHTML = name;
+    nameEl.innerHTML = name;
     bar.style.cssText =
-      "height:2px;width:0;max-width:200px;background:var(--accent);transition:width .35s ease;border-radius:2px;";
-    overlay.append(log, bar);
+      "height:2px;width:0;max-width:200px;background:var(--accent,#34d399);transition:width .35s ease;border-radius:2px;";
+    overlay.append(nameEl, bar);
+    document.body.appendChild(overlay);
   }
-  document.body.appendChild(overlay);
 
-  // ---- the boot sequence ----
-  const ok = ' <span style="color:var(--accent2,#00e5ff)">[ OK ]</span>';
-  const warn = ' <span style="color:#ffcf4a">[WARN]</span>';
-  const dim = (s: string) => '<span style="color:var(--muted,#5c7a6e)">' + s + "</span>";
-  const logLines =
-    style === "log"
-      ? [
-          "GHOST BIOS v2.6 — POST ......................" + ok,
-          "CPU: 8 x GHOST-CORE @ 4.20GHz ..............." + ok,
-          "MEM: 16384MB ECC ..........................." + ok,
-          "Initializing cryptographic subsystem ......." + ok,
-          "Loading kernel modules ....................." + ok,
-          dim("  &gt; mod: matrix_rain") + " ............ ok",
-          dim("  &gt; mod: glass_compositor") + " ....... ok",
-          dim("  &gt; mod: neon_shader") + " ............ ok",
-          "Mounting /dev/identity ....................." + ok,
-          "Establishing encrypted uplink .............." + ok,
-          "Bypassing ICE firewall ....................." + warn,
-          "  retrying on port 443 ....................." + ok,
-          "Negotiating handshake [SHA-512] ............" + ok,
-          `Fetching repositories for [${name}] ........` + ok,
-          "Decrypting profile payload ................." + ok,
-          "Compiling render surface (WebGL) ..........." + ok,
-          "Spawning ghost_object ......................" + ok,
-          '<span style="color:var(--accent2,#00e5ff)">ACCESS GRANTED</span> — welcome, ' + name,
-        ]
-      : ["", "", "", "", ""];
-  const steps = logLines.length;
-
-  let i = 0;
-  const step = () => {
-    if (i >= steps) return;
-    if (style === "log") {
-      log.innerHTML += (i ? "<br>" : "") + logLines[i];
-      pct.textContent =
-        Math.round(((i + 1) / steps) * 100) + "% // BOOTING GHOST_OS";
-    }
-    bar.style.width = Math.round(((i + 1) / steps) * 100) + "%";
-    i++;
-    if (opts.reduce) step();
-    else {
-      // ~210ms base with jitter so it reads like a real boot (~4s total)
-      const jitter = 150 + Math.random() * 170;
-      setTimeout(step, style === "log" ? jitter : 150);
-    }
-  };
-  step();
+  // ---- shared progress driver for minimal/stark ----
+  if (style !== "log") {
+    let i = 0;
+    const total = 5;
+    const step = () => {
+      if (i >= total) return;
+      bar.style.width = Math.round(((i + 1) / total) * 100) + "%";
+      i++;
+      if (opts.reduce) step();
+      else setTimeout(step, 150);
+    };
+    step();
+  }
 
   let done = false;
   return {
     finish() {
       if (done) return;
       done = true;
-      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+      const now =
+        typeof performance !== "undefined" ? performance.now() : Date.now();
       const wait = Math.max(opts.reduce ? 0 : 320, MIN_MS - (now - startedAt));
       setTimeout(() => {
         overlay.style.opacity = "0";
-        setTimeout(() => overlay.remove(), 600);
+        setTimeout(() => {
+          overlay.remove();
+          blinkStyle.remove();
+        }, 600);
       }, wait);
     },
   };

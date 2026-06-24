@@ -13,7 +13,7 @@ function mountStaticVoid(animate: boolean): void {
   const wrap = document.createElement("div");
   wrap.id = "ph-void";
   wrap.style.cssText =
-    "position:fixed;inset:0;z-index:0;pointer-events:none;background:#03060a;";
+    "position:fixed;inset:0;z-index:0;pointer-events:none;background:#060807;";
   const cvs = document.createElement("canvas");
   cvs.style.cssText = "position:absolute;inset:0;width:100%;height:100%;";
   wrap.appendChild(cvs);
@@ -25,16 +25,16 @@ function mountStaticVoid(animate: boolean): void {
     const ctx = cvs.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, w, h);
-    // Pure-black space void — many tiny sparse stars, clearly visible, mostly
-    // white/cyan with a rare green speck. No nebula, no blue wash.
-    const n = Math.min(200, Math.floor((w * h) / 16000));
+    // Pure near-black space void — many tiny sparse stars, clearly visible,
+    // warm-white with a rare green speck. No cyan, no blue wash.
+    const n = Math.min(160, Math.floor((w * h) / 17000));
     for (let i = 0; i < n; i++) {
       const x = Math.random() * w;
       const y = Math.random() * h;
       const big = Math.random() > 0.95;
       const r = (big ? 0.9 + Math.random() * 0.8 : 0.35 + Math.random() * 0.55) * dpr;
-      ctx.globalAlpha = big ? 0.5 + Math.random() * 0.35 : 0.2 + Math.random() * 0.4;
-      ctx.fillStyle = Math.random() > 0.94 ? "#53eaff" : Math.random() > 0.96 ? "#35e88a" : "#eaf6ff";
+      ctx.globalAlpha = big ? 0.45 + Math.random() * 0.3 : 0.18 + Math.random() * 0.32;
+      ctx.fillStyle = Math.random() > 0.95 ? "#35e88a" : "#e8f0e6";
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
@@ -71,8 +71,8 @@ function mountStaticVoid(animate: boolean): void {
     const sl = document.createElement("div");
     sl.id = "ph-scanlines";
     sl.style.cssText =
-      "position:fixed;inset:0;z-index:998;pointer-events:none;opacity:.32;" +
-      "background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.16) 3px,rgba(0,0,0,0) 4px)";
+      "position:fixed;inset:0;z-index:998;pointer-events:none;opacity:.22;" +
+      "background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.18) 3px,rgba(0,0,0,0) 4px)";
     document.body.appendChild(sl);
   }
 
