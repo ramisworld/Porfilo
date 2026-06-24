@@ -25,17 +25,21 @@ function mountStaticVoid(animate: boolean): void {
     const ctx = cvs.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, w, h);
-    const n = Math.min(220, Math.floor((w * h) / 14000));
+    // Near-pure-black void — sparse, dim, mostly tiny pale points so it never
+    // adds a teal wash behind the object. A rare faint green pinprick only.
+    const n = Math.min(90, Math.floor((w * h) / 32000));
     for (let i = 0; i < n; i++) {
       const x = Math.random() * w;
       const y = Math.random() * h;
-      const r = Math.random() * 1.5 * dpr;
-      ctx.globalAlpha = 0.15 + Math.random() * 0.5;
-      ctx.fillStyle = Math.random() > 0.7 ? "#39ff14" : "#7dffb0";
+      const big = Math.random() > 0.95;
+      const r = (big ? 0.9 + Math.random() * 0.7 : 0.35 + Math.random() * 0.5) * dpr;
+      ctx.globalAlpha = big ? 0.4 + Math.random() * 0.3 : 0.10 + Math.random() * 0.28;
+      ctx.fillStyle = Math.random() > 0.9 ? "#39ff14" : "#cfeee0";
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
     }
+    ctx.globalAlpha = 1;
   };
   paint();
   // Repaint only on resize — never per-frame. `animate` reserved for a slow drift

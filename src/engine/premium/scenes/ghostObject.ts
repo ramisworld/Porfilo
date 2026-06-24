@@ -2,16 +2,19 @@ import * as THREE from "three";
 import type { SceneHandle, SceneMode, SceneOpts } from "../scene-types";
 
 /**
- * ghostObject — the GHOST_PROTOCOL centerpiece. A faceted, glowing plasma object:
- * an icosphere displaced by slow layered noise so it undulates organically like a
- * floating drop of light. Brightness follows the surface ridges → flowing "veins
- * of light"; flat per-face normals give it crystalline glass facets. It floats in
- * a sparse green starfield void (cheap Points, not a screen-filling shader) so all
- * the glow stays on the object — clean and light, the crazzy way. Mouse creases
- * it; scroll calms + fades it. Bloom + RGB-shift (postfx) finish the look.
+ * ghostObject — the GHOST_PROTOCOL centerpiece. A flowing PARTICLE FLOW FIELD:
+ * ~14k fine points seeded in a hollow rounded shell and advected through layered
+ * vector-noise, so neighbours move together into long cyan filaments that coil
+ * and breathe — bright white-cyan where streams bunch, hollow + dim at the core.
+ * It lives off to the RIGHT of the hero so the identity column reads on the left.
  *
- * Performance: geometry is detail 5 (~20k tris) not 7 (~327k) — a 16× cut that
- * keeps the warp smooth while giving slightly larger, more "constructed" facets.
+ * Mouse: points near the cursor are swirled + brightened (the field reacts under
+ * your hand). Scroll: shrinks + fades, then the GPU idles. Bloom + RGB-shift
+ * (postfx) and the global scanline overlay finish the look.
+ *
+ * Performance: pure Points, one ShaderMaterial, no per-pixel surface shading and
+ * no re-tessellation — the noise advection runs in the vertex shader only. Cheap
+ * and cool on a laptop.
  */
 const SNOISE = `
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}
@@ -38,165 +41,182 @@ float snoise(vec3 v){
 }`;
 
 const VERT = `
-  uniform float uTime,uProgress,uChurn,uExplode,uPointerAmt;
+  uniform float uTime,uProgress,uPointerAmt,uChurn;
   uniform vec2 uPointer;
-  varying vec3 vWorld; varying float vRidge;
+  attribute float aRand;
+  varying float vBright;
   ${SNOISE}
-  float fbm(vec3 p){ float a=0.0,amp=0.5; for(int i=0;i<4;i++){ a+=amp*snoise(p); p*=1.95; amp*=0.5; } return a; }
+  // layered vector-noise field → coherent flowing displacement (neighbours move
+  // together into filaments). Two octaves: big sweeps + fine detail. Animated.
+  vec3 flow(vec3 p){
+    float t = uTime*uChurn;
+    vec3 q = p*0.5;
+    vec3 d = vec3(
+      snoise(q + vec3(0.0, t, 0.0)),
+      snoise(q + vec3(4.7, t*0.9, 2.3)),
+      snoise(q + vec3(8.3, t*1.1, 5.9)));
+    vec3 q2 = p*1.15 + 7.0;
+    d += 0.5*vec3(
+      snoise(q2 + vec3(0.0, t*1.7, 0.0)),
+      snoise(q2 + vec3(2.0, t*1.5, 3.0)),
+      snoise(q2 + vec3(6.0, t*1.9, 1.0)));
+    return d;
+  }
   void main(){
-    vec3 sp=position;
-    // big, slow, organic bulges → the undulating water-drop silhouette.
-    // calmer + smaller as you scroll down (uProgress reduces amplitude).
-    float bulge=fbm(sp*0.42+vec3(uTime*uChurn*0.5,uTime*uChurn,uTime*uChurn*0.3));
-    float detail=snoise(sp*2.4+vec3(0.0,uTime*uChurn*1.4,0.0));
-    float disp=bulge*(0.56-uProgress*0.30)+detail*0.085;
-    // MOUSE CREASE (screen-space): the surface gently creases wherever the cursor
-    // hovers over the object — any side, independent of rotation; smooth, subtle.
-    vec4 baseClip=projectionMatrix*modelViewMatrix*vec4(sp,1.0);
-    vec2 ndc=baseClip.xy/baseClip.w;
-    vec3 vn=normalize(normalMatrix*normal);
-    float front=smoothstep(-0.05,0.5,vn.z);                  // near/front faces only
-    float near=smoothstep(0.45,0.0,distance(ndc,uPointer));  // close to the cursor
-    float touch=near*front*uPointerAmt;
-    float crease=snoise(sp*3.4+vec3(0.0,uTime*0.6,0.0));
-    disp+=touch*(0.18+crease*0.14);                          // mostly shape, not glow
-    vRidge=clamp((bulge+touch*0.18)*0.5+0.5,0.0,1.0);
-    vec3 pos=sp+normal*disp;
-    vec4 wp=modelMatrix*vec4(pos,1.0);
-    vWorld=wp.xyz;
-    gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);
+    vec3 sp = position;
+    vec3 disp = flow(sp);
+    vec3 pos = sp + disp*0.55;
+
+    // MOUSE SWIRL (screen-space): points near the cursor get pushed + lit
+    vec4 clip = projectionMatrix*modelViewMatrix*vec4(pos,1.0);
+    vec2 ndc = clip.xy/clip.w;
+    float near = smoothstep(0.55, 0.0, distance(ndc, uPointer));
+    float touch = near*uPointerAmt;
+    pos += vec3(disp.z, disp.x, -disp.y)*touch*0.7;
+
+    float speed = length(disp);
+    vBright = clamp((speed - 0.2)*0.7 + touch*0.9 + 0.12, 0.0, 1.4);
+
+    vec4 mv = modelViewMatrix*vec4(pos,1.0);
+    float dz = -mv.z;
+    float att = clamp(6.5/dz, 0.5, 1.7);
+    gl_PointSize = (aRand*2.6 + 1.0) * att * (1.0 - uProgress*0.45);
+    gl_Position = projectionMatrix*mv;
+  }`;
+
+const FRAG = `
+  precision highp float;
+  uniform vec3 uCyan,uGreen;
+  varying float vBright;
+  void main(){
+    vec2 uv = gl_PointCoord - 0.5;
+    float d = length(uv);
+    if(d > 0.5) discard;
+    float soft = smoothstep(0.5, 0.0, d);
+    // dim teal in slow regions → bright cyan → white-hot where streams bunch
+    vec3 col = mix(uCyan*0.62, uCyan, clamp(vBright, 0.0, 1.0));
+    col = mix(col, vec3(0.85, 1.0, 1.0), smoothstep(0.9, 1.5, vBright));
+    col += uGreen * 0.05 * (1.0 - clamp(vBright, 0.0, 1.0)); // faint matrix tint on the dim outer
+    float a = soft * (0.14 + vBright*0.38);
+    gl_FragColor = vec4(col*(0.5 + vBright*0.8), a);
   }`;
 
 export function createGhostObject(opts: SceneOpts): SceneHandle {
   const group = new THREE.Group();
-  const geo = new THREE.IcosahedronGeometry(2.2, 5); // ~20k tris — crystalline facets, cheap
 
   const green = opts.accent.clone();
   const cyan = opts.accent2.clone();
 
+  // Seed ~14k points in a HOLLOW rounded shell (center stays dark like the ref),
+  // slightly stretched vertically. The flow field warps the shell into the
+  // organic coiling silhouette.
+  const N = 14000;
+  const pos = new Float32Array(N * 3);
+  const rnd = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    // uniform direction on the sphere
+    const u = Math.random() * 2 - 1;
+    const th = Math.random() * Math.PI * 2;
+    const s = Math.sqrt(1 - u * u);
+    // shell-biased radius (pow pushes density to the outer rim → hollow core)
+    const r = 2.05 * (0.66 + 0.34 * Math.pow(Math.random(), 0.5));
+    pos[i * 3] = s * Math.cos(th) * r;
+    pos[i * 3 + 1] = u * r * 1.18; // gentle vertical stretch
+    pos[i * 3 + 2] = s * Math.sin(th) * r;
+    rnd[i] = Math.random();
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute("aRand", new THREE.BufferAttribute(rnd, 1));
+
   const uniforms = {
     uTime: { value: 0 },
     uProgress: { value: 0 },
-    uChurn: { value: 0.12 + opts.intensity * 0.04 }, // smooth, water-like, calm
-    uExplode: { value: 0 },
+    uChurn: { value: 0.06 + opts.intensity * 0.03 },
     uGreen: { value: green },
     uCyan: { value: cyan },
     uPointer: { value: new THREE.Vector2(0, 0) },
     uPointerAmt: { value: 0 },
   };
 
-  // With fewer triangles the additive sum is leaner, so the per-face contributions
-  // are a touch stronger to keep the volumetric glass glow — but restrained, so it
-  // stays clean over the black void instead of washing out.
-  const frag = `
-    precision highp float;
-    uniform vec3 uGreen,uCyan; uniform float uProgress;
-    varying vec3 vWorld; varying float vRidge;
-    void main(){
-      // ridges glow cyan, valleys dark green → flowing veins of light
-      float b=pow(vRidge,1.6);
-      vec3 col=mix(uGreen*0.10,uCyan,b);
-      col+=uGreen*b*0.85;
-      // flat per-face normal → crystalline facets + silhouette rim glow
-      vec3 n=normalize(cross(dFdx(vWorld),dFdy(vWorld)));
-      vec3 vd=normalize(cameraPosition-vWorld);
-      float fres=pow(1.0-abs(dot(n,vd)),2.0);
-      col+=uCyan*fres*0.55;
-      float a=0.14+b*0.26+fres*0.16;
-      gl_FragColor=vec4(col,a*(1.0-uProgress*0.7));
-    }`;
-
-  const shell = new THREE.Mesh(
+  const points = new THREE.Points(
     geo,
     new THREE.ShaderMaterial({
       uniforms,
       vertexShader: VERT,
-      fragmentShader: frag,
+      fragmentShader: FRAG,
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     }),
   );
 
-  // Fine neon net riding the surface (displaced identically).
-  const wire = new THREE.Mesh(
-    geo,
-    new THREE.ShaderMaterial({
-      uniforms,
-      vertexShader: VERT,
-      fragmentShader: `
-        uniform vec3 uCyan,uGreen; uniform float uProgress; varying float vRidge;
-        void main(){ gl_FragColor=vec4(mix(uGreen,uCyan,vRidge),0.10*(1.0-uProgress*0.7)); }`,
-      wireframe: true,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    }),
-  );
-
-  // The object (rotates/scales) lives in its own subgroup.
+  // The flow cloud lives in its own subgroup so we can park it to the right and
+  // spin it slowly without touching the starfield.
   const obj = new THREE.Group();
-  obj.add(shell, wire);
+  obj.add(points);
+  obj.rotation.z = -0.35; // tilt → the diamond lean from the reference
 
-  // Sparse starfield void — a few hundred drifting green points far behind the
-  // object. Cheap (no per-pixel shader), and all the bright glow stays on the orb.
-  const STAR_N = 340;
+  // Sparse starfield void behind — a few dim drifting pale points over near-black.
+  const STAR_N = 120;
   const starPos = new Float32Array(STAR_N * 3);
   for (let i = 0; i < STAR_N; i++) {
-    starPos[i * 3] = (Math.random() - 0.5) * 44;
-    starPos[i * 3 + 1] = (Math.random() - 0.5) * 28;
-    starPos[i * 3 + 2] = -7 - Math.random() * 12;
+    starPos[i * 3] = (Math.random() - 0.5) * 46;
+    starPos[i * 3 + 1] = (Math.random() - 0.5) * 30;
+    starPos[i * 3 + 2] = -8 - Math.random() * 12;
   }
   const starGeo = new THREE.BufferGeometry();
   starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
   const stars = new THREE.Points(
     starGeo,
     new THREE.PointsMaterial({
-      color: green,
-      size: 0.07,
+      color: new THREE.Color(0x6f8f88),
+      size: 0.045,
       sizeAttenuation: true,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.28,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     }),
   );
   group.add(stars, obj);
 
-  let modeBoost = 0;
-  let modeTarget = 0;
   let spin = 0;
   let px = 0;
   let py = 0;
-  let amt = 0; // mouse-crease strength, eased in/out smoothly
+  let amt = 0;
 
   return {
     group,
-    setMode(mode: SceneMode) {
-      modeTarget = mode === "climax" ? 1 : mode === "tense" ? 0.45 : 0;
+    setMode(_mode: SceneMode) {
+      // intensity handled by churn; no discrete mode swap needed for the field
     },
     update(dt, progress, _vel, pointer) {
-      modeBoost += (modeTarget - modeBoost) * Math.min(1, dt * 2.5);
       uniforms.uTime.value += dt;
       uniforms.uProgress.value = progress;
-      uniforms.uExplode.value += (modeBoost - uniforms.uExplode.value) * Math.min(1, dt * 3);
 
-      // pointer eased for a smooth-following crease; strength eases in/out gently.
       px += (pointer.x - px) * 0.08;
       py += (pointer.y - py) * 0.08;
       uniforms.uPointer.value.set(px, py);
-      amt += (0.8 - amt) * 0.05;
+      amt += (0.85 - amt) * 0.05;
       uniforms.uPointerAmt.value = amt;
 
-      // very slow auto-drift only (mouse no longer rotates — it creases instead)
-      spin += dt * 0.03;
+      spin += dt * 0.04;
       obj.rotation.y = spin;
-      obj.rotation.x = Math.sin(uniforms.uTime.value * 0.08) * 0.04;
-      stars.rotation.y = spin * 0.15; // gentle parallax drift
+      stars.rotation.y = spin * 0.12;
 
-      // sit center-right so the hero text (left) stays clear; calmer + smaller on scroll
-      obj.position.x = 1.7;
-      obj.scale.setScalar(1 - progress * 0.4);
+      // Parked to the RIGHT of the hero, but pull it back inside the camera
+      // frustum as portrait-ish windows lose horizontal world space.
+      const aspect =
+        window.innerHeight > 0
+          ? window.innerWidth / window.innerHeight
+          : 16 / 9;
+      const narrow = THREE.MathUtils.clamp((1.15 - aspect) / 0.55, 0, 1);
+      obj.position.x = THREE.MathUtils.lerp(2.4, 0.35, narrow);
+      obj.position.y = THREE.MathUtils.lerp(0.25, 0.08, narrow);
+      obj.scale.setScalar(
+        THREE.MathUtils.lerp(0.82, 0.40, narrow) * (1 - progress * 0.4),
+      );
     },
     dispose() {
       geo.dispose();

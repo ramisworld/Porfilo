@@ -45,8 +45,8 @@ export function initWebGL(
   const canvas = document.createElement("canvas");
   canvas.id = "ph-webgl";
   canvas.style.cssText = contained
-    ? "position:absolute;inset:0;width:100%;height:100%;pointer-events:none"
-    : "position:fixed;inset:0;z-index:0;pointer-events:none";
+    ? "position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none"
+    : "position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none";
   host.appendChild(canvas);
 
   const size = () =>
@@ -80,7 +80,9 @@ export function initWebGL(
   });
   // Cap DPR hard — a fullbleed bloom scene at 2× retina is 4× the fragments for
   // no visible gain. 1.5 keeps it crisp while cutting GPU/heat dramatically.
-  renderer.setPixelRatio(Math.min(contained ? 2 : 1.5, window.devicePixelRatio || 1));
+  renderer.setPixelRatio(
+    Math.min(contained ? 2 : 1.5, window.devicePixelRatio || 1),
+  );
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
   // Fullbleed: opaque dark void so bloom glows over solid black instead of
@@ -108,12 +110,13 @@ export function initWebGL(
   const baseBloom = spec.postfx.bloom * 1.4;
   let bloom: UnrealBloomPass | null = null;
   if (spec.postfx.bloom > 0.01) {
-    bloom = new UnrealBloomPass(new THREE.Vector2(w, h), baseBloom, 0.6, 0.2);
+    bloom = new UnrealBloomPass(new THREE.Vector2(w, h), baseBloom, 0.6, 0.35);
     composer.addPass(bloom);
   }
   if (spec.postfx.chromatic > 0.01) {
     const rgb = new ShaderPass(RGBShiftShader);
-    (rgb.uniforms.amount as { value: number }).value = spec.postfx.chromatic * 0.0026;
+    (rgb.uniforms.amount as { value: number }).value =
+      spec.postfx.chromatic * 0.0026;
     composer.addPass(rgb);
   }
   composer.addPass(new OutputPass());
@@ -171,8 +174,7 @@ export function initWebGL(
     // the global progress fraction. Gone by ~0.7 viewport scrolled → idle the GPU.
     if (!contained) {
       const vh = window.innerHeight || 1;
-      const sy =
-        window.scrollY || document.documentElement.scrollTop || 0;
+      const sy = window.scrollY || document.documentElement.scrollTop || 0;
       const out = sy / (vh * 0.8);
       const fade = out <= 0.22 ? 1 : Math.max(0, 1 - (out - 0.22) * 1.7);
       canvas.style.opacity = String(fade);
