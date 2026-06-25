@@ -75,7 +75,10 @@ export function initWebGL(
     canvas,
     // Bloom softens edges, so MSAA on the fullbleed scene is wasted GPU.
     antialias: contained,
-    alpha: contained,
+    // ALWAYS alpha — even fullbleed — so the static void layer (stars +
+    // atmospheric glows) shows through behind the hero object instead of
+    // being covered by an opaque clear color.
+    alpha: true,
     powerPreference: "high-performance",
   });
   // Cap DPR hard — a fullbleed bloom scene at 2× retina is 4× the fragments for
@@ -85,14 +88,14 @@ export function initWebGL(
   );
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   const ghostObject = spec.webgl.scene === "ghostObject";
-  renderer.toneMappingExposure = ghostObject ? 0.72 : 1.0;
-  // Fullbleed: opaque dark void so bloom glows over solid black instead of
-  // white-washing a transparent buffer (the real-GPU UnrealBloomPass bug).
-  if (!contained)
-    renderer.setClearColor(
-      new THREE.Color(ghostObject ? "#010303" : spec.theme.bg),
-      1,
-    );
+  // Slightly hotter exposure on the ghost so the filaments read on near-black
+  // without the whole hero going milky. Bloom does the heavy lifting; this
+  // just lifts the floor so the cloud isn't invisible at idle.
+  renderer.toneMappingExposure = ghostObject ? 0.92 : 1.0;
+  // Transparent clear — the static void layer behind composites through.
+  // UnrealBloomPass works fine on a transparent buffer when the underlying
+  // page background is dark (the void layer is near-black with subtle glows).
+  renderer.setClearColor(new THREE.Color(0x000000), 0);
   let { w, h } = size();
   renderer.setSize(w, h, false);
 
@@ -112,14 +115,16 @@ export function initWebGL(
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const baseBloom = spec.postfx.bloom * (ghostObject ? 0.46 : 1.32);
+  // Slightly stronger bloom on the ghost — enough to give the filaments a
+  // proper phosphor glow without washing the whole hero in fog.
+  const baseBloom = spec.postfx.bloom * (ghostObject ? 0.62 : 1.32);
   let bloom: UnrealBloomPass | null = null;
   if (spec.postfx.bloom > 0.01) {
     bloom = new UnrealBloomPass(
       new THREE.Vector2(w, h),
       baseBloom,
-      ghostObject ? 0.28 : 0.6,
-      ghostObject ? 0.74 : 0.4,
+      ghostObject ? 0.42 : 0.6,
+      ghostObject ? 0.7 : 0.4,
     );
     composer.addPass(bloom);
   }
@@ -185,8 +190,10 @@ export function initWebGL(
     if (!contained) {
       const vh = window.innerHeight || 1;
       const sy = window.scrollY || document.documentElement.scrollTop || 0;
-      const out = sy / (vh * 0.8);
-      const fade = out <= 0.22 ? 1 : Math.max(0, 1 - (out - 0.22) * 1.7);
+      const out = sy / (vh * 0.9);
+      // Keep the object at full strength for most of the hero, then a longer
+      // smooth fade so it never pops to black mid-scroll.
+      const fade = out <= 0.4 ? 1 : Math.max(0, 1 - (out - 0.4) * 1.3);
       canvas.style.opacity = String(fade);
       if (fade <= 0.001) return; // hero gone — idle the GPU
     }

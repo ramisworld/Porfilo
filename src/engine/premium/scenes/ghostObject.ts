@@ -2,19 +2,23 @@ import * as THREE from "three";
 import type { SceneHandle, SceneMode, SceneOpts } from "../scene-types";
 
 /**
- * ghostObject — the GHOST_PROTOCOL centerpiece. A flowing PARTICLE FLOW FIELD:
- * ~14k fine points seeded in a hollow rounded shell and advected through layered
- * vector-noise, so neighbours move together into long green filaments that coil
- * and breathe — bright white-green where streams bunch, hollow + dim at the core.
- * It lives off to the RIGHT of the hero so the identity column reads on the left.
+ * ghostObject — the GHOST_PROTOCOL centerpiece. A flowing PARTICLE FLOW FIELD
+ * wrapped around a thin wireframe icosahedron core, so the shape is intentional
+ * (a visible signal artifact) instead of an ambiguous cloud. ~13k fine points
+ * seeded in a hollow rounded shell get advected through layered vector-noise;
+ * neighbours move together into long emerald filaments that coil and breathe.
  *
- * Mouse: points near the cursor are swirled + brightened (the field reacts under
- * your hand). Scroll: shrinks + fades, then the GPU idles. Bloom + RGB-shift
- * (postfx) and the global scanline overlay finish the look.
+ * It sits off to the RIGHT of the hero — the identity column reads on the left.
  *
- * Performance: pure Points, one ShaderMaterial, no per-pixel surface shading and
- * no re-tessellation — the noise advection runs in the vertex shader only. Cheap
- * and cool on a laptop.
+ * Interactivity:
+ *   - Mouse: points near the cursor are swirled + brightened. The core ring
+ *     orients toward the pointer.
+ *   - Scroll: the whole rig shrinks + dims a bit on the way down, then the
+ *     GPU idles entirely once the hero is gone.
+ *   - Mode: bumps churn + brightness at "tense" / "climax".
+ *
+ * Performance: pure Points + one tiny line wireframe. Noise advection runs in
+ * the vertex shader only — no per-pixel surface shading. Cheap on a laptop.
  */
 const SNOISE = `
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}
@@ -41,13 +45,11 @@ float snoise(vec3 v){
 }`;
 
 const VERT = `
-  uniform float uTime,uProgress,uPointerAmt,uChurn;
+  uniform float uTime,uProgress,uPointerAmt,uChurn,uBreath;
   uniform vec2 uPointer;
   attribute float aRand;
   varying float vBright;
   ${SNOISE}
-  // layered vector-noise field → coherent flowing displacement (neighbours move
-  // together into filaments). Two octaves: big sweeps + fine detail. Animated.
   vec3 flow(vec3 p){
     float t = uTime*uChurn;
     vec3 q = p*0.5;
@@ -63,67 +65,68 @@ const VERT = `
     return d;
   }
   void main(){
-    vec3 sp = position;
+    vec3 sp = position * uBreath;
     vec3 disp = flow(sp);
-    vec3 pos = sp + disp*0.55;
+    vec3 pos = sp + disp*0.6;
 
-    // MOUSE SWIRL (screen-space): points near the cursor get pushed + lit
+    // MOUSE SWIRL: points near the cursor get pushed sideways + lit
     vec4 clip = projectionMatrix*modelViewMatrix*vec4(pos,1.0);
     vec2 ndc = clip.xy/clip.w;
     float near = smoothstep(0.55, 0.0, distance(ndc, uPointer));
     float touch = near*uPointerAmt;
-    pos += vec3(disp.z, disp.x, -disp.y)*touch*0.7;
+    pos += vec3(disp.z, disp.x, -disp.y)*touch*0.85;
 
     float speed = length(disp);
-    vBright = clamp((speed - 0.2)*0.7 + touch*0.9 + 0.12, 0.0, 1.4);
+    vBright = clamp((speed - 0.18)*0.8 + touch*1.1 + 0.22, 0.0, 1.6);
 
     vec4 mv = modelViewMatrix*vec4(pos,1.0);
     float dz = -mv.z;
-    float att = clamp(6.5/dz, 0.5, 1.7);
-    gl_PointSize = (aRand*2.6 + 1.0) * att * (1.0 - uProgress*0.45);
+    float att = clamp(7.5/dz, 0.55, 1.9);
+    // particles are noticeably larger now — the cloud reads as intentional,
+    // not as a fog. Bloom + the additive blend do the rest.
+    gl_PointSize = (aRand*3.4 + 1.6) * att * (1.0 - uProgress*0.45);
     gl_Position = projectionMatrix*mv;
   }`;
 
 const FRAG = `
   precision highp float;
   uniform vec3 uLite,uGreen;
+  uniform float uMode;
   varying float vBright;
   void main(){
     vec2 uv = gl_PointCoord - 0.5;
     float d = length(uv);
     if(d > 0.5) discard;
     float soft = smoothstep(0.5, 0.0, d);
-    // Refined phosphor linework: bright at the filaments, but restrained enough
-    // that additive particles never become a teal fog bank over the void.
-    vec3 col = mix(uGreen*0.38, uLite, clamp(vBright*0.82, 0.0, 1.0));
-    col = mix(col, vec3(0.84, 1.0, 0.89), smoothstep(0.86, 1.35, vBright));
-    float a = soft * (0.045 + vBright*0.15);
-    gl_FragColor = vec4(col*(0.28 + vBright*0.48), a);
+    // Bright phosphor filaments — strong enough to read on a near-black void.
+    // At high vBright the core blows almost to white; at low brightness the
+    // dim points still hold a clear green silhouette (not invisible).
+    vec3 col = mix(uGreen*0.55, uLite, clamp(vBright*0.78, 0.0, 1.0));
+    col = mix(col, vec3(0.88, 1.0, 0.92), smoothstep(0.82, 1.45, vBright));
+    float a = soft * (0.085 + vBright*0.22 + uMode*0.04);
+    gl_FragColor = vec4(col*(0.42 + vBright*0.62), a);
   }`;
 
 export function createGhostObject(opts: SceneOpts): SceneHandle {
   const group = new THREE.Group();
 
   const green = opts.accent.clone();
-  // Pale green-white for bright cores — derived from the signal green, never the
-  // theme's amber accent2 (kept neutral so the core never reads blue/amber).
-  const lite = green.clone().lerp(new THREE.Color(0.95, 1.0, 0.95), 0.72);
+  // Pale green-white for bright cores — derived from the signal green.
+  const lite = green.clone().lerp(new THREE.Color(0.95, 1.0, 0.95), 0.7);
 
-  // Seed ~7k points in a HOLLOW rounded shell (center stays dark), slightly
-  // stretched vertically. The flow field warps the shell into an organic
-  // coiling silhouette. Fewer points than v1 → dimmer, more restrained.
-  const N = 7200;
+  // Seed ~13k points in a HOLLOW rounded shell (center stays dark), gently
+  // stretched. The flow field warps the shell into a coiling silhouette.
+  const N = 13200;
   const pos = new Float32Array(N * 3);
   const rnd = new Float32Array(N);
   for (let i = 0; i < N; i++) {
-    // uniform direction on the sphere
     const u = Math.random() * 2 - 1;
     const th = Math.random() * Math.PI * 2;
     const s = Math.sqrt(1 - u * u);
-    // shell-biased radius (pow pushes density to the outer rim → hollow core)
-    const r = 2.05 * (0.66 + 0.34 * Math.pow(Math.random(), 0.5));
+    // shell-biased radius — most particles live near the outer rim.
+    const r = 2.05 * (0.68 + 0.32 * Math.pow(Math.random(), 0.45));
     pos[i * 3] = s * Math.cos(th) * r;
-    pos[i * 3 + 1] = u * r * 1.18; // gentle vertical stretch
+    pos[i * 3 + 1] = u * r * 1.12;
     pos[i * 3 + 2] = s * Math.sin(th) * r;
     rnd[i] = Math.random();
   }
@@ -134,11 +137,13 @@ export function createGhostObject(opts: SceneOpts): SceneHandle {
   const uniforms = {
     uTime: { value: 0 },
     uProgress: { value: 0 },
-    uChurn: { value: 0.05 + opts.intensity * 0.026 },
+    uChurn: { value: 0.06 + opts.intensity * 0.028 },
     uGreen: { value: green },
     uLite: { value: lite },
     uPointer: { value: new THREE.Vector2(0, 0) },
     uPointerAmt: { value: 0 },
+    uBreath: { value: 1 },
+    uMode: { value: 0 },
   };
 
   const points = new THREE.Points(
@@ -153,24 +158,61 @@ export function createGhostObject(opts: SceneOpts): SceneHandle {
     }),
   );
 
-  // The flow cloud lives in its own subgroup so we can park it to the right and
-  // spin it slowly without touching the starfield. No central glow orb — the
-  // brightness comes from the filament dots/linework themselves + soft bloom.
-  const obj = new THREE.Group();
-  obj.add(points);
-  obj.rotation.z = -0.35; // tilt → the diamond lean from the reference
+  // The intentional core — a thin twin-ring wireframe icosahedron that anchors
+  // the shape, so the cloud reads as "an artifact" not "a smudge". Two passes
+  // at slightly different scales give a faint glass shell without bloom-bombing.
+  const coreGeo = new THREE.IcosahedronGeometry(1.05, 1);
+  const coreWire = new THREE.WireframeGeometry(coreGeo);
+  const coreMat = new THREE.LineBasicMaterial({
+    color: green.clone().lerp(new THREE.Color(1, 1, 1), 0.18),
+    transparent: true,
+    opacity: 0.22,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  const coreA = new THREE.LineSegments(coreWire, coreMat);
+  const coreB = new THREE.LineSegments(
+    coreWire,
+    new THREE.LineBasicMaterial({
+      color: 0xb8f4d4,
+      transparent: true,
+      opacity: 0.1,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+  );
+  coreB.scale.setScalar(1.42);
+  coreA.renderOrder = 1;
+  coreB.renderOrder = 1;
 
-  // Tiny starfield void behind — many dim pale specks on black, without bloom.
-  const STAR_N = 720;
+  // A tiny solid orb at dead center — gives the eye a clear focal point through
+  // the bloom. Just a few additive sprite-sized points.
+  const dotGeo = new THREE.SphereGeometry(0.18, 16, 16);
+  const dotMat = new THREE.MeshBasicMaterial({
+    color: 0xeafff3,
+    transparent: true,
+    opacity: 0.55,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  const dot = new THREE.Mesh(dotGeo, dotMat);
+
+  const obj = new THREE.Group();
+  obj.add(coreB, coreA, dot, points);
+  obj.rotation.z = -0.35; // tilt → the diamond lean
+
+  // Background starfield — kept (it sells the depth behind the object). Dim
+  // specks, no bloom contribution.
+  const STAR_N = 820;
   const starPos = new Float32Array(STAR_N * 3);
   const starCol = new Float32Array(STAR_N * 3);
   const starWhite = new THREE.Color(0xe7eee8);
   const starMint = new THREE.Color(0x67dca4);
   const starCyan = new THREE.Color(0x9edbd0);
   for (let i = 0; i < STAR_N; i++) {
-    starPos[i * 3] = (Math.random() - 0.5) * 46;
-    starPos[i * 3 + 1] = (Math.random() - 0.5) * 30;
-    starPos[i * 3 + 2] = -8 - Math.random() * 12;
+    starPos[i * 3] = (Math.random() - 0.5) * 50;
+    starPos[i * 3 + 1] = (Math.random() - 0.5) * 32;
+    starPos[i * 3 + 2] = -8 - Math.random() * 14;
     const c =
       Math.random() > 0.975
         ? starMint
@@ -187,10 +229,10 @@ export function createGhostObject(opts: SceneOpts): SceneHandle {
   const stars = new THREE.Points(
     starGeo,
     new THREE.PointsMaterial({
-      size: 0.026,
+      size: 0.03,
       sizeAttenuation: true,
       transparent: true,
-      opacity: 0.3,
+      opacity: 0.42,
       depthWrite: false,
       blending: THREE.NormalBlending,
       vertexColors: true,
@@ -205,25 +247,37 @@ export function createGhostObject(opts: SceneOpts): SceneHandle {
 
   return {
     group,
-    setMode(_mode: SceneMode) {
-      // intensity handled by churn; no discrete mode swap needed for the field
+    setMode(mode: SceneMode) {
+      uniforms.uMode.value = mode === "calm" ? 0 : mode === "tense" ? 0.4 : 1;
     },
     update(dt, progress, _vel, pointer) {
       uniforms.uTime.value += dt;
       uniforms.uProgress.value = progress;
+      // gentle breathing — never enough to feel like a pulse animation, just
+      // enough to keep the silhouette alive when the visitor lingers.
+      uniforms.uBreath.value =
+        1 + Math.sin(uniforms.uTime.value * 0.5) * 0.012;
 
       px += (pointer.x - px) * 0.08;
       py += (pointer.y - py) * 0.08;
       uniforms.uPointer.value.set(px, py);
-      amt += (0.85 - amt) * 0.05;
+      amt += (0.95 - amt) * 0.05;
       uniforms.uPointerAmt.value = amt;
 
-      spin += dt * 0.04;
+      spin += dt * 0.05;
       obj.rotation.y = spin;
+      // counter-rotate the inner shell so the wireframe shows shifting facets
+      coreA.rotation.x = spin * 1.3;
+      coreA.rotation.z = -0.35 + spin * 0.4;
+      coreB.rotation.x = -spin * 0.8;
+      coreB.rotation.y = spin * 1.1;
       stars.rotation.y = spin * 0.12;
 
+      // pointer-track tilt — the rig leans subtly under the hand.
+      obj.rotation.x = py * 0.18;
+
       // Parked to the RIGHT of the hero, but pull it back inside the camera
-      // frustum as portrait-ish windows lose horizontal world space.
+      // frustum on narrower windows.
       const aspect =
         window.innerHeight > 0
           ? window.innerWidth / window.innerHeight
@@ -232,12 +286,15 @@ export function createGhostObject(opts: SceneOpts): SceneHandle {
       obj.position.x = THREE.MathUtils.lerp(2.34, 0.46, narrow);
       obj.position.y = THREE.MathUtils.lerp(0.16, 0.06, narrow);
       obj.scale.setScalar(
-        THREE.MathUtils.lerp(0.78, 0.42, narrow) * (1 - progress * 0.4),
+        THREE.MathUtils.lerp(0.84, 0.46, narrow) * (1 - progress * 0.4),
       );
     },
     dispose() {
       geo.dispose();
       starGeo.dispose();
+      coreGeo.dispose();
+      coreWire.dispose();
+      dotGeo.dispose();
     },
   };
 }

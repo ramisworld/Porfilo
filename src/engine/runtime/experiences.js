@@ -311,42 +311,53 @@
     return "Systems \u00b7 tooling \u00b7 interfaces";
   }
 
-  // FIELD_LOG — authored entries in an AI-engineer's voice. Specific, technical,
-  // no lorem. Lives in the shared engine as the showcase's "lab notes" feed.
+  // FIELD_LOG — intercepted signal fragments. Authored entries in an AI-engineer's
+  // voice. Specific, technical, no lorem. Each fragment now also carries a
+  // source/channel tag so it reads as "intelligence captured from somewhere",
+  // not as a blog list.
   var TN_LOG = [
     {
       hash: "a1f9c2",
       t: "2026-06-21",
+      src: "/agent/loop",
       k: "agent eval harness",
       b: "Wired a deterministic grader into the agent loop. Trace-level scoring cut false-positive tool calls by ~40% on the eval set. Still hunting the last retry storm.",
     },
     {
       hash: "7e0b18",
       t: "2026-06-14",
+      src: "/training/qlora",
       k: "QLoRA on a 7B base",
       b: "Ran QLoRA with synthetic + LLM-judged pairs. Judge tracked the human rubric within 0.08 kappa. Cheaper than expected \u2014 latency is the real constraint.",
     },
     {
       hash: "c43d77",
       t: "2026-06-07",
+      src: "/ui/stream",
       k: "streaming UX",
       b: "Swapped request/response for token streaming with a cancelable abort. First token under 300ms, perceived latency collapsed. It finally feels like a conversation.",
     },
     {
       hash: "0e8a5b",
       t: "2026-05-29",
+      src: "/rag/guard",
       k: "RAG that doesn't lie",
       b: "Added citations plus a retrieval guard that refuses when grounding is weak. Accuracy up \u2014 but people trust the \u2018I don\u2019t know\u2019 more than the confident answer. Noted.",
     },
   ];
   function tnFieldLog() {
-    return TN_LOG.map(function (e) {
+    return TN_LOG.map(function (e, i) {
       return (
-        '<div class="xp-tn-logentry reveal"><span class="xp-tn-loghash">' +
+        '<div class="xp-tn-logentry reveal" style="--i:' +
+        i +
+        '">' +
+        '<span class="xp-tn-loghash">' +
         esc(e.hash) +
         "</span>" +
         '<span class="xp-tn-logtime">' +
         esc(e.t) +
+        " \u00b7 " +
+        esc(e.src) +
         "</span>" +
         "<p><b>" +
         esc(e.k) +
@@ -1493,34 +1504,44 @@
 
     if (!reduce && !coarse) {
       tnCardTilt();
+      tnNameMagnet();
     }
     tnTerminal(data, user);
   }
 
-  // RAMISWORLD — 3D parallax tilt toward the cursor + glow follows. The name
-  // leans in space under your hand; scramble fires on enter (via mount()).
-  function tnNameTilt() {
+  // RAMISWORLD — premium magnetic identity. The wordmark leans toward the
+  // cursor as it approaches; the lean settles back when the pointer leaves.
+  // Drives CSS custom properties (--tx, --ty) — no reflow, no layout jank.
+  // Pairs with the CSS chromatic-on-hover and idle phosphor breath.
+  function tnNameMagnet() {
     var nameEl = document.querySelector(".xp-tn-name");
     var hero = document.querySelector(".xp-tn-hero");
     if (!nameEl || !hero) return;
     var raf = 0,
-      nx = 0,
-      ny = 0,
+      x = 0,
+      y = 0,
       tx = 0,
       ty = 0;
     function apply() {
       raf = 0;
-      nx += (tx - nx) * 0.12;
-      ny += (ty - ny) * 0.12;
-      nameEl.style.setProperty("--nx", nx.toFixed(2) + "deg");
-      nameEl.style.setProperty("--ny", ny.toFixed(2) + "deg");
+      x += (tx - x) * 0.14;
+      y += (ty - y) * 0.14;
+      nameEl.style.setProperty("--tx", x.toFixed(2) + "px");
+      nameEl.style.setProperty("--ty", y.toFixed(2) + "px");
+      if (Math.abs(x - tx) > 0.2 || Math.abs(y - ty) > 0.2) {
+        raf = requestAnimationFrame(apply);
+      }
     }
     hero.addEventListener("pointermove", function (e) {
       var r = nameEl.getBoundingClientRect();
       var cx = r.left + r.width / 2,
         cy = r.top + r.height / 2;
-      tx = ((e.clientX - cx) / (window.innerWidth / 2)) * 7;
-      ty = -((e.clientY - cy) / (window.innerHeight / 2)) * 5;
+      // Pull strength is bounded so the wordmark never breaks its baseline.
+      // Distance falloff so far-away cursor positions have no pull.
+      var dx = (e.clientX - cx) / Math.max(180, r.width * 0.7);
+      var dy = (e.clientY - cy) / Math.max(120, r.height * 0.9);
+      tx = Math.max(-14, Math.min(14, dx * 9));
+      ty = Math.max(-8, Math.min(8, dy * 6));
       if (!raf) raf = requestAnimationFrame(apply);
     });
     hero.addEventListener("pointerleave", function () {

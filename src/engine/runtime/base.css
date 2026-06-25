@@ -3280,21 +3280,27 @@ body:has(.xp-ghost) {
   background: color-mix(in srgb, var(--neon) 60%, transparent);
   color: #02110a;
 }
-/* neutral depth only; the WebGL object is not allowed to light the whole page */
+/* A faint floor glow — a soft horizon under the hero. The static void layer
+   (canvas + corner gradients) already carries the atmospheric depth; this is
+   just a touch of warmth low in the viewport so the hero never feels detached
+   from a "ground". Kept very low alpha so it never washes the page. */
 .xp-ghost::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 3;
   pointer-events: none;
+  mix-blend-mode: screen;
   background: radial-gradient(
-    120% 85% at 50% 108%,
-    rgba(18, 36, 30, 0.08),
-    transparent 64%
+    120% 60% at 50% 108%,
+    rgba(54, 212, 134, 0.05),
+    transparent 56%
   );
 }
-/* the full-bleed WebGL core floats behind everything; this scrim keeps the hero
-   text crisp while letting the object + starfield read through on the right */
+/* Hero scrim — softened so the left text reads crisp while the right side
+   stays open to space. No heavy black slab; a gentle gradient that fades to
+   nothing across the right two-thirds so the WebGL object never looks like
+   it's behind a curtain. */
 .xp-tn-vignette {
   position: fixed;
   inset: 0;
@@ -3303,15 +3309,16 @@ body:has(.xp-ghost) {
   background:
     linear-gradient(
       90deg,
-      rgba(1, 3, 3, 0.94) 0%,
-      rgba(1, 3, 3, 0.66) 38%,
-      rgba(1, 3, 3, 0.08) 64%,
-      rgba(1, 3, 3, 0.18) 100%
+      rgba(1, 4, 4, 0.86) 0%,
+      rgba(1, 4, 4, 0.48) 28%,
+      rgba(1, 4, 4, 0.1) 52%,
+      rgba(1, 4, 4, 0) 70%,
+      rgba(1, 4, 4, 0) 100%
     ),
     radial-gradient(
-      120% 100% at 60% 42%,
-      transparent 44%,
-      rgba(0, 0, 0, 0.64) 100%
+      140% 100% at 50% 110%,
+      rgba(0, 0, 0, 0.36) 0%,
+      transparent 56%
     );
 }
 
@@ -3497,91 +3504,131 @@ body:has(.xp-ghost) {
 .xp-tn-eyebrow {
   font-size: 0.76rem;
   font-weight: 500;
-  letter-spacing: 0.28em;
-  color: color-mix(in srgb, var(--neon2) 80%, #dff7ec);
+  letter-spacing: 0.32em;
+  color: color-mix(in srgb, var(--neon) 65%, #dff7ec);
   text-transform: uppercase;
-  margin-bottom: 18px;
-  opacity: 0.82;
+  margin-bottom: 22px;
+  opacity: 0.92;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
+.xp-tn-eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 26px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--neon) 70%, transparent)
+  );
+}
+/* RAMISWORLD — the brand identity. Sits as a crisp off-white wordmark; on
+   hover it gains a brief chromatic offset and a soft phosphor underglow.
+   No horizontal scan lines. The magnetic --tx/--ty values are driven by JS
+   so the wordmark leans toward the cursor without reflow. */
 .xp-tn-name {
   position: relative;
   display: inline-block;
   max-width: 100%;
   white-space: nowrap;
-  overflow: hidden;
   font-family: var(--gmono);
   font-weight: 650;
   font-size: 6.45rem;
   line-height: 0.9;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.025em;
   margin: 0;
-  color: #edf5ef;
-  text-shadow: none;
+  color: #f1f8f3;
   cursor: default;
   isolation: isolate;
+  will-change: transform, text-shadow;
+  transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0);
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    text-shadow 0.4s ease,
+    color 0.4s ease;
+  /* always-on identity: a soft mint underglow + a hair of split-channel ghost,
+     restrained enough to feel premium, not arcade. */
+  text-shadow:
+    0 0 18px rgba(54, 212, 134, 0.12),
+    0 0 1px rgba(255, 255, 255, 0.4),
+    -0.5px 0 0 rgba(54, 212, 134, 0.08),
+    0.5px 0 0 rgba(128, 232, 189, 0.06);
+  animation: tn-name-breath 6.4s ease-in-out infinite;
 }
-.xp-tn-name::before,
+.xp-tn-name:hover {
+  color: #ffffff;
+  /* punchier chromatic offset on hover — feels like a brief signal lock-in */
+  text-shadow:
+    0 0 26px rgba(54, 212, 134, 0.28),
+    0 0 2px rgba(255, 255, 255, 0.55),
+    -1.5px 0 0 rgba(255, 90, 110, 0.42),
+    1.5px 0 0 rgba(54, 212, 134, 0.5);
+}
+/* A thin accent rule under the wordmark that pulses as a tasteful identity
+   signal — replaces the old moving horizontal scan strips. */
 .xp-tn-name::after {
   content: "";
   position: absolute;
-  left: -4%;
-  right: -4%;
-  height: 2px;
+  left: 0;
+  right: 12%;
+  bottom: -10px;
+  height: 1px;
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    transparent 0%,
-    color-mix(in srgb, var(--neon) 44%, transparent) 30%,
-    color-mix(in srgb, var(--neon2) 24%, transparent) 50%,
+    color-mix(in srgb, var(--neon) 70%, transparent) 0%,
+    color-mix(in srgb, var(--neon2) 30%, transparent) 60%,
     transparent 100%
   );
-  mix-blend-mode: normal;
-  opacity: 0.2;
-  transform: translateY(-120%);
-  animation: tn-name-scan-a 5.8s ease-in-out infinite;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--neon) 45%, transparent);
+  opacity: 0.55;
+  transform-origin: 0 50%;
+  animation: tn-name-rule 5.6s ease-in-out infinite;
 }
-.xp-tn-name::after {
-  height: 1px;
-  opacity: 0.18;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(201, 255, 230, 0.2) 36%,
-    color-mix(in srgb, var(--neon-deep) 28%, transparent) 58%,
-    transparent 100%
-  );
-  animation: tn-name-scan-b 7.2s ease-in-out infinite;
-  animation-delay: -2.4s;
-}
-.xp-tn-name:hover::before,
 .xp-tn-name:hover::after {
-  opacity: 0.32;
+  opacity: 1;
 }
-@keyframes tn-name-scan-a {
+@keyframes tn-name-breath {
   0%,
   100% {
-    transform: translateY(-0.08em);
+    text-shadow:
+      0 0 18px rgba(54, 212, 134, 0.12),
+      0 0 1px rgba(255, 255, 255, 0.4),
+      -0.5px 0 0 rgba(54, 212, 134, 0.08),
+      0.5px 0 0 rgba(128, 232, 189, 0.06);
   }
-  45%,
-  56% {
-    transform: translateY(0.78em);
+  50% {
+    text-shadow:
+      0 0 24px rgba(54, 212, 134, 0.2),
+      0 0 1px rgba(255, 255, 255, 0.5),
+      -0.5px 0 0 rgba(54, 212, 134, 0.14),
+      0.5px 0 0 rgba(128, 232, 189, 0.1);
   }
 }
-@keyframes tn-name-scan-b {
+@keyframes tn-name-rule {
   0%,
   100% {
-    transform: translateY(0.88em);
+    transform: scaleX(1);
+    opacity: 0.5;
   }
-  48%,
-  62% {
-    transform: translateY(0.14em);
+  50% {
+    transform: scaleX(0.86);
+    opacity: 0.75;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .xp-tn-name,
+  .xp-tn-name::after {
+    animation: none;
   }
 }
 .xp-tn-roleline {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 22px;
+  gap: 12px;
+  margin-top: 26px;
 }
 .xp-tn-role-dot {
   width: 6px;
@@ -3595,8 +3642,8 @@ body:has(.xp-ghost) {
 .xp-tn-role {
   font-size: 1.05rem;
   font-weight: 450;
-  letter-spacing: 0.03em;
-  color: #c0cbc5;
+  letter-spacing: 0.04em;
+  color: #d1dbd5;
 }
 .xp-tn-caret {
   display: inline-block;
@@ -4191,48 +4238,125 @@ body:has(.xp-ghost) {
   transform: translate(3px, -3px);
 }
 
-/* ---- FIELD_LOG — feed ---- */
+/* ---- FIELD_LOG — intercepted signal fragments ----
+   The feed reads as scattered terminal scraps: each entry is a small
+   liquid-glass slab with a fragment header (hash + timestamp + source
+   channel), a sliced left edge, and a corner index. They're set on a slight
+   alternating skew so the column feels like physical paper pinned to a wall,
+   not a uniform CMS list. Hovering "tunes" the signal — border lights up,
+   the fragment lifts, the hash pulses. */
 .xp-tn-log {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px 22px;
+  padding-top: 6px;
 }
 .xp-tn-logentry {
-  display: grid;
-  grid-template-columns: auto auto 1fr;
-  align-items: baseline;
-  gap: 16px;
-  padding: 16px 4px;
-  border-bottom: 1px solid var(--line);
+  position: relative;
+  display: block;
+  padding: 18px 70px 18px 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 14, 12, 0.62),
+    rgba(2, 6, 5, 0.5)
+  );
+  backdrop-filter: blur(12px) saturate(1.2);
+  border: 1px solid color-mix(in srgb, #ffffff 5%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--neon) 45%, transparent);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 14px 34px rgba(0, 0, 0, 0.4);
   transition:
-    background 0.2s,
-    padding 0.2s;
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s,
+    box-shadow 0.3s,
+    border-left-color 0.3s;
 }
-.xp-tn-logentry:last-child {
-  border-bottom: 0;
+/* Asymmetric skew — one cluster leans left, the next leans right. */
+.xp-tn-logentry:nth-child(odd) {
+  transform: translateY(0) rotate(-0.35deg);
+}
+.xp-tn-logentry:nth-child(even) {
+  transform: translateY(8px) rotate(0.4deg);
+}
+.xp-tn-logentry::before {
+  content: "FRAG";
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  color: color-mix(in srgb, var(--neon) 75%, transparent);
+  opacity: 0.55;
+}
+.xp-tn-logentry::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 14%;
+  bottom: 14%;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--neon) 60%, transparent) 40%,
+    color-mix(in srgb, var(--neon2) 35%, transparent) 70%,
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 .xp-tn-logentry:hover {
-  background: rgba(10, 18, 15, 0.3);
-  padding-left: 14px;
+  transform: translateY(-4px) rotate(0deg);
+  border-color: color-mix(in srgb, var(--neon) 28%, transparent);
+  border-left-color: var(--neon);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 22px 50px rgba(0, 0, 0, 0.55),
+    0 0 34px -16px var(--neon);
+}
+.xp-tn-logentry:hover::after {
+  opacity: 1;
 }
 .xp-tn-loghash {
-  color: var(--neon2);
-  font-size: 12px;
-  opacity: 0.8;
+  display: inline-block;
+  font-family: var(--gmono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--neon);
+  background: rgba(54, 212, 134, 0.08);
+  border: 1px solid color-mix(in srgb, var(--neon) 22%, transparent);
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-right: 10px;
+  vertical-align: 1px;
 }
 .xp-tn-logtime {
   color: var(--dim);
-  font-size: 11.5px;
-  letter-spacing: 0.04em;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .xp-tn-logentry p {
-  margin: 0;
+  margin: 14px 0 0;
   font-size: 13.5px;
-  line-height: 1.55;
-  color: #b8c4c0;
+  line-height: 1.6;
+  color: #c5cfca;
 }
 .xp-tn-logentry p b {
   color: var(--ink);
   font-weight: 600;
+  letter-spacing: 0.005em;
+}
+@media (max-width: 860px) {
+  .xp-tn-log {
+    grid-template-columns: 1fr;
+  }
+  .xp-tn-logentry:nth-child(odd),
+  .xp-tn-logentry:nth-child(even) {
+    transform: none;
+  }
 }
 
 /* ---- SIGNAL — contact console ---- */
@@ -4340,11 +4464,6 @@ body:has(.xp-ghost) {
 @media (max-width: 860px) {
   .xp-tn-grid {
     grid-template-columns: 1fr;
-  }
-  .xp-tn-logentry {
-    grid-template-columns: 1fr;
-    gap: 4px;
-    padding: 14px 4px;
   }
   .xp-tn-name {
     font-size: 4.35rem;
