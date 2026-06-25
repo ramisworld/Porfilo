@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 const VIBE_EXAMPLES = [
@@ -10,6 +10,10 @@ const VIBE_EXAMPLES = [
   "glassy futuristic, soft gradients, floating cards",
   "retro 8-bit arcade with a starfield background",
 ];
+
+// GitHub username spec — kept in sync with the server's zod regex so we can
+// reject invalid input client-side without a round-trip.
+const USERNAME_RE = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
 
 function useTypewriter(phrases: string[]) {
   const [text, setText] = useState("");
@@ -55,16 +59,42 @@ export default function Landing() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [vibe, setVibe] = useState("");
+  const [validationError, setValidationError] = useState<string | null>(null);
+  // `pending` covers the navigation gap from clicking Generate to the
+  // /generate page taking over. `useTransition` tracks router.push in Next 15
+  // so the button can show a real spinner instead of looking frozen.
+  const [isPending, startTransition] = useTransition();
   const placeholder = useTypewriter(VIBE_EXAMPLES);
 
-  const canSubmit = username.trim().length > 0 && vibe.trim().length > 0;
+  // Warm up the /generate route chunks on mount so the first navigation is
+  // instant (in dev this compiles the route segment ahead of time).
+  useEffect(() => {
+    router.prefetch("/generate");
+  }, [router]);
+
+  const trimmedU = username.trim().replace(/^@/, "");
+  const trimmedV = vibe.trim();
+  const canSubmit =
+    trimmedU.length > 0 && trimmedV.length > 0 && !isPending;
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
-    const u = encodeURIComponent(username.trim().replace(/^@/, ""));
-    const v = encodeURIComponent(vibe.trim());
-    router.push(`/generate?u=${u}&v=${v}`);
+    if (!USERNAME_RE.test(trimmedU)) {
+      setValidationError(
+        "That doesn't look like a GitHub username. Letters, numbers, and dashes only.",
+      );
+      return;
+    }
+    setValidationError(null);
+    const u = encodeURIComponent(trimmedU);
+    const v = encodeURIComponent(trimmedV);
+    // The transition holds `isPending = true` for the full duration of the
+    // client navigation — including dev-mode route compile and chunk fetch —
+    // so the button never appears unresponsive after the click.
+    startTransition(() => {
+      router.push(`/generate?u=${u}&v=${v}`);
+    });
   }
 
   return (
@@ -82,19 +112,24 @@ export default function Landing() {
           interactive site from your real work.
         </p>
 
-        <form onSubmit={onSubmit} className="mt-10 space-y-4">
+        <form onSubmit={onSubmit} className="mt-10 space-y-4" noValidate>
           <label className="block">
             <span className="mb-1.5 block text-sm text-white/50">
               GitHub username
             </span>
             <input
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                if (validationError) setValidationError(null);
+              }}
               placeholder="ramisworld"
               autoCapitalize="off"
               autoCorrect="off"
               spellCheck={false}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none placeholder:text-white/25 focus:border-indigo-400/60"
+              disabled={isPending}
+              aria-invalid={!!validationError}
+              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none placeholder:text-white/25 focus:border-indigo-400/60 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
 
@@ -108,16 +143,37 @@ export default function Landing() {
               placeholder={placeholder + "▍"}
               rows={3}
               maxLength={300}
-              className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none placeholder:text-white/25 focus:border-indigo-400/60"
+              disabled={isPending}
+              className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none placeholder:text-white/25 focus:border-indigo-400/60 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
+
+          {validationError ? (
+            <p
+              role="alert"
+              className="text-sm text-red-300/90"
+            >
+              {validationError}
+            </p>
+          ) : null}
 
           <button
             type="submit"
             disabled={!canSubmit}
-            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-white px-6 font-medium text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-busy={isPending}
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white px-6 font-medium text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Generate my portfolio
+            {isPending ? (
+              <>
+                <span
+                  aria-hidden
+                  className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black"
+                />
+                Launching the build…
+              </>
+            ) : (
+              "Generate my portfolio"
+            )}
           </button>
         </form>
 
