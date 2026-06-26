@@ -9,8 +9,12 @@ const RESERVED = new Set(["www", "app", "api"]);
 
 /**
  * Multi-tenant routing (see docs/ARCHITECTURE.md §2).
- * `<slug>.<root>` → rewrite to `/sites/<slug>` (the URL bar keeps the subdomain).
- * The bare root domain serves the app.
+ *
+ *   <root>              → marketing/app
+ *   <reserved>.<root>   → app
+ *   <slug>.<root>       → /sites/<slug>          (the URL bar keeps the host)
+ *   <custom>            → /sites-by-host/<host>  (Cloudflare for SaaS forwards
+ *                                                 user-owned domains here)
  */
 export function middleware(req: NextRequest) {
   // Pass the current pathname to server components via header (Next 15 doesn't
@@ -19,27 +23,42 @@ export function middleware(req: NextRequest) {
   requestHeaders.set("x-pathname", req.nextUrl.pathname);
 
   // The shared engine bundle must serve on every host (incl. portfolio
-  // subdomains) — never rewrite it to a /sites/<slug> route.
+  // subdomains and custom domains) — never rewrite it to a /sites route.
   if (req.nextUrl.pathname.startsWith("/engine/")) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  const host = (req.headers.get("host") ?? "").toLowerCase();
+  // Strip any :port for matching — production hosts never include one and we
+  // want a Cloudflare forward (`portfolio.max.com`) to match the same way
+  // dev's `localhost:3000` does.
+  const rawHost = (req.headers.get("host") ?? "").toLowerCase();
+  const hostNoPort = rawHost.replace(/:\d+$/, "");
+  const rootNoPort = ROOT_DOMAIN.toLowerCase().replace(/:\d+$/, "");
 
-  // Not our root domain (e.g. a Vercel preview URL) → serve the app as-is.
-  if (host === ROOT_DOMAIN || !host.endsWith(`.${ROOT_DOMAIN}`)) {
+  // Bare root → serve the app as-is.
+  if (rawHost === ROOT_DOMAIN || hostNoPort === rootNoPort) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  const subdomain = host.slice(0, host.length - ROOT_DOMAIN.length - 1);
-  if (!subdomain || RESERVED.has(subdomain)) {
-    return NextResponse.next({ request: { headers: requestHeaders } });
+  // Hosts under our root domain → either a reserved subdomain (app) or a
+  // portfolio slug.
+  if (hostNoPort.endsWith(`.${rootNoPort}`)) {
+    const subdomain = hostNoPort.slice(
+      0,
+      hostNoPort.length - rootNoPort.length - 1,
+    );
+    if (!subdomain || RESERVED.has(subdomain)) {
+      return NextResponse.next({ request: { headers: requestHeaders } });
+    }
+    const url = req.nextUrl.clone();
+    url.pathname = `/sites/${subdomain}`;
+    return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
   }
 
-  // Portfolio subdomain → render the generated page. Portfolios are single-page,
-  // so we map the whole subdomain host to one slug route.
+  // Anything else is a user-owned custom domain (or an unmapped host). The DB
+  // lookup lives in the route handler so middleware stays Edge-compatible.
   const url = req.nextUrl.clone();
-  url.pathname = `/sites/${subdomain}`;
+  url.pathname = `/sites-by-host/${encodeURIComponent(hostNoPort)}`;
   return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
 }
 
