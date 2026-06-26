@@ -2,8 +2,11 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "~/server/auth";
+import { db } from "~/server/db";
+import { env } from "~/env";
 import { GenerateClient } from "./client";
 import { SignOutButton } from "./sign-out-button";
+import { BetaCap } from "./beta-cap";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +18,16 @@ export default async function GeneratePage() {
 
   const displayName =
     session.user.name?.split(" ")[0] ?? session.user.email?.split("@")[0] ?? null;
+
+  // Beta cap: one portfolio per account. If they already have one, swap the
+  // form for the cap view (which deliberately has NO functional Generate CTA).
+  const existing = await db.portfolio.findFirst({
+    where: { ownerId: session.user.id },
+    select: { slug: true, githubUsername: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const rootDomain = env.NEXT_PUBLIC_ROOT_DOMAIN;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#06060a] text-white antialiased [font-feature-settings:'ss01','cv11']">
@@ -39,7 +52,16 @@ export default async function GeneratePage() {
       </nav>
 
       <section className="relative z-10 mx-auto flex min-h-[calc(100vh-88px)] max-w-2xl flex-col items-center justify-center px-6 pb-24">
-        <GenerateClient />
+        {existing ? (
+          <BetaCap
+            slug={existing.slug}
+            githubUsername={existing.githubUsername}
+            createdAt={existing.createdAt.toISOString()}
+            rootDomain={rootDomain}
+          />
+        ) : (
+          <GenerateClient />
+        )}
       </section>
 
       <div

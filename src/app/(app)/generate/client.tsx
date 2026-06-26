@@ -524,17 +524,27 @@ function GenerateForm({
 
           {/* Vibe ────────────────────────────────────────────────────────── */}
           <label className="relative block">
-            <span className="mb-1.5 flex items-center gap-2 text-[11px] font-medium tracking-[0.14em] text-white/55 uppercase">
-              <span className="font-mono text-emerald-400/80">$</span>
-              vibe
+            <span className="mb-1.5 flex items-center justify-between text-[11px] font-medium tracking-[0.14em] text-white/55 uppercase">
+              <span className="flex items-center gap-2">
+                <span className="font-mono text-emerald-400/80">$</span>
+                vibe
+              </span>
+              <span
+                className={`font-mono normal-case tracking-normal ${
+                  vibe.length >= 100 ? "text-amber-300/80" : "text-white/30"
+                }`}
+                aria-live="polite"
+              >
+                {vibe.length}/100
+              </span>
             </span>
             <div className="rounded-xl bg-black/35 p-1 ring-1 ring-white/[0.04]">
               <textarea
                 value={vibe}
-                onChange={(e) => onVibe(e.target.value)}
+                onChange={(e) => onVibe(e.target.value.slice(0, 100))}
                 placeholder={placeholder + "▍"}
                 rows={3}
-                maxLength={300}
+                maxLength={100}
                 disabled={submitting}
                 className="w-full resize-none rounded-lg bg-transparent px-3 py-2 text-[14.5px] leading-relaxed outline-none placeholder:text-white/25 disabled:opacity-60"
               />
