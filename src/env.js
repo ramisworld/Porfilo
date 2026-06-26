@@ -48,6 +48,13 @@ export const env = createEnv({
     // The "from" address. Use a verified domain in prod (e.g. "PortHub <auth@porthub.dev>").
     // In dev with no Resend key, the magic-link URL is logged to the server console.
     EMAIL_FROM: z.string().optional(),
+
+    // ── Custom domains (Cloudflare for SaaS) ──────────────────────────────
+    // Zone id of the root domain (porthub.dev) in our Cloudflare account.
+    CLOUDFLARE_ZONE_ID: z.string().optional(),
+    // API token scoped to: Custom Hostnames:Edit + SSL and Certificates:Edit
+    // on the porthub.dev zone. Server-only.
+    CLOUDFLARE_API_TOKEN: z.string().optional(),
   },
 
   /**
@@ -58,6 +65,10 @@ export const env = createEnv({
   client: {
     // Root domain for subdomain routing + Preview links. `localhost:3000` in dev.
     NEXT_PUBLIC_ROOT_DOMAIN: z.string().default("localhost:3000"),
+    // The hostname users CNAME their custom domain to. Stable forever — never
+    // bake in an IP or a Railway-internal hostname. Falls back to the root
+    // domain so dev still works without configuring a separate target.
+    NEXT_PUBLIC_CUSTOM_DOMAIN_CNAME_TARGET: z.string().optional(),
   },
 
   /**
@@ -81,7 +92,11 @@ export const env = createEnv({
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     EMAIL_FROM: process.env.EMAIL_FROM,
+    CLOUDFLARE_ZONE_ID: process.env.CLOUDFLARE_ZONE_ID,
+    CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN,
     NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
+    NEXT_PUBLIC_CUSTOM_DOMAIN_CNAME_TARGET:
+      process.env.NEXT_PUBLIC_CUSTOM_DOMAIN_CNAME_TARGET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
