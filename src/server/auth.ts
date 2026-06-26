@@ -80,6 +80,16 @@ export const auth = betterAuth({
   // No passwords — magic link only for the email path.
   emailAndPassword: { enabled: false },
 
+  account: {
+    accountLinking: {
+      enabled: true,
+      disableImplicitLinking: false,
+      trustedProviders: ["google", "github"],
+      allowDifferentEmails: false,
+      updateUserInfoOnLink: true,
+    },
+  },
+
   socialProviders: {
     ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
       ? {
@@ -102,7 +112,7 @@ export const auth = betterAuth({
   plugins: [
     magicLink({
       expiresIn: 60 * 10, // 10 minutes
-      sendMagicLink: async ({ email, url }) => {
+      sendMagicLink: async ({ email, url }, ctx) => {
         // Cap to 5 sends per email / hour to prevent inbox spam + Resend abuse.
         const rl = limit(`magic:${email.toLowerCase()}`, {
           window: "1h",
@@ -111,6 +121,17 @@ export const auth = betterAuth({
         if (!rl.ok) {
           throw new Error(
             "Too many sign-in emails. Try again in a few minutes.",
+          );
+        }
+        const headers = ctx?.request?.headers ?? ctx?.headers;
+        const ip =
+          headers?.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+          headers?.get("x-real-ip")?.trim() ??
+          "local";
+        const ipLimit = limit(`magic:ip:${ip}`, { window: "1h", max: 10 });
+        if (!ipLimit.ok) {
+          throw new Error(
+            "Too many sign-in emails from this network. Try again later.",
           );
         }
         await sendMagicLinkEmail(email, url);
