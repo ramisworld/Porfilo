@@ -179,8 +179,22 @@ exports.Prisma.PortfolioScalarFieldEnum = {
   template: 'template',
   code: 'code',
   isPublic: 'isPublic',
-  customDomain: 'customDomain',
   views: 'views',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomDomainScalarFieldEnum = {
+  id: 'id',
+  portfolioId: 'portfolioId',
+  hostname: 'hostname',
+  cfHostnameId: 'cfHostnameId',
+  status: 'status',
+  ownershipStatus: 'ownershipStatus',
+  sslStatus: 'sslStatus',
+  errorReason: 'errorReason',
+  lastCheckedAt: 'lastCheckedAt',
+  activatedAt: 'activatedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -189,6 +203,14 @@ exports.Prisma.GitHubCacheScalarFieldEnum = {
   username: 'username',
   raw: 'raw',
   fetchedAt: 'fetchedAt'
+};
+
+exports.Prisma.GenerationLockScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  githubUsername: 'githubUsername',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -228,7 +250,9 @@ exports.Prisma.ModelName = {
   Account: 'Account',
   Verification: 'Verification',
   Portfolio: 'Portfolio',
-  GitHubCache: 'GitHubCache'
+  CustomDomain: 'CustomDomain',
+  GitHubCache: 'GitHubCache',
+  GenerationLock: 'GenerationLock'
 };
 
 /**

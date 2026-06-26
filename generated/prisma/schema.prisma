@@ -16,16 +16,17 @@ datasource db {
 // adjusting the auth config. Session is server-side (DB row + httpOnly cookie).
 
 model User {
-  id            String      @id @default(cuid())
-  name          String?
-  email         String      @unique
-  emailVerified Boolean     @default(false)
-  image         String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  portfolios    Portfolio[]
+  id             String          @id @default(cuid())
+  name           String?
+  email          String          @unique
+  emailVerified  Boolean         @default(false)
+  image          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+  portfolios     Portfolio[]
+  generationLock GenerationLock?
 }
 
 model Session {
@@ -58,6 +59,7 @@ model Account {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
+  @@unique([providerId, accountId])
   @@index([userId])
 }
 
@@ -77,29 +79,68 @@ model Verification {
 // A generated portfolio. From Phase 2 onward, ownerId is always set on new rows.
 // Pre-Phase-2 rows may still be ownerless until they're claimed or pruned.
 model Portfolio {
-  id             String   @id @default(cuid())
-  ownerId        String?
-  owner          User?    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  id             String        @id @default(cuid())
+  ownerId        String?       @unique
+  owner          User?         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   githubUsername String
-  slug           String   @unique
+  slug           String        @unique
   vibe           String
   profileData    Json
   designSpec     Json?
   engineVersion  String?
-  template       String   @default("terminalNexus")
-  code           String?  @db.Text
-  isPublic       Boolean  @default(true)
-  customDomain   String?  @unique
-  views          Int      @default(0)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  template       String        @default("terminalNexus")
+  code           String?       @db.Text
+  isPublic       Boolean       @default(true)
+  views          Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  customDomain   CustomDomain?
 
   @@index([githubUsername])
-  @@index([ownerId])
+}
+
+// A user-owned hostname (e.g. portfolio.max.com) attached to a Portfolio.
+//
+// Beta cap: one CustomDomain per Portfolio (and a Portfolio is one-per-user),
+// so effectively one custom domain per account. The hostname is verified +
+// served by Cloudflare for SaaS — `cfHostnameId` is the id Cloudflare gives
+// us when we register the hostname; we use it to poll status + delete later.
+model CustomDomain {
+  id              String    @id @default(cuid())
+  portfolioId     String    @unique
+  portfolio       Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  hostname        String    @unique
+  // Cloudflare's id for this custom hostname. Nullable so we can persist the
+  // row even if the CF call fails mid-creation (so we can retry/clean up).
+  cfHostnameId    String?   @unique
+  // Local rollup of CF status: pending | active | action_needed | error.
+  status          String    @default("pending")
+  // Raw CF sub-statuses cached for the UI ("pending_validation", etc.).
+  ownershipStatus String?
+  sslStatus       String?
+  errorReason     String?
+  lastCheckedAt   DateTime?
+  activatedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model GitHubCache {
   username  String   @id
   raw       Json
   fetchedAt DateTime @default(now())
+}
+
+// Short-lived lock acquired before expensive GitHub/LLM work starts.
+// This prevents multi-tab duplicate generation attempts from burning cost before
+// the one-portfolio-per-user database constraint can reject the race loser.
+model GenerationLock {
+  id             String   @id @default(cuid())
+  ownerId        String   @unique
+  owner          User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  githubUsername String
+  createdAt      DateTime @default(now())
+  expiresAt      DateTime
+
+  @@index([expiresAt])
 }

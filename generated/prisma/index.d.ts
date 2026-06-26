@@ -39,10 +39,20 @@ export type Verification = $Result.DefaultSelection<Prisma.$VerificationPayload>
  */
 export type Portfolio = $Result.DefaultSelection<Prisma.$PortfolioPayload>
 /**
+ * Model CustomDomain
+ * 
+ */
+export type CustomDomain = $Result.DefaultSelection<Prisma.$CustomDomainPayload>
+/**
  * Model GitHubCache
  * 
  */
 export type GitHubCache = $Result.DefaultSelection<Prisma.$GitHubCachePayload>
+/**
+ * Model GenerationLock
+ * 
+ */
+export type GenerationLock = $Result.DefaultSelection<Prisma.$GenerationLockPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -213,6 +223,16 @@ export class PrismaClient<
   get portfolio(): Prisma.PortfolioDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.customDomain`: Exposes CRUD operations for the **CustomDomain** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CustomDomains
+    * const customDomains = await prisma.customDomain.findMany()
+    * ```
+    */
+  get customDomain(): Prisma.CustomDomainDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.gitHubCache`: Exposes CRUD operations for the **GitHubCache** model.
     * Example usage:
     * ```ts
@@ -221,6 +241,16 @@ export class PrismaClient<
     * ```
     */
   get gitHubCache(): Prisma.GitHubCacheDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.generationLock`: Exposes CRUD operations for the **GenerationLock** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GenerationLocks
+    * const generationLocks = await prisma.generationLock.findMany()
+    * ```
+    */
+  get generationLock(): Prisma.GenerationLockDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -667,7 +697,9 @@ export namespace Prisma {
     Account: 'Account',
     Verification: 'Verification',
     Portfolio: 'Portfolio',
-    GitHubCache: 'GitHubCache'
+    CustomDomain: 'CustomDomain',
+    GitHubCache: 'GitHubCache',
+    GenerationLock: 'GenerationLock'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -686,7 +718,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "portfolio" | "gitHubCache"
+      modelProps: "user" | "session" | "account" | "verification" | "portfolio" | "customDomain" | "gitHubCache" | "generationLock"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1060,6 +1092,80 @@ export namespace Prisma {
           }
         }
       }
+      CustomDomain: {
+        payload: Prisma.$CustomDomainPayload<ExtArgs>
+        fields: Prisma.CustomDomainFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CustomDomainFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CustomDomainFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload>
+          }
+          findFirst: {
+            args: Prisma.CustomDomainFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CustomDomainFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload>
+          }
+          findMany: {
+            args: Prisma.CustomDomainFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload>[]
+          }
+          create: {
+            args: Prisma.CustomDomainCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload>
+          }
+          createMany: {
+            args: Prisma.CustomDomainCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CustomDomainCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload>[]
+          }
+          delete: {
+            args: Prisma.CustomDomainDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload>
+          }
+          update: {
+            args: Prisma.CustomDomainUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload>
+          }
+          deleteMany: {
+            args: Prisma.CustomDomainDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CustomDomainUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CustomDomainUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload>[]
+          }
+          upsert: {
+            args: Prisma.CustomDomainUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomDomainPayload>
+          }
+          aggregate: {
+            args: Prisma.CustomDomainAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCustomDomain>
+          }
+          groupBy: {
+            args: Prisma.CustomDomainGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CustomDomainGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CustomDomainCountArgs<ExtArgs>
+            result: $Utils.Optional<CustomDomainCountAggregateOutputType> | number
+          }
+        }
+      }
       GitHubCache: {
         payload: Prisma.$GitHubCachePayload<ExtArgs>
         fields: Prisma.GitHubCacheFieldRefs
@@ -1131,6 +1237,80 @@ export namespace Prisma {
           count: {
             args: Prisma.GitHubCacheCountArgs<ExtArgs>
             result: $Utils.Optional<GitHubCacheCountAggregateOutputType> | number
+          }
+        }
+      }
+      GenerationLock: {
+        payload: Prisma.$GenerationLockPayload<ExtArgs>
+        fields: Prisma.GenerationLockFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GenerationLockFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GenerationLockFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload>
+          }
+          findFirst: {
+            args: Prisma.GenerationLockFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GenerationLockFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload>
+          }
+          findMany: {
+            args: Prisma.GenerationLockFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload>[]
+          }
+          create: {
+            args: Prisma.GenerationLockCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload>
+          }
+          createMany: {
+            args: Prisma.GenerationLockCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GenerationLockCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload>[]
+          }
+          delete: {
+            args: Prisma.GenerationLockDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload>
+          }
+          update: {
+            args: Prisma.GenerationLockUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload>
+          }
+          deleteMany: {
+            args: Prisma.GenerationLockDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GenerationLockUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GenerationLockUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload>[]
+          }
+          upsert: {
+            args: Prisma.GenerationLockUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationLockPayload>
+          }
+          aggregate: {
+            args: Prisma.GenerationLockAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGenerationLock>
+          }
+          groupBy: {
+            args: Prisma.GenerationLockGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GenerationLockGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GenerationLockCountArgs<ExtArgs>
+            result: $Utils.Optional<GenerationLockCountAggregateOutputType> | number
           }
         }
       }
@@ -1235,7 +1415,9 @@ export namespace Prisma {
     account?: AccountOmit
     verification?: VerificationOmit
     portfolio?: PortfolioOmit
+    customDomain?: CustomDomainOmit
     gitHubCache?: GitHubCacheOmit
+    generationLock?: GenerationLockOmit
   }
 
   /* Types for Logging */
@@ -1547,6 +1729,7 @@ export namespace Prisma {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     portfolios?: boolean | User$portfoliosArgs<ExtArgs>
+    generationLock?: boolean | User$generationLockArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1585,6 +1768,7 @@ export namespace Prisma {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     portfolios?: boolean | User$portfoliosArgs<ExtArgs>
+    generationLock?: boolean | User$generationLockArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1596,6 +1780,7 @@ export namespace Prisma {
       sessions: Prisma.$SessionPayload<ExtArgs>[]
       accounts: Prisma.$AccountPayload<ExtArgs>[]
       portfolios: Prisma.$PortfolioPayload<ExtArgs>[]
+      generationLock: Prisma.$GenerationLockPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2002,6 +2187,7 @@ export namespace Prisma {
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accounts<T extends User$accountsArgs<ExtArgs> = {}>(args?: Subset<T, User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     portfolios<T extends User$portfoliosArgs<ExtArgs> = {}>(args?: Subset<T, User$portfoliosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PortfolioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    generationLock<T extends User$generationLockArgs<ExtArgs> = {}>(args?: Subset<T, User$generationLockArgs<ExtArgs>>): Prisma__GenerationLockClient<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2495,6 +2681,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PortfolioScalarFieldEnum | PortfolioScalarFieldEnum[]
+  }
+
+  /**
+   * User.generationLock
+   */
+  export type User$generationLockArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+    where?: GenerationLockWhereInput
   }
 
   /**
@@ -5813,7 +6018,6 @@ export namespace Prisma {
     template: string | null
     code: string | null
     isPublic: boolean | null
-    customDomain: string | null
     views: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5829,7 +6033,6 @@ export namespace Prisma {
     template: string | null
     code: string | null
     isPublic: boolean | null
-    customDomain: string | null
     views: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5847,7 +6050,6 @@ export namespace Prisma {
     template: number
     code: number
     isPublic: number
-    customDomain: number
     views: number
     createdAt: number
     updatedAt: number
@@ -5873,7 +6075,6 @@ export namespace Prisma {
     template?: true
     code?: true
     isPublic?: true
-    customDomain?: true
     views?: true
     createdAt?: true
     updatedAt?: true
@@ -5889,7 +6090,6 @@ export namespace Prisma {
     template?: true
     code?: true
     isPublic?: true
-    customDomain?: true
     views?: true
     createdAt?: true
     updatedAt?: true
@@ -5907,7 +6107,6 @@ export namespace Prisma {
     template?: true
     code?: true
     isPublic?: true
-    customDomain?: true
     views?: true
     createdAt?: true
     updatedAt?: true
@@ -6012,7 +6211,6 @@ export namespace Prisma {
     template: string
     code: string | null
     isPublic: boolean
-    customDomain: string | null
     views: number
     createdAt: Date
     updatedAt: Date
@@ -6049,11 +6247,11 @@ export namespace Prisma {
     template?: boolean
     code?: boolean
     isPublic?: boolean
-    customDomain?: boolean
     views?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     owner?: boolean | Portfolio$ownerArgs<ExtArgs>
+    customDomain?: boolean | Portfolio$customDomainArgs<ExtArgs>
   }, ExtArgs["result"]["portfolio"]>
 
   export type PortfolioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -6068,7 +6266,6 @@ export namespace Prisma {
     template?: boolean
     code?: boolean
     isPublic?: boolean
-    customDomain?: boolean
     views?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6087,7 +6284,6 @@ export namespace Prisma {
     template?: boolean
     code?: boolean
     isPublic?: boolean
-    customDomain?: boolean
     views?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6106,15 +6302,15 @@ export namespace Prisma {
     template?: boolean
     code?: boolean
     isPublic?: boolean
-    customDomain?: boolean
     views?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PortfolioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "slug" | "vibe" | "profileData" | "designSpec" | "engineVersion" | "template" | "code" | "isPublic" | "customDomain" | "views" | "createdAt" | "updatedAt", ExtArgs["result"]["portfolio"]>
+  export type PortfolioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "slug" | "vibe" | "profileData" | "designSpec" | "engineVersion" | "template" | "code" | "isPublic" | "views" | "createdAt" | "updatedAt", ExtArgs["result"]["portfolio"]>
   export type PortfolioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | Portfolio$ownerArgs<ExtArgs>
+    customDomain?: boolean | Portfolio$customDomainArgs<ExtArgs>
   }
   export type PortfolioIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | Portfolio$ownerArgs<ExtArgs>
@@ -6127,6 +6323,7 @@ export namespace Prisma {
     name: "Portfolio"
     objects: {
       owner: Prisma.$UserPayload<ExtArgs> | null
+      customDomain: Prisma.$CustomDomainPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6140,7 +6337,6 @@ export namespace Prisma {
       template: string
       code: string | null
       isPublic: boolean
-      customDomain: string | null
       views: number
       createdAt: Date
       updatedAt: Date
@@ -6539,6 +6735,7 @@ export namespace Prisma {
   export interface Prisma__PortfolioClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     owner<T extends Portfolio$ownerArgs<ExtArgs> = {}>(args?: Subset<T, Portfolio$ownerArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    customDomain<T extends Portfolio$customDomainArgs<ExtArgs> = {}>(args?: Subset<T, Portfolio$customDomainArgs<ExtArgs>>): Prisma__CustomDomainClient<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6579,7 +6776,6 @@ export namespace Prisma {
     readonly template: FieldRef<"Portfolio", 'String'>
     readonly code: FieldRef<"Portfolio", 'String'>
     readonly isPublic: FieldRef<"Portfolio", 'Boolean'>
-    readonly customDomain: FieldRef<"Portfolio", 'String'>
     readonly views: FieldRef<"Portfolio", 'Int'>
     readonly createdAt: FieldRef<"Portfolio", 'DateTime'>
     readonly updatedAt: FieldRef<"Portfolio", 'DateTime'>
@@ -6998,6 +7194,25 @@ export namespace Prisma {
   }
 
   /**
+   * Portfolio.customDomain
+   */
+  export type Portfolio$customDomainArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
+    where?: CustomDomainWhereInput
+  }
+
+  /**
    * Portfolio without action
    */
   export type PortfolioDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7013,6 +7228,1155 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: PortfolioInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CustomDomain
+   */
+
+  export type AggregateCustomDomain = {
+    _count: CustomDomainCountAggregateOutputType | null
+    _min: CustomDomainMinAggregateOutputType | null
+    _max: CustomDomainMaxAggregateOutputType | null
+  }
+
+  export type CustomDomainMinAggregateOutputType = {
+    id: string | null
+    portfolioId: string | null
+    hostname: string | null
+    cfHostnameId: string | null
+    status: string | null
+    ownershipStatus: string | null
+    sslStatus: string | null
+    errorReason: string | null
+    lastCheckedAt: Date | null
+    activatedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CustomDomainMaxAggregateOutputType = {
+    id: string | null
+    portfolioId: string | null
+    hostname: string | null
+    cfHostnameId: string | null
+    status: string | null
+    ownershipStatus: string | null
+    sslStatus: string | null
+    errorReason: string | null
+    lastCheckedAt: Date | null
+    activatedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CustomDomainCountAggregateOutputType = {
+    id: number
+    portfolioId: number
+    hostname: number
+    cfHostnameId: number
+    status: number
+    ownershipStatus: number
+    sslStatus: number
+    errorReason: number
+    lastCheckedAt: number
+    activatedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CustomDomainMinAggregateInputType = {
+    id?: true
+    portfolioId?: true
+    hostname?: true
+    cfHostnameId?: true
+    status?: true
+    ownershipStatus?: true
+    sslStatus?: true
+    errorReason?: true
+    lastCheckedAt?: true
+    activatedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CustomDomainMaxAggregateInputType = {
+    id?: true
+    portfolioId?: true
+    hostname?: true
+    cfHostnameId?: true
+    status?: true
+    ownershipStatus?: true
+    sslStatus?: true
+    errorReason?: true
+    lastCheckedAt?: true
+    activatedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CustomDomainCountAggregateInputType = {
+    id?: true
+    portfolioId?: true
+    hostname?: true
+    cfHostnameId?: true
+    status?: true
+    ownershipStatus?: true
+    sslStatus?: true
+    errorReason?: true
+    lastCheckedAt?: true
+    activatedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CustomDomainAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomDomain to aggregate.
+     */
+    where?: CustomDomainWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomDomains to fetch.
+     */
+    orderBy?: CustomDomainOrderByWithRelationInput | CustomDomainOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CustomDomainWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomDomains from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomDomains.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CustomDomains
+    **/
+    _count?: true | CustomDomainCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CustomDomainMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CustomDomainMaxAggregateInputType
+  }
+
+  export type GetCustomDomainAggregateType<T extends CustomDomainAggregateArgs> = {
+        [P in keyof T & keyof AggregateCustomDomain]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCustomDomain[P]>
+      : GetScalarType<T[P], AggregateCustomDomain[P]>
+  }
+
+
+
+
+  export type CustomDomainGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomDomainWhereInput
+    orderBy?: CustomDomainOrderByWithAggregationInput | CustomDomainOrderByWithAggregationInput[]
+    by: CustomDomainScalarFieldEnum[] | CustomDomainScalarFieldEnum
+    having?: CustomDomainScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CustomDomainCountAggregateInputType | true
+    _min?: CustomDomainMinAggregateInputType
+    _max?: CustomDomainMaxAggregateInputType
+  }
+
+  export type CustomDomainGroupByOutputType = {
+    id: string
+    portfolioId: string
+    hostname: string
+    cfHostnameId: string | null
+    status: string
+    ownershipStatus: string | null
+    sslStatus: string | null
+    errorReason: string | null
+    lastCheckedAt: Date | null
+    activatedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: CustomDomainCountAggregateOutputType | null
+    _min: CustomDomainMinAggregateOutputType | null
+    _max: CustomDomainMaxAggregateOutputType | null
+  }
+
+  type GetCustomDomainGroupByPayload<T extends CustomDomainGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CustomDomainGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CustomDomainGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CustomDomainGroupByOutputType[P]>
+            : GetScalarType<T[P], CustomDomainGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CustomDomainSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    portfolioId?: boolean
+    hostname?: boolean
+    cfHostnameId?: boolean
+    status?: boolean
+    ownershipStatus?: boolean
+    sslStatus?: boolean
+    errorReason?: boolean
+    lastCheckedAt?: boolean
+    activatedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customDomain"]>
+
+  export type CustomDomainSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    portfolioId?: boolean
+    hostname?: boolean
+    cfHostnameId?: boolean
+    status?: boolean
+    ownershipStatus?: boolean
+    sslStatus?: boolean
+    errorReason?: boolean
+    lastCheckedAt?: boolean
+    activatedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customDomain"]>
+
+  export type CustomDomainSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    portfolioId?: boolean
+    hostname?: boolean
+    cfHostnameId?: boolean
+    status?: boolean
+    ownershipStatus?: boolean
+    sslStatus?: boolean
+    errorReason?: boolean
+    lastCheckedAt?: boolean
+    activatedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customDomain"]>
+
+  export type CustomDomainSelectScalar = {
+    id?: boolean
+    portfolioId?: boolean
+    hostname?: boolean
+    cfHostnameId?: boolean
+    status?: boolean
+    ownershipStatus?: boolean
+    sslStatus?: boolean
+    errorReason?: boolean
+    lastCheckedAt?: boolean
+    activatedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CustomDomainOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "portfolioId" | "hostname" | "cfHostnameId" | "status" | "ownershipStatus" | "sslStatus" | "errorReason" | "lastCheckedAt" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customDomain"]>
+  export type CustomDomainInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
+  }
+  export type CustomDomainIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
+  }
+  export type CustomDomainIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
+  }
+
+  export type $CustomDomainPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CustomDomain"
+    objects: {
+      portfolio: Prisma.$PortfolioPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      portfolioId: string
+      hostname: string
+      cfHostnameId: string | null
+      status: string
+      ownershipStatus: string | null
+      sslStatus: string | null
+      errorReason: string | null
+      lastCheckedAt: Date | null
+      activatedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["customDomain"]>
+    composites: {}
+  }
+
+  type CustomDomainGetPayload<S extends boolean | null | undefined | CustomDomainDefaultArgs> = $Result.GetResult<Prisma.$CustomDomainPayload, S>
+
+  type CustomDomainCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CustomDomainFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CustomDomainCountAggregateInputType | true
+    }
+
+  export interface CustomDomainDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CustomDomain'], meta: { name: 'CustomDomain' } }
+    /**
+     * Find zero or one CustomDomain that matches the filter.
+     * @param {CustomDomainFindUniqueArgs} args - Arguments to find a CustomDomain
+     * @example
+     * // Get one CustomDomain
+     * const customDomain = await prisma.customDomain.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CustomDomainFindUniqueArgs>(args: SelectSubset<T, CustomDomainFindUniqueArgs<ExtArgs>>): Prisma__CustomDomainClient<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CustomDomain that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CustomDomainFindUniqueOrThrowArgs} args - Arguments to find a CustomDomain
+     * @example
+     * // Get one CustomDomain
+     * const customDomain = await prisma.customDomain.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CustomDomainFindUniqueOrThrowArgs>(args: SelectSubset<T, CustomDomainFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CustomDomainClient<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomDomain that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomDomainFindFirstArgs} args - Arguments to find a CustomDomain
+     * @example
+     * // Get one CustomDomain
+     * const customDomain = await prisma.customDomain.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CustomDomainFindFirstArgs>(args?: SelectSubset<T, CustomDomainFindFirstArgs<ExtArgs>>): Prisma__CustomDomainClient<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomDomain that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomDomainFindFirstOrThrowArgs} args - Arguments to find a CustomDomain
+     * @example
+     * // Get one CustomDomain
+     * const customDomain = await prisma.customDomain.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CustomDomainFindFirstOrThrowArgs>(args?: SelectSubset<T, CustomDomainFindFirstOrThrowArgs<ExtArgs>>): Prisma__CustomDomainClient<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CustomDomains that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomDomainFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CustomDomains
+     * const customDomains = await prisma.customDomain.findMany()
+     * 
+     * // Get first 10 CustomDomains
+     * const customDomains = await prisma.customDomain.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const customDomainWithIdOnly = await prisma.customDomain.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CustomDomainFindManyArgs>(args?: SelectSubset<T, CustomDomainFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CustomDomain.
+     * @param {CustomDomainCreateArgs} args - Arguments to create a CustomDomain.
+     * @example
+     * // Create one CustomDomain
+     * const CustomDomain = await prisma.customDomain.create({
+     *   data: {
+     *     // ... data to create a CustomDomain
+     *   }
+     * })
+     * 
+     */
+    create<T extends CustomDomainCreateArgs>(args: SelectSubset<T, CustomDomainCreateArgs<ExtArgs>>): Prisma__CustomDomainClient<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CustomDomains.
+     * @param {CustomDomainCreateManyArgs} args - Arguments to create many CustomDomains.
+     * @example
+     * // Create many CustomDomains
+     * const customDomain = await prisma.customDomain.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CustomDomainCreateManyArgs>(args?: SelectSubset<T, CustomDomainCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CustomDomains and returns the data saved in the database.
+     * @param {CustomDomainCreateManyAndReturnArgs} args - Arguments to create many CustomDomains.
+     * @example
+     * // Create many CustomDomains
+     * const customDomain = await prisma.customDomain.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CustomDomains and only return the `id`
+     * const customDomainWithIdOnly = await prisma.customDomain.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CustomDomainCreateManyAndReturnArgs>(args?: SelectSubset<T, CustomDomainCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CustomDomain.
+     * @param {CustomDomainDeleteArgs} args - Arguments to delete one CustomDomain.
+     * @example
+     * // Delete one CustomDomain
+     * const CustomDomain = await prisma.customDomain.delete({
+     *   where: {
+     *     // ... filter to delete one CustomDomain
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CustomDomainDeleteArgs>(args: SelectSubset<T, CustomDomainDeleteArgs<ExtArgs>>): Prisma__CustomDomainClient<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CustomDomain.
+     * @param {CustomDomainUpdateArgs} args - Arguments to update one CustomDomain.
+     * @example
+     * // Update one CustomDomain
+     * const customDomain = await prisma.customDomain.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CustomDomainUpdateArgs>(args: SelectSubset<T, CustomDomainUpdateArgs<ExtArgs>>): Prisma__CustomDomainClient<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CustomDomains.
+     * @param {CustomDomainDeleteManyArgs} args - Arguments to filter CustomDomains to delete.
+     * @example
+     * // Delete a few CustomDomains
+     * const { count } = await prisma.customDomain.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CustomDomainDeleteManyArgs>(args?: SelectSubset<T, CustomDomainDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomDomains.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomDomainUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CustomDomains
+     * const customDomain = await prisma.customDomain.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CustomDomainUpdateManyArgs>(args: SelectSubset<T, CustomDomainUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomDomains and returns the data updated in the database.
+     * @param {CustomDomainUpdateManyAndReturnArgs} args - Arguments to update many CustomDomains.
+     * @example
+     * // Update many CustomDomains
+     * const customDomain = await prisma.customDomain.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CustomDomains and only return the `id`
+     * const customDomainWithIdOnly = await prisma.customDomain.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CustomDomainUpdateManyAndReturnArgs>(args: SelectSubset<T, CustomDomainUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CustomDomain.
+     * @param {CustomDomainUpsertArgs} args - Arguments to update or create a CustomDomain.
+     * @example
+     * // Update or create a CustomDomain
+     * const customDomain = await prisma.customDomain.upsert({
+     *   create: {
+     *     // ... data to create a CustomDomain
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CustomDomain we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CustomDomainUpsertArgs>(args: SelectSubset<T, CustomDomainUpsertArgs<ExtArgs>>): Prisma__CustomDomainClient<$Result.GetResult<Prisma.$CustomDomainPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CustomDomains.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomDomainCountArgs} args - Arguments to filter CustomDomains to count.
+     * @example
+     * // Count the number of CustomDomains
+     * const count = await prisma.customDomain.count({
+     *   where: {
+     *     // ... the filter for the CustomDomains we want to count
+     *   }
+     * })
+    **/
+    count<T extends CustomDomainCountArgs>(
+      args?: Subset<T, CustomDomainCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CustomDomainCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CustomDomain.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomDomainAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CustomDomainAggregateArgs>(args: Subset<T, CustomDomainAggregateArgs>): Prisma.PrismaPromise<GetCustomDomainAggregateType<T>>
+
+    /**
+     * Group by CustomDomain.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomDomainGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CustomDomainGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CustomDomainGroupByArgs['orderBy'] }
+        : { orderBy?: CustomDomainGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CustomDomainGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCustomDomainGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CustomDomain model
+   */
+  readonly fields: CustomDomainFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CustomDomain.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CustomDomainClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    portfolio<T extends PortfolioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PortfolioDefaultArgs<ExtArgs>>): Prisma__PortfolioClient<$Result.GetResult<Prisma.$PortfolioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CustomDomain model
+   */
+  interface CustomDomainFieldRefs {
+    readonly id: FieldRef<"CustomDomain", 'String'>
+    readonly portfolioId: FieldRef<"CustomDomain", 'String'>
+    readonly hostname: FieldRef<"CustomDomain", 'String'>
+    readonly cfHostnameId: FieldRef<"CustomDomain", 'String'>
+    readonly status: FieldRef<"CustomDomain", 'String'>
+    readonly ownershipStatus: FieldRef<"CustomDomain", 'String'>
+    readonly sslStatus: FieldRef<"CustomDomain", 'String'>
+    readonly errorReason: FieldRef<"CustomDomain", 'String'>
+    readonly lastCheckedAt: FieldRef<"CustomDomain", 'DateTime'>
+    readonly activatedAt: FieldRef<"CustomDomain", 'DateTime'>
+    readonly createdAt: FieldRef<"CustomDomain", 'DateTime'>
+    readonly updatedAt: FieldRef<"CustomDomain", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CustomDomain findUnique
+   */
+  export type CustomDomainFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomDomain to fetch.
+     */
+    where: CustomDomainWhereUniqueInput
+  }
+
+  /**
+   * CustomDomain findUniqueOrThrow
+   */
+  export type CustomDomainFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomDomain to fetch.
+     */
+    where: CustomDomainWhereUniqueInput
+  }
+
+  /**
+   * CustomDomain findFirst
+   */
+  export type CustomDomainFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomDomain to fetch.
+     */
+    where?: CustomDomainWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomDomains to fetch.
+     */
+    orderBy?: CustomDomainOrderByWithRelationInput | CustomDomainOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomDomains.
+     */
+    cursor?: CustomDomainWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomDomains from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomDomains.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomDomains.
+     */
+    distinct?: CustomDomainScalarFieldEnum | CustomDomainScalarFieldEnum[]
+  }
+
+  /**
+   * CustomDomain findFirstOrThrow
+   */
+  export type CustomDomainFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomDomain to fetch.
+     */
+    where?: CustomDomainWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomDomains to fetch.
+     */
+    orderBy?: CustomDomainOrderByWithRelationInput | CustomDomainOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomDomains.
+     */
+    cursor?: CustomDomainWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomDomains from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomDomains.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomDomains.
+     */
+    distinct?: CustomDomainScalarFieldEnum | CustomDomainScalarFieldEnum[]
+  }
+
+  /**
+   * CustomDomain findMany
+   */
+  export type CustomDomainFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomDomains to fetch.
+     */
+    where?: CustomDomainWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomDomains to fetch.
+     */
+    orderBy?: CustomDomainOrderByWithRelationInput | CustomDomainOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CustomDomains.
+     */
+    cursor?: CustomDomainWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomDomains from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomDomains.
+     */
+    skip?: number
+    distinct?: CustomDomainScalarFieldEnum | CustomDomainScalarFieldEnum[]
+  }
+
+  /**
+   * CustomDomain create
+   */
+  export type CustomDomainCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CustomDomain.
+     */
+    data: XOR<CustomDomainCreateInput, CustomDomainUncheckedCreateInput>
+  }
+
+  /**
+   * CustomDomain createMany
+   */
+  export type CustomDomainCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CustomDomains.
+     */
+    data: CustomDomainCreateManyInput | CustomDomainCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CustomDomain createManyAndReturn
+   */
+  export type CustomDomainCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * The data used to create many CustomDomains.
+     */
+    data: CustomDomainCreateManyInput | CustomDomainCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomDomain update
+   */
+  export type CustomDomainUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CustomDomain.
+     */
+    data: XOR<CustomDomainUpdateInput, CustomDomainUncheckedUpdateInput>
+    /**
+     * Choose, which CustomDomain to update.
+     */
+    where: CustomDomainWhereUniqueInput
+  }
+
+  /**
+   * CustomDomain updateMany
+   */
+  export type CustomDomainUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CustomDomains.
+     */
+    data: XOR<CustomDomainUpdateManyMutationInput, CustomDomainUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomDomains to update
+     */
+    where?: CustomDomainWhereInput
+    /**
+     * Limit how many CustomDomains to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomDomain updateManyAndReturn
+   */
+  export type CustomDomainUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * The data used to update CustomDomains.
+     */
+    data: XOR<CustomDomainUpdateManyMutationInput, CustomDomainUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomDomains to update
+     */
+    where?: CustomDomainWhereInput
+    /**
+     * Limit how many CustomDomains to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomDomain upsert
+   */
+  export type CustomDomainUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CustomDomain to update in case it exists.
+     */
+    where: CustomDomainWhereUniqueInput
+    /**
+     * In case the CustomDomain found by the `where` argument doesn't exist, create a new CustomDomain with this data.
+     */
+    create: XOR<CustomDomainCreateInput, CustomDomainUncheckedCreateInput>
+    /**
+     * In case the CustomDomain was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CustomDomainUpdateInput, CustomDomainUncheckedUpdateInput>
+  }
+
+  /**
+   * CustomDomain delete
+   */
+  export type CustomDomainDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
+    /**
+     * Filter which CustomDomain to delete.
+     */
+    where: CustomDomainWhereUniqueInput
+  }
+
+  /**
+   * CustomDomain deleteMany
+   */
+  export type CustomDomainDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomDomains to delete
+     */
+    where?: CustomDomainWhereInput
+    /**
+     * Limit how many CustomDomains to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomDomain without action
+   */
+  export type CustomDomainDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomDomain
+     */
+    select?: CustomDomainSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomDomain
+     */
+    omit?: CustomDomainOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomDomainInclude<ExtArgs> | null
   }
 
 
@@ -7982,6 +9346,1064 @@ export namespace Prisma {
 
 
   /**
+   * Model GenerationLock
+   */
+
+  export type AggregateGenerationLock = {
+    _count: GenerationLockCountAggregateOutputType | null
+    _min: GenerationLockMinAggregateOutputType | null
+    _max: GenerationLockMaxAggregateOutputType | null
+  }
+
+  export type GenerationLockMinAggregateOutputType = {
+    id: string | null
+    ownerId: string | null
+    githubUsername: string | null
+    createdAt: Date | null
+    expiresAt: Date | null
+  }
+
+  export type GenerationLockMaxAggregateOutputType = {
+    id: string | null
+    ownerId: string | null
+    githubUsername: string | null
+    createdAt: Date | null
+    expiresAt: Date | null
+  }
+
+  export type GenerationLockCountAggregateOutputType = {
+    id: number
+    ownerId: number
+    githubUsername: number
+    createdAt: number
+    expiresAt: number
+    _all: number
+  }
+
+
+  export type GenerationLockMinAggregateInputType = {
+    id?: true
+    ownerId?: true
+    githubUsername?: true
+    createdAt?: true
+    expiresAt?: true
+  }
+
+  export type GenerationLockMaxAggregateInputType = {
+    id?: true
+    ownerId?: true
+    githubUsername?: true
+    createdAt?: true
+    expiresAt?: true
+  }
+
+  export type GenerationLockCountAggregateInputType = {
+    id?: true
+    ownerId?: true
+    githubUsername?: true
+    createdAt?: true
+    expiresAt?: true
+    _all?: true
+  }
+
+  export type GenerationLockAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GenerationLock to aggregate.
+     */
+    where?: GenerationLockWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GenerationLocks to fetch.
+     */
+    orderBy?: GenerationLockOrderByWithRelationInput | GenerationLockOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GenerationLockWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GenerationLocks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GenerationLocks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GenerationLocks
+    **/
+    _count?: true | GenerationLockCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GenerationLockMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GenerationLockMaxAggregateInputType
+  }
+
+  export type GetGenerationLockAggregateType<T extends GenerationLockAggregateArgs> = {
+        [P in keyof T & keyof AggregateGenerationLock]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGenerationLock[P]>
+      : GetScalarType<T[P], AggregateGenerationLock[P]>
+  }
+
+
+
+
+  export type GenerationLockGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GenerationLockWhereInput
+    orderBy?: GenerationLockOrderByWithAggregationInput | GenerationLockOrderByWithAggregationInput[]
+    by: GenerationLockScalarFieldEnum[] | GenerationLockScalarFieldEnum
+    having?: GenerationLockScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GenerationLockCountAggregateInputType | true
+    _min?: GenerationLockMinAggregateInputType
+    _max?: GenerationLockMaxAggregateInputType
+  }
+
+  export type GenerationLockGroupByOutputType = {
+    id: string
+    ownerId: string
+    githubUsername: string
+    createdAt: Date
+    expiresAt: Date
+    _count: GenerationLockCountAggregateOutputType | null
+    _min: GenerationLockMinAggregateOutputType | null
+    _max: GenerationLockMaxAggregateOutputType | null
+  }
+
+  type GetGenerationLockGroupByPayload<T extends GenerationLockGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GenerationLockGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GenerationLockGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GenerationLockGroupByOutputType[P]>
+            : GetScalarType<T[P], GenerationLockGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GenerationLockSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ownerId?: boolean
+    githubUsername?: boolean
+    createdAt?: boolean
+    expiresAt?: boolean
+    owner?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["generationLock"]>
+
+  export type GenerationLockSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ownerId?: boolean
+    githubUsername?: boolean
+    createdAt?: boolean
+    expiresAt?: boolean
+    owner?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["generationLock"]>
+
+  export type GenerationLockSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ownerId?: boolean
+    githubUsername?: boolean
+    createdAt?: boolean
+    expiresAt?: boolean
+    owner?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["generationLock"]>
+
+  export type GenerationLockSelectScalar = {
+    id?: boolean
+    ownerId?: boolean
+    githubUsername?: boolean
+    createdAt?: boolean
+    expiresAt?: boolean
+  }
+
+  export type GenerationLockOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "createdAt" | "expiresAt", ExtArgs["result"]["generationLock"]>
+  export type GenerationLockInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type GenerationLockIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type GenerationLockIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $GenerationLockPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GenerationLock"
+    objects: {
+      owner: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      ownerId: string
+      githubUsername: string
+      createdAt: Date
+      expiresAt: Date
+    }, ExtArgs["result"]["generationLock"]>
+    composites: {}
+  }
+
+  type GenerationLockGetPayload<S extends boolean | null | undefined | GenerationLockDefaultArgs> = $Result.GetResult<Prisma.$GenerationLockPayload, S>
+
+  type GenerationLockCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GenerationLockFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GenerationLockCountAggregateInputType | true
+    }
+
+  export interface GenerationLockDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GenerationLock'], meta: { name: 'GenerationLock' } }
+    /**
+     * Find zero or one GenerationLock that matches the filter.
+     * @param {GenerationLockFindUniqueArgs} args - Arguments to find a GenerationLock
+     * @example
+     * // Get one GenerationLock
+     * const generationLock = await prisma.generationLock.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GenerationLockFindUniqueArgs>(args: SelectSubset<T, GenerationLockFindUniqueArgs<ExtArgs>>): Prisma__GenerationLockClient<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GenerationLock that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GenerationLockFindUniqueOrThrowArgs} args - Arguments to find a GenerationLock
+     * @example
+     * // Get one GenerationLock
+     * const generationLock = await prisma.generationLock.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GenerationLockFindUniqueOrThrowArgs>(args: SelectSubset<T, GenerationLockFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GenerationLockClient<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GenerationLock that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationLockFindFirstArgs} args - Arguments to find a GenerationLock
+     * @example
+     * // Get one GenerationLock
+     * const generationLock = await prisma.generationLock.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GenerationLockFindFirstArgs>(args?: SelectSubset<T, GenerationLockFindFirstArgs<ExtArgs>>): Prisma__GenerationLockClient<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GenerationLock that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationLockFindFirstOrThrowArgs} args - Arguments to find a GenerationLock
+     * @example
+     * // Get one GenerationLock
+     * const generationLock = await prisma.generationLock.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GenerationLockFindFirstOrThrowArgs>(args?: SelectSubset<T, GenerationLockFindFirstOrThrowArgs<ExtArgs>>): Prisma__GenerationLockClient<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GenerationLocks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationLockFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GenerationLocks
+     * const generationLocks = await prisma.generationLock.findMany()
+     * 
+     * // Get first 10 GenerationLocks
+     * const generationLocks = await prisma.generationLock.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const generationLockWithIdOnly = await prisma.generationLock.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GenerationLockFindManyArgs>(args?: SelectSubset<T, GenerationLockFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GenerationLock.
+     * @param {GenerationLockCreateArgs} args - Arguments to create a GenerationLock.
+     * @example
+     * // Create one GenerationLock
+     * const GenerationLock = await prisma.generationLock.create({
+     *   data: {
+     *     // ... data to create a GenerationLock
+     *   }
+     * })
+     * 
+     */
+    create<T extends GenerationLockCreateArgs>(args: SelectSubset<T, GenerationLockCreateArgs<ExtArgs>>): Prisma__GenerationLockClient<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GenerationLocks.
+     * @param {GenerationLockCreateManyArgs} args - Arguments to create many GenerationLocks.
+     * @example
+     * // Create many GenerationLocks
+     * const generationLock = await prisma.generationLock.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GenerationLockCreateManyArgs>(args?: SelectSubset<T, GenerationLockCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GenerationLocks and returns the data saved in the database.
+     * @param {GenerationLockCreateManyAndReturnArgs} args - Arguments to create many GenerationLocks.
+     * @example
+     * // Create many GenerationLocks
+     * const generationLock = await prisma.generationLock.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GenerationLocks and only return the `id`
+     * const generationLockWithIdOnly = await prisma.generationLock.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GenerationLockCreateManyAndReturnArgs>(args?: SelectSubset<T, GenerationLockCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GenerationLock.
+     * @param {GenerationLockDeleteArgs} args - Arguments to delete one GenerationLock.
+     * @example
+     * // Delete one GenerationLock
+     * const GenerationLock = await prisma.generationLock.delete({
+     *   where: {
+     *     // ... filter to delete one GenerationLock
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GenerationLockDeleteArgs>(args: SelectSubset<T, GenerationLockDeleteArgs<ExtArgs>>): Prisma__GenerationLockClient<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GenerationLock.
+     * @param {GenerationLockUpdateArgs} args - Arguments to update one GenerationLock.
+     * @example
+     * // Update one GenerationLock
+     * const generationLock = await prisma.generationLock.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GenerationLockUpdateArgs>(args: SelectSubset<T, GenerationLockUpdateArgs<ExtArgs>>): Prisma__GenerationLockClient<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GenerationLocks.
+     * @param {GenerationLockDeleteManyArgs} args - Arguments to filter GenerationLocks to delete.
+     * @example
+     * // Delete a few GenerationLocks
+     * const { count } = await prisma.generationLock.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GenerationLockDeleteManyArgs>(args?: SelectSubset<T, GenerationLockDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GenerationLocks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationLockUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GenerationLocks
+     * const generationLock = await prisma.generationLock.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GenerationLockUpdateManyArgs>(args: SelectSubset<T, GenerationLockUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GenerationLocks and returns the data updated in the database.
+     * @param {GenerationLockUpdateManyAndReturnArgs} args - Arguments to update many GenerationLocks.
+     * @example
+     * // Update many GenerationLocks
+     * const generationLock = await prisma.generationLock.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GenerationLocks and only return the `id`
+     * const generationLockWithIdOnly = await prisma.generationLock.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GenerationLockUpdateManyAndReturnArgs>(args: SelectSubset<T, GenerationLockUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GenerationLock.
+     * @param {GenerationLockUpsertArgs} args - Arguments to update or create a GenerationLock.
+     * @example
+     * // Update or create a GenerationLock
+     * const generationLock = await prisma.generationLock.upsert({
+     *   create: {
+     *     // ... data to create a GenerationLock
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GenerationLock we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GenerationLockUpsertArgs>(args: SelectSubset<T, GenerationLockUpsertArgs<ExtArgs>>): Prisma__GenerationLockClient<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GenerationLocks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationLockCountArgs} args - Arguments to filter GenerationLocks to count.
+     * @example
+     * // Count the number of GenerationLocks
+     * const count = await prisma.generationLock.count({
+     *   where: {
+     *     // ... the filter for the GenerationLocks we want to count
+     *   }
+     * })
+    **/
+    count<T extends GenerationLockCountArgs>(
+      args?: Subset<T, GenerationLockCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GenerationLockCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GenerationLock.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationLockAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GenerationLockAggregateArgs>(args: Subset<T, GenerationLockAggregateArgs>): Prisma.PrismaPromise<GetGenerationLockAggregateType<T>>
+
+    /**
+     * Group by GenerationLock.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationLockGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GenerationLockGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GenerationLockGroupByArgs['orderBy'] }
+        : { orderBy?: GenerationLockGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GenerationLockGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGenerationLockGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GenerationLock model
+   */
+  readonly fields: GenerationLockFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GenerationLock.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GenerationLockClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    owner<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GenerationLock model
+   */
+  interface GenerationLockFieldRefs {
+    readonly id: FieldRef<"GenerationLock", 'String'>
+    readonly ownerId: FieldRef<"GenerationLock", 'String'>
+    readonly githubUsername: FieldRef<"GenerationLock", 'String'>
+    readonly createdAt: FieldRef<"GenerationLock", 'DateTime'>
+    readonly expiresAt: FieldRef<"GenerationLock", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GenerationLock findUnique
+   */
+  export type GenerationLockFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+    /**
+     * Filter, which GenerationLock to fetch.
+     */
+    where: GenerationLockWhereUniqueInput
+  }
+
+  /**
+   * GenerationLock findUniqueOrThrow
+   */
+  export type GenerationLockFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+    /**
+     * Filter, which GenerationLock to fetch.
+     */
+    where: GenerationLockWhereUniqueInput
+  }
+
+  /**
+   * GenerationLock findFirst
+   */
+  export type GenerationLockFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+    /**
+     * Filter, which GenerationLock to fetch.
+     */
+    where?: GenerationLockWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GenerationLocks to fetch.
+     */
+    orderBy?: GenerationLockOrderByWithRelationInput | GenerationLockOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GenerationLocks.
+     */
+    cursor?: GenerationLockWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GenerationLocks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GenerationLocks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GenerationLocks.
+     */
+    distinct?: GenerationLockScalarFieldEnum | GenerationLockScalarFieldEnum[]
+  }
+
+  /**
+   * GenerationLock findFirstOrThrow
+   */
+  export type GenerationLockFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+    /**
+     * Filter, which GenerationLock to fetch.
+     */
+    where?: GenerationLockWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GenerationLocks to fetch.
+     */
+    orderBy?: GenerationLockOrderByWithRelationInput | GenerationLockOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GenerationLocks.
+     */
+    cursor?: GenerationLockWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GenerationLocks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GenerationLocks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GenerationLocks.
+     */
+    distinct?: GenerationLockScalarFieldEnum | GenerationLockScalarFieldEnum[]
+  }
+
+  /**
+   * GenerationLock findMany
+   */
+  export type GenerationLockFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+    /**
+     * Filter, which GenerationLocks to fetch.
+     */
+    where?: GenerationLockWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GenerationLocks to fetch.
+     */
+    orderBy?: GenerationLockOrderByWithRelationInput | GenerationLockOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GenerationLocks.
+     */
+    cursor?: GenerationLockWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GenerationLocks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GenerationLocks.
+     */
+    skip?: number
+    distinct?: GenerationLockScalarFieldEnum | GenerationLockScalarFieldEnum[]
+  }
+
+  /**
+   * GenerationLock create
+   */
+  export type GenerationLockCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GenerationLock.
+     */
+    data: XOR<GenerationLockCreateInput, GenerationLockUncheckedCreateInput>
+  }
+
+  /**
+   * GenerationLock createMany
+   */
+  export type GenerationLockCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GenerationLocks.
+     */
+    data: GenerationLockCreateManyInput | GenerationLockCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GenerationLock createManyAndReturn
+   */
+  export type GenerationLockCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * The data used to create many GenerationLocks.
+     */
+    data: GenerationLockCreateManyInput | GenerationLockCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GenerationLock update
+   */
+  export type GenerationLockUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GenerationLock.
+     */
+    data: XOR<GenerationLockUpdateInput, GenerationLockUncheckedUpdateInput>
+    /**
+     * Choose, which GenerationLock to update.
+     */
+    where: GenerationLockWhereUniqueInput
+  }
+
+  /**
+   * GenerationLock updateMany
+   */
+  export type GenerationLockUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GenerationLocks.
+     */
+    data: XOR<GenerationLockUpdateManyMutationInput, GenerationLockUncheckedUpdateManyInput>
+    /**
+     * Filter which GenerationLocks to update
+     */
+    where?: GenerationLockWhereInput
+    /**
+     * Limit how many GenerationLocks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GenerationLock updateManyAndReturn
+   */
+  export type GenerationLockUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * The data used to update GenerationLocks.
+     */
+    data: XOR<GenerationLockUpdateManyMutationInput, GenerationLockUncheckedUpdateManyInput>
+    /**
+     * Filter which GenerationLocks to update
+     */
+    where?: GenerationLockWhereInput
+    /**
+     * Limit how many GenerationLocks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GenerationLock upsert
+   */
+  export type GenerationLockUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GenerationLock to update in case it exists.
+     */
+    where: GenerationLockWhereUniqueInput
+    /**
+     * In case the GenerationLock found by the `where` argument doesn't exist, create a new GenerationLock with this data.
+     */
+    create: XOR<GenerationLockCreateInput, GenerationLockUncheckedCreateInput>
+    /**
+     * In case the GenerationLock was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GenerationLockUpdateInput, GenerationLockUncheckedUpdateInput>
+  }
+
+  /**
+   * GenerationLock delete
+   */
+  export type GenerationLockDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+    /**
+     * Filter which GenerationLock to delete.
+     */
+    where: GenerationLockWhereUniqueInput
+  }
+
+  /**
+   * GenerationLock deleteMany
+   */
+  export type GenerationLockDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GenerationLocks to delete
+     */
+    where?: GenerationLockWhereInput
+    /**
+     * Limit how many GenerationLocks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GenerationLock without action
+   */
+  export type GenerationLockDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationLock
+     */
+    select?: GenerationLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationLock
+     */
+    omit?: GenerationLockOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GenerationLockInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -8065,13 +10487,30 @@ export namespace Prisma {
     template: 'template',
     code: 'code',
     isPublic: 'isPublic',
-    customDomain: 'customDomain',
     views: 'views',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type PortfolioScalarFieldEnum = (typeof PortfolioScalarFieldEnum)[keyof typeof PortfolioScalarFieldEnum]
+
+
+  export const CustomDomainScalarFieldEnum: {
+    id: 'id',
+    portfolioId: 'portfolioId',
+    hostname: 'hostname',
+    cfHostnameId: 'cfHostnameId',
+    status: 'status',
+    ownershipStatus: 'ownershipStatus',
+    sslStatus: 'sslStatus',
+    errorReason: 'errorReason',
+    lastCheckedAt: 'lastCheckedAt',
+    activatedAt: 'activatedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CustomDomainScalarFieldEnum = (typeof CustomDomainScalarFieldEnum)[keyof typeof CustomDomainScalarFieldEnum]
 
 
   export const GitHubCacheScalarFieldEnum: {
@@ -8081,6 +10520,17 @@ export namespace Prisma {
   };
 
   export type GitHubCacheScalarFieldEnum = (typeof GitHubCacheScalarFieldEnum)[keyof typeof GitHubCacheScalarFieldEnum]
+
+
+  export const GenerationLockScalarFieldEnum: {
+    id: 'id',
+    ownerId: 'ownerId',
+    githubUsername: 'githubUsername',
+    createdAt: 'createdAt',
+    expiresAt: 'expiresAt'
+  };
+
+  export type GenerationLockScalarFieldEnum = (typeof GenerationLockScalarFieldEnum)[keyof typeof GenerationLockScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -8230,6 +10680,7 @@ export namespace Prisma {
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     portfolios?: PortfolioListRelationFilter
+    generationLock?: XOR<GenerationLockNullableScalarRelationFilter, GenerationLockWhereInput> | null
   }
 
   export type UserOrderByWithRelationInput = {
@@ -8243,6 +10694,7 @@ export namespace Prisma {
     sessions?: SessionOrderByRelationAggregateInput
     accounts?: AccountOrderByRelationAggregateInput
     portfolios?: PortfolioOrderByRelationAggregateInput
+    generationLock?: GenerationLockOrderByWithRelationInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -8259,6 +10711,7 @@ export namespace Prisma {
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     portfolios?: PortfolioListRelationFilter
+    generationLock?: XOR<GenerationLockNullableScalarRelationFilter, GenerationLockWhereInput> | null
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -8396,6 +10849,7 @@ export namespace Prisma {
 
   export type AccountWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    providerId_accountId?: AccountProviderIdAccountIdCompoundUniqueInput
     AND?: AccountWhereInput | AccountWhereInput[]
     OR?: AccountWhereInput[]
     NOT?: AccountWhereInput | AccountWhereInput[]
@@ -8412,7 +10866,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Account"> | Date | string
     updatedAt?: DateTimeFilter<"Account"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id">
+  }, "id" | "providerId_accountId">
 
   export type AccountOrderByWithAggregationInput = {
     id?: SortOrder
@@ -8524,11 +10978,11 @@ export namespace Prisma {
     template?: StringFilter<"Portfolio"> | string
     code?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
-    customDomain?: StringNullableFilter<"Portfolio"> | string | null
     views?: IntFilter<"Portfolio"> | number
     createdAt?: DateTimeFilter<"Portfolio"> | Date | string
     updatedAt?: DateTimeFilter<"Portfolio"> | Date | string
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    customDomain?: XOR<CustomDomainNullableScalarRelationFilter, CustomDomainWhereInput> | null
   }
 
   export type PortfolioOrderByWithRelationInput = {
@@ -8543,21 +10997,20 @@ export namespace Prisma {
     template?: SortOrder
     code?: SortOrderInput | SortOrder
     isPublic?: SortOrder
-    customDomain?: SortOrderInput | SortOrder
     views?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     owner?: UserOrderByWithRelationInput
+    customDomain?: CustomDomainOrderByWithRelationInput
   }
 
   export type PortfolioWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    ownerId?: string
     slug?: string
-    customDomain?: string
     AND?: PortfolioWhereInput | PortfolioWhereInput[]
     OR?: PortfolioWhereInput[]
     NOT?: PortfolioWhereInput | PortfolioWhereInput[]
-    ownerId?: StringNullableFilter<"Portfolio"> | string | null
     githubUsername?: StringFilter<"Portfolio"> | string
     vibe?: StringFilter<"Portfolio"> | string
     profileData?: JsonFilter<"Portfolio">
@@ -8570,7 +11023,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Portfolio"> | Date | string
     updatedAt?: DateTimeFilter<"Portfolio"> | Date | string
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-  }, "id" | "slug" | "customDomain">
+    customDomain?: XOR<CustomDomainNullableScalarRelationFilter, CustomDomainWhereInput> | null
+  }, "id" | "ownerId" | "slug">
 
   export type PortfolioOrderByWithAggregationInput = {
     id?: SortOrder
@@ -8584,7 +11038,6 @@ export namespace Prisma {
     template?: SortOrder
     code?: SortOrderInput | SortOrder
     isPublic?: SortOrder
-    customDomain?: SortOrderInput | SortOrder
     views?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -8610,10 +11063,99 @@ export namespace Prisma {
     template?: StringWithAggregatesFilter<"Portfolio"> | string
     code?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
     isPublic?: BoolWithAggregatesFilter<"Portfolio"> | boolean
-    customDomain?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
     views?: IntWithAggregatesFilter<"Portfolio"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Portfolio"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Portfolio"> | Date | string
+  }
+
+  export type CustomDomainWhereInput = {
+    AND?: CustomDomainWhereInput | CustomDomainWhereInput[]
+    OR?: CustomDomainWhereInput[]
+    NOT?: CustomDomainWhereInput | CustomDomainWhereInput[]
+    id?: StringFilter<"CustomDomain"> | string
+    portfolioId?: StringFilter<"CustomDomain"> | string
+    hostname?: StringFilter<"CustomDomain"> | string
+    cfHostnameId?: StringNullableFilter<"CustomDomain"> | string | null
+    status?: StringFilter<"CustomDomain"> | string
+    ownershipStatus?: StringNullableFilter<"CustomDomain"> | string | null
+    sslStatus?: StringNullableFilter<"CustomDomain"> | string | null
+    errorReason?: StringNullableFilter<"CustomDomain"> | string | null
+    lastCheckedAt?: DateTimeNullableFilter<"CustomDomain"> | Date | string | null
+    activatedAt?: DateTimeNullableFilter<"CustomDomain"> | Date | string | null
+    createdAt?: DateTimeFilter<"CustomDomain"> | Date | string
+    updatedAt?: DateTimeFilter<"CustomDomain"> | Date | string
+    portfolio?: XOR<PortfolioScalarRelationFilter, PortfolioWhereInput>
+  }
+
+  export type CustomDomainOrderByWithRelationInput = {
+    id?: SortOrder
+    portfolioId?: SortOrder
+    hostname?: SortOrder
+    cfHostnameId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    ownershipStatus?: SortOrderInput | SortOrder
+    sslStatus?: SortOrderInput | SortOrder
+    errorReason?: SortOrderInput | SortOrder
+    lastCheckedAt?: SortOrderInput | SortOrder
+    activatedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    portfolio?: PortfolioOrderByWithRelationInput
+  }
+
+  export type CustomDomainWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    portfolioId?: string
+    hostname?: string
+    cfHostnameId?: string
+    AND?: CustomDomainWhereInput | CustomDomainWhereInput[]
+    OR?: CustomDomainWhereInput[]
+    NOT?: CustomDomainWhereInput | CustomDomainWhereInput[]
+    status?: StringFilter<"CustomDomain"> | string
+    ownershipStatus?: StringNullableFilter<"CustomDomain"> | string | null
+    sslStatus?: StringNullableFilter<"CustomDomain"> | string | null
+    errorReason?: StringNullableFilter<"CustomDomain"> | string | null
+    lastCheckedAt?: DateTimeNullableFilter<"CustomDomain"> | Date | string | null
+    activatedAt?: DateTimeNullableFilter<"CustomDomain"> | Date | string | null
+    createdAt?: DateTimeFilter<"CustomDomain"> | Date | string
+    updatedAt?: DateTimeFilter<"CustomDomain"> | Date | string
+    portfolio?: XOR<PortfolioScalarRelationFilter, PortfolioWhereInput>
+  }, "id" | "portfolioId" | "hostname" | "cfHostnameId">
+
+  export type CustomDomainOrderByWithAggregationInput = {
+    id?: SortOrder
+    portfolioId?: SortOrder
+    hostname?: SortOrder
+    cfHostnameId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    ownershipStatus?: SortOrderInput | SortOrder
+    sslStatus?: SortOrderInput | SortOrder
+    errorReason?: SortOrderInput | SortOrder
+    lastCheckedAt?: SortOrderInput | SortOrder
+    activatedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CustomDomainCountOrderByAggregateInput
+    _max?: CustomDomainMaxOrderByAggregateInput
+    _min?: CustomDomainMinOrderByAggregateInput
+  }
+
+  export type CustomDomainScalarWhereWithAggregatesInput = {
+    AND?: CustomDomainScalarWhereWithAggregatesInput | CustomDomainScalarWhereWithAggregatesInput[]
+    OR?: CustomDomainScalarWhereWithAggregatesInput[]
+    NOT?: CustomDomainScalarWhereWithAggregatesInput | CustomDomainScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CustomDomain"> | string
+    portfolioId?: StringWithAggregatesFilter<"CustomDomain"> | string
+    hostname?: StringWithAggregatesFilter<"CustomDomain"> | string
+    cfHostnameId?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
+    status?: StringWithAggregatesFilter<"CustomDomain"> | string
+    ownershipStatus?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
+    sslStatus?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
+    errorReason?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
+    lastCheckedAt?: DateTimeNullableWithAggregatesFilter<"CustomDomain"> | Date | string | null
+    activatedAt?: DateTimeNullableWithAggregatesFilter<"CustomDomain"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"CustomDomain"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"CustomDomain"> | Date | string
   }
 
   export type GitHubCacheWhereInput = {
@@ -8658,6 +11200,61 @@ export namespace Prisma {
     fetchedAt?: DateTimeWithAggregatesFilter<"GitHubCache"> | Date | string
   }
 
+  export type GenerationLockWhereInput = {
+    AND?: GenerationLockWhereInput | GenerationLockWhereInput[]
+    OR?: GenerationLockWhereInput[]
+    NOT?: GenerationLockWhereInput | GenerationLockWhereInput[]
+    id?: StringFilter<"GenerationLock"> | string
+    ownerId?: StringFilter<"GenerationLock"> | string
+    githubUsername?: StringFilter<"GenerationLock"> | string
+    createdAt?: DateTimeFilter<"GenerationLock"> | Date | string
+    expiresAt?: DateTimeFilter<"GenerationLock"> | Date | string
+    owner?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type GenerationLockOrderByWithRelationInput = {
+    id?: SortOrder
+    ownerId?: SortOrder
+    githubUsername?: SortOrder
+    createdAt?: SortOrder
+    expiresAt?: SortOrder
+    owner?: UserOrderByWithRelationInput
+  }
+
+  export type GenerationLockWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    ownerId?: string
+    AND?: GenerationLockWhereInput | GenerationLockWhereInput[]
+    OR?: GenerationLockWhereInput[]
+    NOT?: GenerationLockWhereInput | GenerationLockWhereInput[]
+    githubUsername?: StringFilter<"GenerationLock"> | string
+    createdAt?: DateTimeFilter<"GenerationLock"> | Date | string
+    expiresAt?: DateTimeFilter<"GenerationLock"> | Date | string
+    owner?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "ownerId">
+
+  export type GenerationLockOrderByWithAggregationInput = {
+    id?: SortOrder
+    ownerId?: SortOrder
+    githubUsername?: SortOrder
+    createdAt?: SortOrder
+    expiresAt?: SortOrder
+    _count?: GenerationLockCountOrderByAggregateInput
+    _max?: GenerationLockMaxOrderByAggregateInput
+    _min?: GenerationLockMinOrderByAggregateInput
+  }
+
+  export type GenerationLockScalarWhereWithAggregatesInput = {
+    AND?: GenerationLockScalarWhereWithAggregatesInput | GenerationLockScalarWhereWithAggregatesInput[]
+    OR?: GenerationLockScalarWhereWithAggregatesInput[]
+    NOT?: GenerationLockScalarWhereWithAggregatesInput | GenerationLockScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GenerationLock"> | string
+    ownerId?: StringWithAggregatesFilter<"GenerationLock"> | string
+    githubUsername?: StringWithAggregatesFilter<"GenerationLock"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"GenerationLock"> | Date | string
+    expiresAt?: DateTimeWithAggregatesFilter<"GenerationLock"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     name?: string | null
@@ -8669,6 +11266,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     portfolios?: PortfolioCreateNestedManyWithoutOwnerInput
+    generationLock?: GenerationLockCreateNestedOneWithoutOwnerInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -8682,6 +11280,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     portfolios?: PortfolioUncheckedCreateNestedManyWithoutOwnerInput
+    generationLock?: GenerationLockUncheckedCreateNestedOneWithoutOwnerInput
   }
 
   export type UserUpdateInput = {
@@ -8695,6 +11294,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUpdateManyWithoutOwnerNestedInput
+    generationLock?: GenerationLockUpdateOneWithoutOwnerNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -8708,6 +11308,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUncheckedUpdateManyWithoutOwnerNestedInput
+    generationLock?: GenerationLockUncheckedUpdateOneWithoutOwnerNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -9001,11 +11602,11 @@ export namespace Prisma {
     template?: string
     code?: string | null
     isPublic?: boolean
-    customDomain?: string | null
     views?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     owner?: UserCreateNestedOneWithoutPortfoliosInput
+    customDomain?: CustomDomainCreateNestedOneWithoutPortfolioInput
   }
 
   export type PortfolioUncheckedCreateInput = {
@@ -9020,10 +11621,10 @@ export namespace Prisma {
     template?: string
     code?: string | null
     isPublic?: boolean
-    customDomain?: string | null
     views?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    customDomain?: CustomDomainUncheckedCreateNestedOneWithoutPortfolioInput
   }
 
   export type PortfolioUpdateInput = {
@@ -9037,11 +11638,11 @@ export namespace Prisma {
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
-    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: UserUpdateOneWithoutPortfoliosNestedInput
+    customDomain?: CustomDomainUpdateOneWithoutPortfolioNestedInput
   }
 
   export type PortfolioUncheckedUpdateInput = {
@@ -9056,10 +11657,10 @@ export namespace Prisma {
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
-    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customDomain?: CustomDomainUncheckedUpdateOneWithoutPortfolioNestedInput
   }
 
   export type PortfolioCreateManyInput = {
@@ -9074,7 +11675,6 @@ export namespace Prisma {
     template?: string
     code?: string | null
     isPublic?: boolean
-    customDomain?: string | null
     views?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -9091,7 +11691,6 @@ export namespace Prisma {
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
-    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9109,8 +11708,111 @@ export namespace Prisma {
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
-    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomDomainCreateInput = {
+    id?: string
+    hostname: string
+    cfHostnameId?: string | null
+    status?: string
+    ownershipStatus?: string | null
+    sslStatus?: string | null
+    errorReason?: string | null
+    lastCheckedAt?: Date | string | null
+    activatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    portfolio: PortfolioCreateNestedOneWithoutCustomDomainInput
+  }
+
+  export type CustomDomainUncheckedCreateInput = {
+    id?: string
+    portfolioId: string
+    hostname: string
+    cfHostnameId?: string | null
+    status?: string
+    ownershipStatus?: string | null
+    sslStatus?: string | null
+    errorReason?: string | null
+    lastCheckedAt?: Date | string | null
+    activatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomDomainUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    hostname?: StringFieldUpdateOperationsInput | string
+    cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    errorReason?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    portfolio?: PortfolioUpdateOneRequiredWithoutCustomDomainNestedInput
+  }
+
+  export type CustomDomainUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    portfolioId?: StringFieldUpdateOperationsInput | string
+    hostname?: StringFieldUpdateOperationsInput | string
+    cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    errorReason?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomDomainCreateManyInput = {
+    id?: string
+    portfolioId: string
+    hostname: string
+    cfHostnameId?: string | null
+    status?: string
+    ownershipStatus?: string | null
+    sslStatus?: string | null
+    errorReason?: string | null
+    lastCheckedAt?: Date | string | null
+    activatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomDomainUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    hostname?: StringFieldUpdateOperationsInput | string
+    cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    errorReason?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomDomainUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    portfolioId?: StringFieldUpdateOperationsInput | string
+    hostname?: StringFieldUpdateOperationsInput | string
+    cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    errorReason?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9155,6 +11857,61 @@ export namespace Prisma {
     username?: StringFieldUpdateOperationsInput | string
     raw?: JsonNullValueInput | InputJsonValue
     fetchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GenerationLockCreateInput = {
+    id?: string
+    githubUsername: string
+    createdAt?: Date | string
+    expiresAt: Date | string
+    owner: UserCreateNestedOneWithoutGenerationLockInput
+  }
+
+  export type GenerationLockUncheckedCreateInput = {
+    id?: string
+    ownerId: string
+    githubUsername: string
+    createdAt?: Date | string
+    expiresAt: Date | string
+  }
+
+  export type GenerationLockUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    githubUsername?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owner?: UserUpdateOneRequiredWithoutGenerationLockNestedInput
+  }
+
+  export type GenerationLockUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    githubUsername?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GenerationLockCreateManyInput = {
+    id?: string
+    ownerId: string
+    githubUsername: string
+    createdAt?: Date | string
+    expiresAt: Date | string
+  }
+
+  export type GenerationLockUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    githubUsername?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GenerationLockUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    githubUsername?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -9219,6 +11976,11 @@ export namespace Prisma {
     every?: PortfolioWhereInput
     some?: PortfolioWhereInput
     none?: PortfolioWhereInput
+  }
+
+  export type GenerationLockNullableScalarRelationFilter = {
+    is?: GenerationLockWhereInput | null
+    isNot?: GenerationLockWhereInput | null
   }
 
   export type SortOrderInput = {
@@ -9375,6 +12137,11 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type AccountProviderIdAccountIdCompoundUniqueInput = {
+    providerId: string
+    accountId: string
+  }
+
   export type AccountCountOrderByAggregateInput = {
     id?: SortOrder
     accountId?: SortOrder
@@ -9526,6 +12293,11 @@ export namespace Prisma {
     isNot?: UserWhereInput | null
   }
 
+  export type CustomDomainNullableScalarRelationFilter = {
+    is?: CustomDomainWhereInput | null
+    isNot?: CustomDomainWhereInput | null
+  }
+
   export type PortfolioCountOrderByAggregateInput = {
     id?: SortOrder
     ownerId?: SortOrder
@@ -9538,7 +12310,6 @@ export namespace Prisma {
     template?: SortOrder
     code?: SortOrder
     isPublic?: SortOrder
-    customDomain?: SortOrder
     views?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -9558,7 +12329,6 @@ export namespace Prisma {
     template?: SortOrder
     code?: SortOrder
     isPublic?: SortOrder
-    customDomain?: SortOrder
     views?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -9574,7 +12344,6 @@ export namespace Prisma {
     template?: SortOrder
     code?: SortOrder
     isPublic?: SortOrder
-    customDomain?: SortOrder
     views?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -9652,6 +12421,56 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type PortfolioScalarRelationFilter = {
+    is?: PortfolioWhereInput
+    isNot?: PortfolioWhereInput
+  }
+
+  export type CustomDomainCountOrderByAggregateInput = {
+    id?: SortOrder
+    portfolioId?: SortOrder
+    hostname?: SortOrder
+    cfHostnameId?: SortOrder
+    status?: SortOrder
+    ownershipStatus?: SortOrder
+    sslStatus?: SortOrder
+    errorReason?: SortOrder
+    lastCheckedAt?: SortOrder
+    activatedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomDomainMaxOrderByAggregateInput = {
+    id?: SortOrder
+    portfolioId?: SortOrder
+    hostname?: SortOrder
+    cfHostnameId?: SortOrder
+    status?: SortOrder
+    ownershipStatus?: SortOrder
+    sslStatus?: SortOrder
+    errorReason?: SortOrder
+    lastCheckedAt?: SortOrder
+    activatedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomDomainMinOrderByAggregateInput = {
+    id?: SortOrder
+    portfolioId?: SortOrder
+    hostname?: SortOrder
+    cfHostnameId?: SortOrder
+    status?: SortOrder
+    ownershipStatus?: SortOrder
+    sslStatus?: SortOrder
+    errorReason?: SortOrder
+    lastCheckedAt?: SortOrder
+    activatedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type GitHubCacheCountOrderByAggregateInput = {
     username?: SortOrder
     raw?: SortOrder
@@ -9666,6 +12485,30 @@ export namespace Prisma {
   export type GitHubCacheMinOrderByAggregateInput = {
     username?: SortOrder
     fetchedAt?: SortOrder
+  }
+
+  export type GenerationLockCountOrderByAggregateInput = {
+    id?: SortOrder
+    ownerId?: SortOrder
+    githubUsername?: SortOrder
+    createdAt?: SortOrder
+    expiresAt?: SortOrder
+  }
+
+  export type GenerationLockMaxOrderByAggregateInput = {
+    id?: SortOrder
+    ownerId?: SortOrder
+    githubUsername?: SortOrder
+    createdAt?: SortOrder
+    expiresAt?: SortOrder
+  }
+
+  export type GenerationLockMinOrderByAggregateInput = {
+    id?: SortOrder
+    ownerId?: SortOrder
+    githubUsername?: SortOrder
+    createdAt?: SortOrder
+    expiresAt?: SortOrder
   }
 
   export type SessionCreateNestedManyWithoutUserInput = {
@@ -9689,6 +12532,12 @@ export namespace Prisma {
     connect?: PortfolioWhereUniqueInput | PortfolioWhereUniqueInput[]
   }
 
+  export type GenerationLockCreateNestedOneWithoutOwnerInput = {
+    create?: XOR<GenerationLockCreateWithoutOwnerInput, GenerationLockUncheckedCreateWithoutOwnerInput>
+    connectOrCreate?: GenerationLockCreateOrConnectWithoutOwnerInput
+    connect?: GenerationLockWhereUniqueInput
+  }
+
   export type SessionUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -9708,6 +12557,12 @@ export namespace Prisma {
     connectOrCreate?: PortfolioCreateOrConnectWithoutOwnerInput | PortfolioCreateOrConnectWithoutOwnerInput[]
     createMany?: PortfolioCreateManyOwnerInputEnvelope
     connect?: PortfolioWhereUniqueInput | PortfolioWhereUniqueInput[]
+  }
+
+  export type GenerationLockUncheckedCreateNestedOneWithoutOwnerInput = {
+    create?: XOR<GenerationLockCreateWithoutOwnerInput, GenerationLockUncheckedCreateWithoutOwnerInput>
+    connectOrCreate?: GenerationLockCreateOrConnectWithoutOwnerInput
+    connect?: GenerationLockWhereUniqueInput
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -9768,6 +12623,16 @@ export namespace Prisma {
     deleteMany?: PortfolioScalarWhereInput | PortfolioScalarWhereInput[]
   }
 
+  export type GenerationLockUpdateOneWithoutOwnerNestedInput = {
+    create?: XOR<GenerationLockCreateWithoutOwnerInput, GenerationLockUncheckedCreateWithoutOwnerInput>
+    connectOrCreate?: GenerationLockCreateOrConnectWithoutOwnerInput
+    upsert?: GenerationLockUpsertWithoutOwnerInput
+    disconnect?: GenerationLockWhereInput | boolean
+    delete?: GenerationLockWhereInput | boolean
+    connect?: GenerationLockWhereUniqueInput
+    update?: XOR<XOR<GenerationLockUpdateToOneWithWhereWithoutOwnerInput, GenerationLockUpdateWithoutOwnerInput>, GenerationLockUncheckedUpdateWithoutOwnerInput>
+  }
+
   export type SessionUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -9810,6 +12675,16 @@ export namespace Prisma {
     deleteMany?: PortfolioScalarWhereInput | PortfolioScalarWhereInput[]
   }
 
+  export type GenerationLockUncheckedUpdateOneWithoutOwnerNestedInput = {
+    create?: XOR<GenerationLockCreateWithoutOwnerInput, GenerationLockUncheckedCreateWithoutOwnerInput>
+    connectOrCreate?: GenerationLockCreateOrConnectWithoutOwnerInput
+    upsert?: GenerationLockUpsertWithoutOwnerInput
+    disconnect?: GenerationLockWhereInput | boolean
+    delete?: GenerationLockWhereInput | boolean
+    connect?: GenerationLockWhereUniqueInput
+    update?: XOR<XOR<GenerationLockUpdateToOneWithWhereWithoutOwnerInput, GenerationLockUpdateWithoutOwnerInput>, GenerationLockUncheckedUpdateWithoutOwnerInput>
+  }
+
   export type UserCreateNestedOneWithoutSessionsInput = {
     create?: XOR<UserCreateWithoutSessionsInput, UserUncheckedCreateWithoutSessionsInput>
     connectOrCreate?: UserCreateOrConnectWithoutSessionsInput
@@ -9848,6 +12723,18 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type CustomDomainCreateNestedOneWithoutPortfolioInput = {
+    create?: XOR<CustomDomainCreateWithoutPortfolioInput, CustomDomainUncheckedCreateWithoutPortfolioInput>
+    connectOrCreate?: CustomDomainCreateOrConnectWithoutPortfolioInput
+    connect?: CustomDomainWhereUniqueInput
+  }
+
+  export type CustomDomainUncheckedCreateNestedOneWithoutPortfolioInput = {
+    create?: XOR<CustomDomainCreateWithoutPortfolioInput, CustomDomainUncheckedCreateWithoutPortfolioInput>
+    connectOrCreate?: CustomDomainCreateOrConnectWithoutPortfolioInput
+    connect?: CustomDomainWhereUniqueInput
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -9864,6 +12751,54 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPortfoliosInput, UserUpdateWithoutPortfoliosInput>, UserUncheckedUpdateWithoutPortfoliosInput>
+  }
+
+  export type CustomDomainUpdateOneWithoutPortfolioNestedInput = {
+    create?: XOR<CustomDomainCreateWithoutPortfolioInput, CustomDomainUncheckedCreateWithoutPortfolioInput>
+    connectOrCreate?: CustomDomainCreateOrConnectWithoutPortfolioInput
+    upsert?: CustomDomainUpsertWithoutPortfolioInput
+    disconnect?: CustomDomainWhereInput | boolean
+    delete?: CustomDomainWhereInput | boolean
+    connect?: CustomDomainWhereUniqueInput
+    update?: XOR<XOR<CustomDomainUpdateToOneWithWhereWithoutPortfolioInput, CustomDomainUpdateWithoutPortfolioInput>, CustomDomainUncheckedUpdateWithoutPortfolioInput>
+  }
+
+  export type CustomDomainUncheckedUpdateOneWithoutPortfolioNestedInput = {
+    create?: XOR<CustomDomainCreateWithoutPortfolioInput, CustomDomainUncheckedCreateWithoutPortfolioInput>
+    connectOrCreate?: CustomDomainCreateOrConnectWithoutPortfolioInput
+    upsert?: CustomDomainUpsertWithoutPortfolioInput
+    disconnect?: CustomDomainWhereInput | boolean
+    delete?: CustomDomainWhereInput | boolean
+    connect?: CustomDomainWhereUniqueInput
+    update?: XOR<XOR<CustomDomainUpdateToOneWithWhereWithoutPortfolioInput, CustomDomainUpdateWithoutPortfolioInput>, CustomDomainUncheckedUpdateWithoutPortfolioInput>
+  }
+
+  export type PortfolioCreateNestedOneWithoutCustomDomainInput = {
+    create?: XOR<PortfolioCreateWithoutCustomDomainInput, PortfolioUncheckedCreateWithoutCustomDomainInput>
+    connectOrCreate?: PortfolioCreateOrConnectWithoutCustomDomainInput
+    connect?: PortfolioWhereUniqueInput
+  }
+
+  export type PortfolioUpdateOneRequiredWithoutCustomDomainNestedInput = {
+    create?: XOR<PortfolioCreateWithoutCustomDomainInput, PortfolioUncheckedCreateWithoutCustomDomainInput>
+    connectOrCreate?: PortfolioCreateOrConnectWithoutCustomDomainInput
+    upsert?: PortfolioUpsertWithoutCustomDomainInput
+    connect?: PortfolioWhereUniqueInput
+    update?: XOR<XOR<PortfolioUpdateToOneWithWhereWithoutCustomDomainInput, PortfolioUpdateWithoutCustomDomainInput>, PortfolioUncheckedUpdateWithoutCustomDomainInput>
+  }
+
+  export type UserCreateNestedOneWithoutGenerationLockInput = {
+    create?: XOR<UserCreateWithoutGenerationLockInput, UserUncheckedCreateWithoutGenerationLockInput>
+    connectOrCreate?: UserCreateOrConnectWithoutGenerationLockInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutGenerationLockNestedInput = {
+    create?: XOR<UserCreateWithoutGenerationLockInput, UserUncheckedCreateWithoutGenerationLockInput>
+    connectOrCreate?: UserCreateOrConnectWithoutGenerationLockInput
+    upsert?: UserUpsertWithoutGenerationLockInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutGenerationLockInput, UserUpdateWithoutGenerationLockInput>, UserUncheckedUpdateWithoutGenerationLockInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -10167,10 +13102,10 @@ export namespace Prisma {
     template?: string
     code?: string | null
     isPublic?: boolean
-    customDomain?: string | null
     views?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    customDomain?: CustomDomainCreateNestedOneWithoutPortfolioInput
   }
 
   export type PortfolioUncheckedCreateWithoutOwnerInput = {
@@ -10184,10 +13119,10 @@ export namespace Prisma {
     template?: string
     code?: string | null
     isPublic?: boolean
-    customDomain?: string | null
     views?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    customDomain?: CustomDomainUncheckedCreateNestedOneWithoutPortfolioInput
   }
 
   export type PortfolioCreateOrConnectWithoutOwnerInput = {
@@ -10198,6 +13133,25 @@ export namespace Prisma {
   export type PortfolioCreateManyOwnerInputEnvelope = {
     data: PortfolioCreateManyOwnerInput | PortfolioCreateManyOwnerInput[]
     skipDuplicates?: boolean
+  }
+
+  export type GenerationLockCreateWithoutOwnerInput = {
+    id?: string
+    githubUsername: string
+    createdAt?: Date | string
+    expiresAt: Date | string
+  }
+
+  export type GenerationLockUncheckedCreateWithoutOwnerInput = {
+    id?: string
+    githubUsername: string
+    createdAt?: Date | string
+    expiresAt: Date | string
+  }
+
+  export type GenerationLockCreateOrConnectWithoutOwnerInput = {
+    where: GenerationLockWhereUniqueInput
+    create: XOR<GenerationLockCreateWithoutOwnerInput, GenerationLockUncheckedCreateWithoutOwnerInput>
   }
 
   export type SessionUpsertWithWhereUniqueWithoutUserInput = {
@@ -10296,10 +13250,34 @@ export namespace Prisma {
     template?: StringFilter<"Portfolio"> | string
     code?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
-    customDomain?: StringNullableFilter<"Portfolio"> | string | null
     views?: IntFilter<"Portfolio"> | number
     createdAt?: DateTimeFilter<"Portfolio"> | Date | string
     updatedAt?: DateTimeFilter<"Portfolio"> | Date | string
+  }
+
+  export type GenerationLockUpsertWithoutOwnerInput = {
+    update: XOR<GenerationLockUpdateWithoutOwnerInput, GenerationLockUncheckedUpdateWithoutOwnerInput>
+    create: XOR<GenerationLockCreateWithoutOwnerInput, GenerationLockUncheckedCreateWithoutOwnerInput>
+    where?: GenerationLockWhereInput
+  }
+
+  export type GenerationLockUpdateToOneWithWhereWithoutOwnerInput = {
+    where?: GenerationLockWhereInput
+    data: XOR<GenerationLockUpdateWithoutOwnerInput, GenerationLockUncheckedUpdateWithoutOwnerInput>
+  }
+
+  export type GenerationLockUpdateWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    githubUsername?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GenerationLockUncheckedUpdateWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    githubUsername?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -10312,6 +13290,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
     portfolios?: PortfolioCreateNestedManyWithoutOwnerInput
+    generationLock?: GenerationLockCreateNestedOneWithoutOwnerInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -10324,6 +13303,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     portfolios?: PortfolioUncheckedCreateNestedManyWithoutOwnerInput
+    generationLock?: GenerationLockUncheckedCreateNestedOneWithoutOwnerInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -10352,6 +13332,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUpdateManyWithoutOwnerNestedInput
+    generationLock?: GenerationLockUpdateOneWithoutOwnerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -10364,6 +13345,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUncheckedUpdateManyWithoutOwnerNestedInput
+    generationLock?: GenerationLockUncheckedUpdateOneWithoutOwnerNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -10376,6 +13358,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     sessions?: SessionCreateNestedManyWithoutUserInput
     portfolios?: PortfolioCreateNestedManyWithoutOwnerInput
+    generationLock?: GenerationLockCreateNestedOneWithoutOwnerInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -10388,6 +13371,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     portfolios?: PortfolioUncheckedCreateNestedManyWithoutOwnerInput
+    generationLock?: GenerationLockUncheckedCreateNestedOneWithoutOwnerInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -10416,6 +13400,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUpdateManyWithoutOwnerNestedInput
+    generationLock?: GenerationLockUpdateOneWithoutOwnerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -10428,6 +13413,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUncheckedUpdateManyWithoutOwnerNestedInput
+    generationLock?: GenerationLockUncheckedUpdateOneWithoutOwnerNestedInput
   }
 
   export type UserCreateWithoutPortfoliosInput = {
@@ -10440,6 +13426,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
+    generationLock?: GenerationLockCreateNestedOneWithoutOwnerInput
   }
 
   export type UserUncheckedCreateWithoutPortfoliosInput = {
@@ -10452,11 +13439,45 @@ export namespace Prisma {
     updatedAt?: Date | string
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    generationLock?: GenerationLockUncheckedCreateNestedOneWithoutOwnerInput
   }
 
   export type UserCreateOrConnectWithoutPortfoliosInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutPortfoliosInput, UserUncheckedCreateWithoutPortfoliosInput>
+  }
+
+  export type CustomDomainCreateWithoutPortfolioInput = {
+    id?: string
+    hostname: string
+    cfHostnameId?: string | null
+    status?: string
+    ownershipStatus?: string | null
+    sslStatus?: string | null
+    errorReason?: string | null
+    lastCheckedAt?: Date | string | null
+    activatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomDomainUncheckedCreateWithoutPortfolioInput = {
+    id?: string
+    hostname: string
+    cfHostnameId?: string | null
+    status?: string
+    ownershipStatus?: string | null
+    sslStatus?: string | null
+    errorReason?: string | null
+    lastCheckedAt?: Date | string | null
+    activatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomDomainCreateOrConnectWithoutPortfolioInput = {
+    where: CustomDomainWhereUniqueInput
+    create: XOR<CustomDomainCreateWithoutPortfolioInput, CustomDomainUncheckedCreateWithoutPortfolioInput>
   }
 
   export type UserUpsertWithoutPortfoliosInput = {
@@ -10480,6 +13501,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
+    generationLock?: GenerationLockUpdateOneWithoutOwnerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPortfoliosInput = {
@@ -10492,6 +13514,198 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    generationLock?: GenerationLockUncheckedUpdateOneWithoutOwnerNestedInput
+  }
+
+  export type CustomDomainUpsertWithoutPortfolioInput = {
+    update: XOR<CustomDomainUpdateWithoutPortfolioInput, CustomDomainUncheckedUpdateWithoutPortfolioInput>
+    create: XOR<CustomDomainCreateWithoutPortfolioInput, CustomDomainUncheckedCreateWithoutPortfolioInput>
+    where?: CustomDomainWhereInput
+  }
+
+  export type CustomDomainUpdateToOneWithWhereWithoutPortfolioInput = {
+    where?: CustomDomainWhereInput
+    data: XOR<CustomDomainUpdateWithoutPortfolioInput, CustomDomainUncheckedUpdateWithoutPortfolioInput>
+  }
+
+  export type CustomDomainUpdateWithoutPortfolioInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    hostname?: StringFieldUpdateOperationsInput | string
+    cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    errorReason?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomDomainUncheckedUpdateWithoutPortfolioInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    hostname?: StringFieldUpdateOperationsInput | string
+    cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    errorReason?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PortfolioCreateWithoutCustomDomainInput = {
+    id?: string
+    githubUsername: string
+    slug: string
+    vibe: string
+    profileData: JsonNullValueInput | InputJsonValue
+    designSpec?: NullableJsonNullValueInput | InputJsonValue
+    engineVersion?: string | null
+    template?: string
+    code?: string | null
+    isPublic?: boolean
+    views?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    owner?: UserCreateNestedOneWithoutPortfoliosInput
+  }
+
+  export type PortfolioUncheckedCreateWithoutCustomDomainInput = {
+    id?: string
+    ownerId?: string | null
+    githubUsername: string
+    slug: string
+    vibe: string
+    profileData: JsonNullValueInput | InputJsonValue
+    designSpec?: NullableJsonNullValueInput | InputJsonValue
+    engineVersion?: string | null
+    template?: string
+    code?: string | null
+    isPublic?: boolean
+    views?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PortfolioCreateOrConnectWithoutCustomDomainInput = {
+    where: PortfolioWhereUniqueInput
+    create: XOR<PortfolioCreateWithoutCustomDomainInput, PortfolioUncheckedCreateWithoutCustomDomainInput>
+  }
+
+  export type PortfolioUpsertWithoutCustomDomainInput = {
+    update: XOR<PortfolioUpdateWithoutCustomDomainInput, PortfolioUncheckedUpdateWithoutCustomDomainInput>
+    create: XOR<PortfolioCreateWithoutCustomDomainInput, PortfolioUncheckedCreateWithoutCustomDomainInput>
+    where?: PortfolioWhereInput
+  }
+
+  export type PortfolioUpdateToOneWithWhereWithoutCustomDomainInput = {
+    where?: PortfolioWhereInput
+    data: XOR<PortfolioUpdateWithoutCustomDomainInput, PortfolioUncheckedUpdateWithoutCustomDomainInput>
+  }
+
+  export type PortfolioUpdateWithoutCustomDomainInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    githubUsername?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    vibe?: StringFieldUpdateOperationsInput | string
+    profileData?: JsonNullValueInput | InputJsonValue
+    designSpec?: NullableJsonNullValueInput | InputJsonValue
+    engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    template?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
+    views?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owner?: UserUpdateOneWithoutPortfoliosNestedInput
+  }
+
+  export type PortfolioUncheckedUpdateWithoutCustomDomainInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    githubUsername?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    vibe?: StringFieldUpdateOperationsInput | string
+    profileData?: JsonNullValueInput | InputJsonValue
+    designSpec?: NullableJsonNullValueInput | InputJsonValue
+    engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    template?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
+    views?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserCreateWithoutGenerationLockInput = {
+    id?: string
+    name?: string | null
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    portfolios?: PortfolioCreateNestedManyWithoutOwnerInput
+  }
+
+  export type UserUncheckedCreateWithoutGenerationLockInput = {
+    id?: string
+    name?: string | null
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    portfolios?: PortfolioUncheckedCreateNestedManyWithoutOwnerInput
+  }
+
+  export type UserCreateOrConnectWithoutGenerationLockInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutGenerationLockInput, UserUncheckedCreateWithoutGenerationLockInput>
+  }
+
+  export type UserUpsertWithoutGenerationLockInput = {
+    update: XOR<UserUpdateWithoutGenerationLockInput, UserUncheckedUpdateWithoutGenerationLockInput>
+    create: XOR<UserCreateWithoutGenerationLockInput, UserUncheckedCreateWithoutGenerationLockInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutGenerationLockInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutGenerationLockInput, UserUncheckedUpdateWithoutGenerationLockInput>
+  }
+
+  export type UserUpdateWithoutGenerationLockInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    portfolios?: PortfolioUpdateManyWithoutOwnerNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutGenerationLockInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    portfolios?: PortfolioUncheckedUpdateManyWithoutOwnerNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -10530,7 +13744,6 @@ export namespace Prisma {
     template?: string
     code?: string | null
     isPublic?: boolean
-    customDomain?: string | null
     views?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10622,10 +13835,10 @@ export namespace Prisma {
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
-    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customDomain?: CustomDomainUpdateOneWithoutPortfolioNestedInput
   }
 
   export type PortfolioUncheckedUpdateWithoutOwnerInput = {
@@ -10639,10 +13852,10 @@ export namespace Prisma {
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
-    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customDomain?: CustomDomainUncheckedUpdateOneWithoutPortfolioNestedInput
   }
 
   export type PortfolioUncheckedUpdateManyWithoutOwnerInput = {
@@ -10656,7 +13869,6 @@ export namespace Prisma {
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
-    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
     views?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
