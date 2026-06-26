@@ -2,7 +2,9 @@ import { type NextRequest } from "next/server";
 import { headers as nextHeaders } from "next/headers";
 import { z } from "zod";
 import { getSession } from "~/server/auth";
-import { rateLimit } from "~/server/ratelimit";
+import { db } from "~/server/db";
+import { limit } from "~/server/ratelimit";
+import { checkBudget } from "~/server/llm/cost";
 import { runGeneration } from "~/server/portfolio/generate";
 
 // Prisma / Octokit / Anthropic are Node-only — do NOT run on the Edge runtime.
@@ -10,12 +12,18 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+// Beta cap: hard ceiling on portfolios any one account may own. Lift this
+// (or move it to a per-plan policy) when payments / plans land.
+const PORTFOLIO_QUOTA_PER_USER = 1;
+
 const bodySchema = z.object({
   username: z
     .string()
     .trim()
     .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i, "Invalid GitHub username"),
-  vibe: z.string().trim().min(1, "Describe a vibe").max(300),
+  // 100-char cap matches the client field; vibe is currently informational
+  // (TERMINAL_NEXUS is hard-pinned), but we still bound it to keep payloads small.
+  vibe: z.string().trim().min(1, "Describe a vibe").max(100),
 });
 
 function json(data: unknown, status: number, headers?: HeadersInit) {
@@ -45,13 +53,57 @@ export async function POST(req: NextRequest) {
   const { username, vibe } = parsed;
   const ownerId = session.user.id;
 
-  // Per-user rate limit is the primary gate; IP is a fallback for shared
-  // accounts. 5 / 60s is enough for normal flow but quickly trips abuse.
-  const rl = rateLimit(`gen:${ownerId}`);
-  if (!rl.ok) {
-    return json({ error: "Too many requests. Slow down." }, 429, {
-      "retry-after": String(rl.retryAfter),
+  // ── Beta cap: one portfolio per account ────────────────────────────────
+  // This is the authoritative server-side gate. The UI also disables the form
+  // when a portfolio exists, but a determined client could call the API
+  // directly, so the truth check lives here.
+  const existing = await db.portfolio.count({ where: { ownerId } });
+  if (existing >= PORTFOLIO_QUOTA_PER_USER) {
+    return json(
+      {
+        error:
+          "You already have a portfolio. PortHub is in beta — only one portfolio per account for now.",
+        code: "quota_reached",
+      },
+      409,
+    );
+  }
+
+  // ── Daily LLM budget kill-switch ───────────────────────────────────────
+  const budget = checkBudget();
+  if (budget) {
+    return json({ error: budget, code: "budget_reached" }, 503);
+  }
+
+  // ── Rate limits ────────────────────────────────────────────────────────
+  //   - 3 generations / hour / user (defence in depth on top of the quota above)
+  //   - 5 IP-bursts / minute    (catches scripted abuse on a shared NAT)
+  //   - 1 generation / 10s / GitHub username   (cooldown to keep the cache warm)
+  const hourly = limit(`gen:hour:${ownerId}`, { window: "1h", max: 3 });
+  if (!hourly.ok) {
+    return json({ error: "Hourly limit reached. Try again later." }, 429, {
+      "retry-after": String(hourly.retryAfter),
     });
+  }
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
+  const ipBurst = limit(`gen:ipburst:${ip}`, { window: "1m", max: 5 });
+  if (!ipBurst.ok) {
+    return json({ error: "Too many requests. Slow down." }, 429, {
+      "retry-after": String(ipBurst.retryAfter),
+    });
+  }
+
+  const cooldown = limit(`gen:cooldown:${username.toLowerCase()}`, {
+    window: "10s",
+    max: 1,
+  });
+  if (!cooldown.ok) {
+    return json(
+      { error: "That username was just generated. Wait a moment." },
+      429,
+      { "retry-after": String(cooldown.retryAfter) },
+    );
   }
 
   // -----------------------------------------------------------------------

@@ -1,6 +1,6 @@
 import "server-only";
 import { customAlphabet } from "nanoid";
-import type { Prisma } from "../../../generated/prisma";
+import { Prisma } from "../../../generated/prisma";
 import { db } from "~/server/db";
 import { fetchRawProfile } from "~/server/github/fetch";
 import { buildFacts } from "~/server/llm/facts";
@@ -22,7 +22,10 @@ export type Stage =
 
 // Typed error codes the client switches on. Anything not enumerated here is
 // surfaced as a generic error message.
-export type GenerateErrorCode = "github_not_found" | "internal";
+export type GenerateErrorCode =
+  | "github_not_found"
+  | "quota_reached"
+  | "internal";
 
 export interface GenerateEvent {
   stage: Stage;
@@ -79,23 +82,45 @@ export async function* runGeneration(
 
     yield { stage: "saving", message: "Publishing…" };
     const slug = newSlug();
-    await db.portfolio.create({
-      data: {
-        ownerId: opts.ownerId,
-        githubUsername: profile.user.login,
-        slug,
-        vibe,
-        profileData: JSON.parse(JSON.stringify(data)) as Prisma.InputJsonValue,
-        designSpec: JSON.parse(JSON.stringify(spec)) as Prisma.InputJsonValue,
-        engineVersion: ENGINE_VERSION,
-        template: "terminalNexus",
-        isPublic: true,
+    // Race-proof one-portfolio-per-user: re-check inside a serializable
+    // transaction so two concurrent requests can't both slip a row past the
+    // pre-flight count in the route handler.
+    await db.$transaction(
+      async (tx) => {
+        const owned = await tx.portfolio.count({ where: { ownerId: opts.ownerId } });
+        if (owned >= 1) {
+          throw new Error("QUOTA_REACHED");
+        }
+        await tx.portfolio.create({
+          data: {
+            ownerId: opts.ownerId,
+            githubUsername: profile.user.login,
+            slug,
+            vibe,
+            profileData: JSON.parse(JSON.stringify(data)) as Prisma.InputJsonValue,
+            designSpec: JSON.parse(JSON.stringify(spec)) as Prisma.InputJsonValue,
+            engineVersion: ENGINE_VERSION,
+            template: "terminalNexus",
+            isPublic: true,
+          },
+        });
       },
-    });
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
 
     logRunTotal({ username: profile.user.login, slug }, usages);
     yield { stage: "done", slug };
   } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg === "QUOTA_REACHED") {
+      yield {
+        stage: "error",
+        code: "quota_reached",
+        error:
+          "You already have a portfolio. PortHub is in beta — only one portfolio per account for now.",
+      };
+      return;
+    }
     yield {
       stage: "error",
       code: "internal",

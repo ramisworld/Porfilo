@@ -3,7 +3,8 @@ import { z } from "zod";
 import { headers as nextHeaders } from "next/headers";
 import { getSession } from "~/server/auth";
 import { githubUserExists } from "~/server/github/fetch";
-import { rateLimit } from "~/server/ratelimit";
+import { limit } from "~/server/ratelimit";
+import { db } from "~/server/db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,7 +45,22 @@ export async function POST(req: NextRequest) {
     return json({ error: msg ?? "Invalid request", exists: false }, 400);
   }
 
-  const rl = rateLimit(`validate:${session.user.id}`);
+  // Cheap pre-check: if this user already owns a portfolio (beta quota), no
+  // point hitting GitHub. Surface the quota error to the client.
+  const owned = await db.portfolio.count({ where: { ownerId: session.user.id } });
+  if (owned >= 1) {
+    return json(
+      {
+        error:
+          "You already have a portfolio. PortHub is in beta — only one portfolio per account for now.",
+        code: "quota_reached",
+        exists: false,
+      },
+      409,
+    );
+  }
+
+  const rl = limit(`validate:${session.user.id}`, { window: "1m", max: 10 });
   if (!rl.ok) {
     return json({ error: "Too many requests" }, 429, {
       "retry-after": String(rl.retryAfter),
