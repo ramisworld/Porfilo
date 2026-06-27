@@ -14,8 +14,8 @@ one that **looks hand-made, actually represents you, and is yours to keep.**
 1. Land on the page → type your GitHub username (e.g. `ramisworld`).
 2. **Describe the vibe** in your own words ("dark hacker terminal, neon green, minimal").
 3. Hit generate → a live "build log" plays while we fetch → curate → write → compose.
-4. **Tada** — your portfolio is live on `<slug>.localhost:3000` (dev) / `<slug>.porthub.app` (prod).
-5. *(Phase 2+)* create an account to **claim & edit** it; **Ask AI** to tweak; add a **custom domain** → upgrade.
+4. **Tada** — your portfolio is live on `<slug>.localhost:3000` (dev) / `<slug>.porthub.rami.co.nz` (prod).
+5. Create an account to **claim & edit** it, and connect your own **custom domain** (`you.com`) — see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) §2a.
 
 No login wall in front of the magic. The first generation is anonymous and costs us **~$0.05**.
 
@@ -40,4 +40,6 @@ No login wall in front of the magic. The first generation is anonymous and costs
 
 ## Status
 
-Pre-build. Specs first, then Phase 1.
+Live on Railway, served at `porthub.rami.co.nz`. Generation, accounts, editing, credentials, and
+user-owned custom domains (Cloudflare for SaaS) are all working. The `docs/specs/` phase docs are
+kept as historical planning notes; `docs/ARCHITECTURE.md` is the source of truth for the current system.
