@@ -4498,23 +4498,40 @@ body:has(.xp-ghost) {
   transform: translate(3px, -3px);
 }
 
-/* ---- FIELD_LOG — intercepted signal fragments ----
-   The feed reads as scattered terminal scraps: each entry is a small
-   liquid-glass slab with a fragment header (hash + timestamp + source
-   channel), a sliced left edge, and a corner index. They're set on a slight
-   alternating skew so the column feels like physical paper pinned to a wall,
-   not a uniform CMS list. Hovering "tunes" the signal — border lights up,
-   the fragment lifts, the hash pulses. */
-.xp-tn-log {
+/* ============================================================
+   CREDENTIALS — certifications & licenses.
+   Each card is a small liquid-glass slab with an icon mark on the
+   left and the cert title / issuer / dates stacked beside it. The
+   left edge takes on the issuer's brand color via the --ph-issuer
+   custom property; on hover, that edge ignites into a glow rail and
+   the card lifts. Layout is a responsive grid: 3-up on wide screens,
+   2-up on tablets, single column on phones.
+   ============================================================ */
+.xp-tn-creds {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 18px 22px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 18px;
   padding-top: 6px;
 }
-.xp-tn-logentry {
+@media (max-width: 1080px) {
+  .xp-tn-creds {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 720px) {
+  .xp-tn-creds {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.xp-tn-cred {
+  --ph-issuer: var(--neon);
   position: relative;
-  display: block;
-  padding: 18px 70px 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 18px 16px;
   background: linear-gradient(
     180deg,
     rgba(8, 14, 12, 0.62),
@@ -4522,101 +4539,254 @@ body:has(.xp-ghost) {
   );
   backdrop-filter: blur(12px) saturate(1.2);
   border: 1px solid color-mix(in srgb, #ffffff 5%, transparent);
-  border-left: 1px solid color-mix(in srgb, var(--neon) 45%, transparent);
-  border-radius: 6px;
+  border-left: 1px solid color-mix(in srgb, var(--ph-issuer) 55%, transparent);
+  border-radius: 8px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.045),
     0 14px 34px rgba(0, 0, 0, 0.4);
   transition:
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.3s,
-    box-shadow 0.3s,
-    border-left-color 0.3s;
+    border-left-color 0.3s,
+    box-shadow 0.3s;
+  overflow: hidden;
+  isolation: isolate;
 }
-/* Asymmetric skew — one cluster leans left, the next leans right. */
-.xp-tn-logentry:nth-child(odd) {
-  transform: translateY(0) rotate(-0.35deg);
+/* Sequenced reveal driven by --i — same pattern as the cards in SYSTEMS. */
+.xp-tn-cred {
+  animation-delay: calc(var(--i, 0) * 60ms);
 }
-.xp-tn-logentry:nth-child(even) {
-  transform: translateY(8px) rotate(0.4deg);
-}
-.xp-tn-logentry::before {
-  content: "FRAG";
+.xp-tn-cred-glow {
   position: absolute;
-  top: 10px;
-  right: 14px;
-  font-size: 9.5px;
-  letter-spacing: 0.22em;
-  color: color-mix(in srgb, var(--neon) 75%, transparent);
-  opacity: 0.55;
-}
-.xp-tn-logentry::after {
-  content: "";
-  position: absolute;
-  left: -1px;
-  top: 14%;
-  bottom: 14%;
-  width: 2px;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    color-mix(in srgb, var(--neon) 60%, transparent) 40%,
-    color-mix(in srgb, var(--neon2) 35%, transparent) 70%,
-    transparent
+  inset: -40% -20% auto auto;
+  width: 140%;
+  height: 80%;
+  background: radial-gradient(
+    50% 60% at 30% 20%,
+    color-mix(in srgb, var(--ph-issuer) 18%, transparent),
+    transparent 70%
   );
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.45s;
+  pointer-events: none;
+  z-index: -1;
 }
-.xp-tn-logentry:hover {
-  transform: translateY(-4px) rotate(0deg);
-  border-color: color-mix(in srgb, var(--neon) 28%, transparent);
-  border-left-color: var(--neon);
+.xp-tn-cred:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--ph-issuer) 32%, transparent);
+  border-left-color: var(--ph-issuer);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     0 22px 50px rgba(0, 0, 0, 0.55),
-    0 0 34px -16px var(--neon);
+    0 0 34px -16px var(--ph-issuer);
 }
-.xp-tn-logentry:hover::after {
+.xp-tn-cred:hover .xp-tn-cred-glow {
   opacity: 1;
 }
-.xp-tn-loghash {
+
+/* ---- head: icon + title block + verified badge -----------------------
+   Three columns so the VERIFIED stamp always has reserved space — long
+   titles wrap inside the middle column instead of colliding with the
+   badge (which used to be an absolute ::before).
+   --------------------------------------------------------------------- */
+.xp-tn-cred-head {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: 14px;
+  align-items: start;
+}
+.xp-tn-cred-badge {
+  /* Tiny mono caps stamp; sits beside the title block, never on top. */
+  align-self: start;
+  margin-top: 2px;
+  padding: 3px 6px;
+  font-family: var(--gmono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  line-height: 1;
+  color: color-mix(in srgb, var(--ph-issuer) 80%, transparent);
+  background: color-mix(in srgb, var(--ph-issuer) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ph-issuer) 22%, transparent);
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: opacity 0.3s, background 0.3s, border-color 0.3s;
+  white-space: nowrap;
+  user-select: none;
+}
+.xp-tn-cred:hover .xp-tn-cred-badge {
+  opacity: 1;
+  background: color-mix(in srgb, var(--ph-issuer) 16%, transparent);
+  border-color: color-mix(in srgb, var(--ph-issuer) 38%, transparent);
+}
+.xp-tn-cred-logo {
+  --ph-issuer: var(--neon);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 0 transparent;
+  overflow: hidden;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s;
+}
+.xp-tn-cred-logo svg {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+.xp-tn-cred:hover .xp-tn-cred-logo {
+  transform: scale(1.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 24px -10px var(--ph-issuer);
+}
+.xp-tn-cred-logo-fb {
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--ph-issuer) 60%, #0a0a0a),
+    color-mix(in srgb, var(--ph-issuer) 32%, #050505)
+  );
+  color: #fff;
+}
+.xp-tn-cred-initials {
+  font-family: var(--gmono);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.xp-tn-cred-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.xp-tn-cred-title {
+  margin: 0;
+  padding-right: 4px;
+  font-size: 14px;
+  line-height: 1.34;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  /* Two-line clamp so a long cert title never breaks the grid rhythm. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.xp-tn-cred-issuer {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  letter-spacing: 0.005em;
+  color: #c5cfca;
+}
+.xp-tn-cred-date {
+  margin: 4px 0 0;
+  font-family: var(--gmono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* ---- credential id row ---- */
+.xp-tn-cred-credid {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-family: var(--gmono);
+}
+.xp-tn-cred-credid em {
+  font-style: normal;
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ph-issuer) 70%, transparent);
+}
+.xp-tn-cred-credid span {
+  flex: 1;
+  font-size: 11.5px;
+  color: #c8d0cc;
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- skill chips ---- */
+.xp-tn-cred-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 6px;
+}
+.xp-tn-cred-skill {
   display: inline-block;
+  padding: 3px 9px;
+  font-family: var(--gmono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: #b5beba;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 999px;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.xp-tn-cred:hover .xp-tn-cred-skill {
+  color: #dfe6e3;
+  border-color: color-mix(in srgb, var(--ph-issuer) 18%, transparent);
+}
+
+/* ---- verify link ---- */
+.xp-tn-cred-verify {
+  margin-top: auto;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
   font-family: var(--gmono);
   font-size: 11px;
   letter-spacing: 0.14em;
-  color: var(--neon);
-  background: rgba(54, 212, 134, 0.08);
-  border: 1px solid color-mix(in srgb, var(--neon) 22%, transparent);
-  padding: 2px 8px;
-  border-radius: 3px;
-  margin-right: 10px;
-  vertical-align: 1px;
-}
-.xp-tn-logtime {
-  color: var(--dim);
-  font-size: 11px;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-.xp-tn-logentry p {
-  margin: 14px 0 0;
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: #c5cfca;
-}
-.xp-tn-logentry p b {
+  text-decoration: none;
   color: var(--ink);
-  font-weight: 600;
-  letter-spacing: 0.005em;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 5px;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s,
+    color 0.2s;
 }
-@media (max-width: 860px) {
-  .xp-tn-log {
-    grid-template-columns: 1fr;
-  }
-  .xp-tn-logentry:nth-child(odd),
-  .xp-tn-logentry:nth-child(even) {
-    transform: none;
-  }
+.xp-tn-cred-verify i {
+  font-style: normal;
+  font-size: 13px;
+  opacity: 0.75;
+  transition: transform 0.25s, opacity 0.25s;
+}
+.xp-tn-cred-verify:hover {
+  color: #fff;
+  background: color-mix(in srgb, var(--ph-issuer) 14%, rgba(255, 255, 255, 0.03));
+  border-color: color-mix(in srgb, var(--ph-issuer) 36%, transparent);
+}
+.xp-tn-cred-verify:hover i {
+  transform: translate(2px, -2px);
+  opacity: 1;
 }
 
 /* ============================================================
@@ -4985,6 +5155,25 @@ body:has(.xp-ghost) {
     padding-left: 6vw;
   }
 }
+@media (max-width: 720px) {
+  /* Phone view — hero reflow. We keep `min-height: 100vh` so the hero fills
+     the preview iframe edge-to-edge (no black gutter), but pull the content
+     up to the top so the eyebrow clears the fixed HUD strip and the brand
+     mark has air around it on small screens. */
+  .xp-tn-hero {
+    align-items: flex-start;
+    padding: 64px 5vw 48px 5vw;
+  }
+  .xp-tn-hero-inner {
+    width: 100%;
+  }
+  /* The mouse-wheel scroll cue at the bottom of the hero is decorative
+     desktop-only chrome. On a touchscreen the gesture is obvious and the
+     animation just adds noise — hide it entirely. */
+  .xp-tn-scrollcue {
+    display: none;
+  }
+}
 @media (max-width: 560px) {
   .xp-tn-strip-mid,
   .xp-tn-lat,
@@ -5011,8 +5200,5 @@ body:has(.xp-ghost) {
   }
   .xp-tn-term {
     max-width: 100%;
-  }
-  .xp-tn-scrollcue {
-    bottom: 18px;
   }
 }
