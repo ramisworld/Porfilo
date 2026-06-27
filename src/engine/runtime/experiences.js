@@ -20,11 +20,8 @@
   function github(data) {
     return links(data).github || "";
   }
-  // Authored fallback — the data layer can't synthesize a real address (the
-  // MOCK_LLM=true path leaves links.email empty whenever GitHub doesn't expose
-  // one), so the engine guarantees a useful contact target instead of hiding
-  // the field. Live mode still wins whenever the user has set a real email.
-  var EMAIL_FALLBACK = "rameonix@gmail.com";
+  // Keep contact private unless the profile data explicitly provides an email.
+  var EMAIL_FALLBACK = "";
   function email(data) {
     return links(data).email || EMAIL_FALLBACK;
   }
@@ -43,6 +40,14 @@
     if (!g) return "";
     return g
       .replace(/^https?:\/\/(www\.)?github\.com\//i, "")
+      .replace(/\/.*$/, "");
+  }
+  function socialHandle(url, hostPattern) {
+    url = l_safe(url);
+    if (!url) return "";
+    return url
+      .replace(hostPattern, "")
+      .replace(/^@/, "")
       .replace(/\/.*$/, "");
   }
   // site URL → bare host for the browser address bar (ramisworld.dev)
@@ -319,80 +324,57 @@
   // CREDENTIALS — user-curated certifications & licenses.
   //
   // Cards mirror the LinkedIn "Licenses & Certifications" block: icon mark,
-  // title, issuer, issued/expires line, optional credential ID, optional
-  // skills row, and a "Show credential" link when the user supplied a verify
+  // title, issuer, optional credential ID, optional skills row, and a
+  // "Show credential" link when the user supplied a verify
   // URL. The section is hidden entirely when `data.credentials` is empty —
   // the default portfolio looks identical to before.
   function tnHasCredentials(data) {
     return arr(data.credentials).length > 0;
   }
 
-  // YYYY-MM → "May 2026". Tolerant of partial/garbage input.
-  var TN_MONTHS = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
-  function tnFmtMonth(s) {
-    if (!s || typeof s !== "string") return "";
-    var m = s.match(/^(\d{4})-(\d{1,2})/);
-    if (!m) return s;
-    var idx = parseInt(m[2], 10) - 1;
-    if (idx < 0 || idx > 11) return s;
-    return TN_MONTHS[idx] + " " + m[1];
-  }
-
-  // Icon-only logo for a credential. Falls back to a brand-accent square
-  // with the first 2 letters of the issuer when the key isn't registered.
+  // Local logo asset for a credential. Unknown issuers get a neutral
+  // certificate fallback; the runtime never fabricates brand-looking marks.
   function tnCredLogo(c) {
-    var key = c.issuerKey || "";
-    var svg = PH.issuerSvg ? PH.issuerSvg(key) : "";
-    if (svg) {
-      var col = PH.issuerColor ? PH.issuerColor(key) : "";
-      return (
-        '<span class="xp-tn-cred-logo" data-key="' +
-        esc(key) +
-        '"' +
-        (col ? ' style="--ph-issuer:' + col + '"' : "") +
-        ">" +
-        svg +
-        "</span>"
-      );
+    var rawKey = c.issuerKey || "";
+    var key = rawKey;
+    var src = PH.issuerLogoSrc ? PH.issuerLogoSrc(key) : "";
+    if (!src && PH.normalizeIssuerKey) {
+      key = PH.normalizeIssuerKey(c.issuer || c.title || "");
+      src = PH.issuerLogoSrc ? PH.issuerLogoSrc(key) : "";
     }
-    var label = (c.issuer || "??").trim();
-    var initials = label
-      .split(/\s+/)
-      .map(function (w) { return w.charAt(0); })
-      .join("")
-      .slice(0, 2)
-      .toUpperCase() || "??";
-    // Deterministic hue from the issuer string so unknown issuers stay stable
-    // across re-renders instead of flicker-changing colors.
-    var hash = 0;
-    for (var i = 0; i < label.length; i++) {
-      hash = (hash * 31 + label.charCodeAt(i)) | 0;
-    }
-    var hue = Math.abs(hash) % 360;
+
+    var known = !!src;
+    var col = known && PH.issuerColor ? PH.issuerColor(key) : "";
+    var kind = known && PH.issuerLogoKind ? PH.issuerLogoKind(key) : "generic";
+    var mark = known && PH.issuerLogoMark ? PH.issuerLogoMark(key) : "square";
+    var tile = known && PH.issuerLogoTile ? PH.issuerLogoTile(key) : "neutral";
+    var alt =
+      known && PH.issuerLogoAlt ? PH.issuerLogoAlt(key) : "Credential issuer";
+    if (!src && PH.issuerFallbackSrc) src = PH.issuerFallbackSrc();
+    if (!src) src = "/brand/credentials/fallback-certificate.svg";
+
     return (
-      '<span class="xp-tn-cred-logo xp-tn-cred-logo-fb" style="--ph-issuer:hsl(' +
-      hue +
-      ',55%,45%)">' +
-      '<span class="xp-tn-cred-initials">' +
-      esc(initials) +
-      "</span></span>"
+      '<span class="xp-tn-cred-logo" data-key="' +
+      esc(key || rawKey || "") +
+      '" data-kind="' +
+      esc(kind) +
+      '" data-mark="' +
+      esc(mark) +
+      '" data-tile="' +
+      esc(tile) +
+      '"' +
+      (col ? ' style="--ph-issuer:' + col + '"' : "") +
+      ">" +
+      '<img src="' +
+      esc(src) +
+      '" alt="' +
+      esc(alt) +
+      '" loading="lazy" decoding="async"/>' +
+      "</span>"
     );
   }
 
   function tnCredCard(c, i) {
-    var dateLine = "";
-    var issued = tnFmtMonth(c.issuedAt);
-    var expires = tnFmtMonth(c.expiresAt);
-    if (issued && expires) {
-      dateLine = "Issued " + issued + " \u00b7 Expires " + expires;
-    } else if (issued) {
-      dateLine = "Issued " + issued + " \u00b7 No expiration";
-    } else if (expires) {
-      dateLine = "Expires " + expires;
-    }
     var skills = arr(c.skills)
       .slice(0, 8)
       .map(function (s) {
@@ -428,16 +410,11 @@
       '<p class="xp-tn-cred-issuer">' +
       esc(c.issuer || "") +
       "</p>" +
-      (dateLine
-        ? '<p class="xp-tn-cred-date">' + esc(dateLine) + "</p>"
-        : "") +
       "</div>" +
       '<span class="xp-tn-cred-badge" aria-hidden="true">VERIFIED</span>' +
       "</div>" +
       credIdRow +
-      (skills
-        ? '<div class="xp-tn-cred-skills">' + skills + "</div>"
-        : "") +
+      (skills ? '<div class="xp-tn-cred-skills">' + skills + "</div>" : "") +
       verifyRow +
       "</article>"
     );
@@ -655,7 +632,7 @@
       // -- live status readout — animates between phases via CSS
       '<div class="xp-tn-hs-status">' +
       '<i class="xp-tn-hs-dot"></i><span>channel encrypted</span>' +
-      '<em>AES-256 / SHA-512</em>' +
+      "<em>AES-256 / SHA-512</em>" +
       "</div>" +
       // -- IDENTITY block: one big copyable row (email). The GitHub handle
       // already shows up in the secondary meta strip below — duplicating it
@@ -672,17 +649,33 @@
       '<span class="xp-tn-hs-act"><b>COPY</b><i>&#10697;</i></span>' +
       "</button>" +
       "</div>" +
-      // -- secondary links (open in new tab)
-      // The SITE link and the LOC strip were removed intentionally — the
-      // GitHub handle is the only secondary identity we surface here. Email
-      // is the primary copy-action above; the user's site URL (if any) is
-      // still discoverable in the in-page terminal via `cat contact.txt`.
+      // -- secondary social links (open in new tab). Keep GitHub centered
+      // between X/Twitter and LinkedIn when all three are present.
       '<div class="xp-tn-hs-meta">' +
+      (l.x
+        ? '<a class="xp-tn-hs-meta-link xp-tn-hs-meta-link--x" href="' +
+          esc(l.x) +
+          '" target="_blank" rel="noreferrer"><span>OPEN</span>x.com/' +
+          esc(socialHandle(l.x, /^https?:\/\/(www\.)?(x|twitter)\.com\//i)) +
+          "<i>&#8599;</i></a>"
+        : "") +
       (l.github
         ? '<a class="xp-tn-hs-meta-link" href="' +
           esc(l.github) +
           '" target="_blank" rel="noreferrer"><span>OPEN</span>github.com/' +
           esc(gh || "") +
+          "<i>&#8599;</i></a>"
+        : "") +
+      (l.linkedin
+        ? '<a class="xp-tn-hs-meta-link xp-tn-hs-meta-link--linkedin" href="' +
+          esc(l.linkedin) +
+          '" target="_blank" rel="noreferrer"><span>OPEN</span>linkedin.com/' +
+          esc(
+            socialHandle(
+              l.linkedin,
+              /^https?:\/\/(www\.)?linkedin\.com\//i,
+            ),
+          ) +
           "<i>&#8599;</i></a>"
         : "") +
       "</div>" +
@@ -1630,7 +1623,8 @@
     var scue = document.querySelector(".xp-tn-scrollcue");
     if (window.PH && typeof window.PH.onScroll === "function") {
       window.PH.onScroll(function (s) {
-        if (pbar) pbar.style.transform = "scaleX(" + s.progress.toFixed(3) + ")";
+        if (pbar)
+          pbar.style.transform = "scaleX(" + s.progress.toFixed(3) + ")";
         // Fade the scroll cue out as soon as the visitor starts moving so it
         // doesn't sit on top of the next section. 60px is "intent to scroll",
         // not a full section's worth — feels responsive.
@@ -1826,18 +1820,10 @@
       return (
         rows
           .map(function (c) {
-            var dates = "";
-            var i = c.issuedAt ? "issued " + c.issuedAt : "";
-            var x = c.expiresAt ? "expires " + c.expiresAt : "";
-            if (i && x) dates = i + " · " + x;
-            else if (i) dates = i;
-            else if (x) dates = x;
-            var line2 = [c.issuer, dates].filter(Boolean).join(" · ");
+            var line2 = c.issuer || "";
             var line3 = c.credentialId ? "id: " + c.credentialId : "";
             var line4 = c.url ? "verify: " + c.url : "";
-            return [c.title, line2, line3, line4]
-              .filter(Boolean)
-              .join("\n  ");
+            return [c.title, line2, line3, line4].filter(Boolean).join("\n  ");
           })
           .join("\n\n") + "\n"
       );
@@ -1851,8 +1837,7 @@
         children: {
           "whoami.sh": {
             type: "file",
-            text:
-              "#!/bin/sh\n# Identity card renderer.\n# Re-runs are no-op — the card is already on screen.\n",
+            text: "#!/bin/sh\n# Identity card renderer.\n# Re-runs are no-op — the card is already on screen.\n",
           },
           "skills.txt": { type: "file", text: skillsTxt },
           "stack.txt": { type: "file", text: stackStr + "\n" },
@@ -1861,8 +1846,7 @@
           "credentials.txt": { type: "file", text: credsTxt },
           ".bashrc": {
             type: "file",
-            text:
-              "# minimal\nalias ll='ls -lA'\nalias la='ls -A'\nexport PS1='\\u@\\h:\\w$ '\n",
+            text: "# minimal\nalias ll='ls -lA'\nalias la='ls -A'\nexport PS1='\\u@\\h:\\w$ '\n",
           },
           ".ssh": {
             type: "dir",
@@ -1919,9 +1903,7 @@
       return node;
     }
     function cwdToFsPath(c) {
-      return c === "~"
-        ? "~"
-        : "~/" + c.replace(/^~\/?/, "");
+      return c === "~" ? "~" : "~/" + c.replace(/^~\/?/, "");
     }
     function cwdToAbs(c) {
       var rel = c.replace(/^~\/?/, "");
@@ -1957,9 +1939,7 @@
             var c = node.children[n];
             var isDir = c.type === "dir";
             var perm = isDir ? "drwxr-xr-x" : "-rw-r--r--";
-            var size = isDir
-              ? 0
-              : (c.text || "").length;
+            var size = isDir ? 0 : (c.text || "").length;
             return (
               '<span class="xp-tn-tperm">' +
               perm +
@@ -2026,7 +2006,10 @@
         var node = target ? resolve(target) : resolve(cwd);
         if (!node)
           return {
-            err: "ls: cannot access '" + escHtml(target || "") + "': No such file or directory",
+            err:
+              "ls: cannot access '" +
+              escHtml(target || "") +
+              "': No such file or directory",
           };
         if (node.type === "file") return target || "";
         return fmtLs(node, opts);
@@ -2073,10 +2056,7 @@
         var n = resolve(to);
         if (!n)
           return {
-            err:
-              "cd: " +
-              escHtml(to) +
-              ": No such file or directory",
+            err: "cd: " + escHtml(to) + ": No such file or directory",
           };
         if (n.type !== "dir")
           return {
@@ -2120,11 +2100,7 @@
       },
       man: function (args) {
         if (!args.length) return { err: "What manual page do you want?" };
-        return (
-          "No manual entry for " +
-          escHtml(args[0]) +
-          " — try `help`."
-        );
+        return "No manual entry for " + escHtml(args[0]) + " — try `help`.";
       },
       exit: function () {
         return "logout. (session preserved — refresh to reconnect.)";
@@ -2156,9 +2132,7 @@
       var fn = CMD[name];
       if (!fn)
         return {
-          err:
-            escHtml(name) +
-            ": command not found",
+          err: escHtml(name) + ": command not found",
         };
       return fn(args);
     }
