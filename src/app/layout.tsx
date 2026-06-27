@@ -9,7 +9,12 @@ export const metadata: Metadata = {
   title: "PortHub — your GitHub, as a bespoke portfolio",
   description:
     "Type your GitHub username, describe a vibe, and get a unique interactive portfolio in seconds.",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  openGraph: {
+    title: "PortHub — your GitHub, as a bespoke portfolio",
+    description:
+      "Type your GitHub username, describe a vibe, and get a unique interactive portfolio in seconds.",
+    type: "website",
+  },
 };
 
 const geist = Geist({
