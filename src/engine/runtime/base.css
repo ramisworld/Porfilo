@@ -4691,10 +4691,11 @@ body:has(.xp-ghost) {
   color: #c5cfca;
 }
 .xp-tn-cred-date {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   font-family: var(--gmono);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
+  font-size: 8.5px;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
   text-transform: uppercase;
   color: var(--dim);
 }
