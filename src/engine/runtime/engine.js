@@ -156,6 +156,7 @@
     if (links.github) out.push(btn("GitHub", links.github, skin));
     if (links.site) out.push(btn("Website", links.site, skin));
     if (links.x) out.push(btn("X", links.x, skin));
+    if (links.linkedin) out.push(btn("LinkedIn", links.linkedin, skin));
     if (links.email) out.push(btn("Email", "mailto:" + links.email, skin));
     return out.join("");
   }
