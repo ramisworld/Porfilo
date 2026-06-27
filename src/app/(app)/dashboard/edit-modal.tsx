@@ -22,7 +22,7 @@ import { api } from "~/trpc/react";
 /**
  * Edit modal — a liquid-glass overlay that lives on top of the dashboard.
  *
- *   ● Section nav (Identity · Abilities · Stats · Projects) on the left
+ *   ● Section nav (Identity · Focus & Stack · Stats · Projects) on the left
  *   ● Scrollable form on the right
  *   ● Sticky footer: status + Save
  *   ● Closing with unsaved changes prompts: Save · Discard · Cancel
@@ -43,9 +43,11 @@ export function EditModal({
   /** Called after a successful save with the freshly-persisted payload. */
   onSaved: (saved: ProfileData) => void;
 }) {
-  const [data, setData] = useState<ProfileData>(() => structuredClone(initial));
+  const [data, setData] = useState<ProfileData>(() =>
+    hydrateEditableProfileData(initial),
+  );
   const [baseline, setBaseline] = useState<ProfileData>(() =>
-    structuredClone(initial),
+    hydrateEditableProfileData(initial),
   );
   const [tab, setTab] = useState<TabId>("identity");
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +63,9 @@ export function EditModal({
 
   const update = api.portfolio.updateProfileData.useMutation({
     onError: () =>
-      setError("That did not save. Please check your connection and try again."),
+      setError(
+        "That did not save. Please check your connection and try again.",
+      ),
   });
 
   // Centralized "save succeeded" handler. Takes the validated ProfileData
@@ -93,8 +97,14 @@ export function EditModal({
       return `https://${t}`;
     };
 
+    const focus = parseCommaList(data.focus.join(", "), 8);
+    const stack = parseCommaList(data.stack.join(", "), 18);
+
     const payload: ProfileData = {
       ...data,
+      focus,
+      stack,
+      abilities: abilitiesFromStack(stack),
       identity: {
         ...data.identity,
         location: blankToUndef(data.identity.location),
@@ -267,10 +277,18 @@ export function EditModal({
                 githubUsername={githubUsername}
               />
             )}
-            {tab === "abilities" && (
-              <AbilitiesSection
-                items={data.abilities}
-                onChange={(abilities) => setData({ ...data, abilities })}
+            {tab === "focusStack" && (
+              <FocusStackSection
+                focus={data.focus}
+                stack={data.stack}
+                onChange={({ focus, stack }) =>
+                  setData({
+                    ...data,
+                    focus,
+                    stack,
+                    abilities: abilitiesFromStack(stack),
+                  })
+                }
               />
             )}
             {tab === "stats" && (
@@ -400,14 +418,59 @@ export function EditModal({
 // Tabs
 // ───────────────────────────────────────────────────────────────────────────
 
-type TabId = "identity" | "abilities" | "stats" | "projects" | "credentials";
+type TabId = "identity" | "focusStack" | "stats" | "projects" | "credentials";
 const TABS: Array<{ id: TabId; label: string }> = [
   { id: "identity", label: "Identity" },
-  { id: "abilities", label: "Abilities" },
+  { id: "focusStack", label: "Focus & Stack" },
   { id: "stats", label: "Stats" },
   { id: "projects", label: "Projects" },
   { id: "credentials", label: "Credentials" },
 ];
+
+function hydrateEditableProfileData(input: ProfileData): ProfileData {
+  const next = structuredClone(input);
+  const focus = next.focus.length ? next.focus : deriveFocus(next);
+  const stack = next.stack.length ? next.stack : deriveStack(next);
+
+  return {
+    ...next,
+    focus,
+    stack,
+    abilities: next.abilities.length
+      ? next.abilities
+      : abilitiesFromStack(stack),
+  };
+}
+
+function deriveFocus(data: ProfileData): string[] {
+  const role = data.identity.role.toLowerCase();
+  if (/ai|ml|machine|agent|llm|model/.test(role)) {
+    return ["LLMs", "agents", "developer tooling"];
+  }
+  if (/full.?stack|backend|frontend|web/.test(role)) {
+    return ["Systems", "interfaces", "tooling"];
+  }
+  return ["Systems", "tooling", "interfaces"];
+}
+
+function deriveStack(data: ProfileData): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const add = (label: string | undefined) => {
+    const trimmed = label?.trim();
+    if (!trimmed || seen.has(trimmed)) return;
+    seen.add(trimmed);
+    out.push(trimmed);
+  };
+
+  data.languages.forEach((language) => add(language.label));
+  data.projects.forEach((project) => project.tech.forEach(add));
+  return out.slice(0, 18);
+}
+
+function abilitiesFromStack(stack: string[]): Ability[] {
+  return stack.slice(0, 24).map((label) => ({ label }));
+}
 
 // ───────────────────────────────────────────────────────────────────────────
 // Sections
@@ -518,49 +581,37 @@ function IdentitySection({
   );
 }
 
-function AbilitiesSection({
-  items,
+function FocusStackSection({
+  focus,
+  stack,
   onChange,
 }: {
-  items: Ability[];
-  onChange: (next: Ability[]) => void;
+  focus: string[];
+  stack: string[];
+  onChange: (next: { focus: string[]; stack: string[] }) => void;
 }) {
   return (
-    <SectionShell title="Abilities" subtitle="Short labels shown as skills">
-      <ul className="space-y-2">
-        {items.map((a, i) => (
-          <li
-            key={i}
-            className="flex items-center gap-1 rounded-xl bg-black/25 p-1 ring-1 ring-white/[0.04]"
-          >
-            <ReorderControls
-              index={i}
-              total={items.length}
-              onMove={(dir) => onChange(move(items, i, dir))}
-            />
-            <input
-              value={a.label}
-              onChange={(e) => {
-                const next = [...items];
-                next[i] = { ...a, label: e.target.value };
-                onChange(next);
-              }}
-              maxLength={40}
-              placeholder="React interfaces"
-              className="h-9 flex-1 bg-transparent px-2 text-[13.5px] outline-none placeholder:text-white/25"
-            />
-            <RemoveButton
-              onClick={() => onChange(items.filter((_, j) => j !== i))}
-            />
-          </li>
-        ))}
-      </ul>
-      <AddButton
-        onClick={() => onChange([...items, { label: "" }])}
-        disabled={items.length >= 24}
-      >
-        + Add ability
-      </AddButton>
+    <SectionShell
+      title="Focus & Stack"
+      subtitle="Edits the focus and stack lines in the terminal hero"
+    >
+      <Field label="Focus" hint="Comma separated, max 8">
+        <CommaListInput
+          value={focus}
+          onChange={(nextFocus) => onChange({ focus: nextFocus, stack })}
+          maxItems={8}
+          placeholder="LLMs, agents, developer tooling"
+        />
+      </Field>
+
+      <Field label="Stack" hint="Comma separated, max 18">
+        <CommaListInput
+          value={stack}
+          onChange={(nextStack) => onChange({ focus, stack: nextStack })}
+          maxItems={18}
+          placeholder="TypeScript, JavaScript, CSS, HTML, Python"
+        />
+      </Field>
     </SectionShell>
   );
 }
@@ -839,9 +890,6 @@ function CredentialCardEditor({
   onRemove: () => void;
   onMove: (dir: -1 | 1) => void;
 }) {
-  const [skillsInput, setSkillsInput] = useState<string>(() =>
-    (value.skills ?? []).join(", "),
-  );
   // Mode is derived from the credential, but kept in local state so picking
   // "Other…" sticks even before the user types anything (a freshly-clicked
   // "Other…" has empty issuer text, which would otherwise fall back to
@@ -852,7 +900,6 @@ function CredentialCardEditor({
   // local state in sync — but don't clobber a sticky "other" mode if the
   // user picked it before typing.
   useEffect(() => {
-    setSkillsInput((value.skills ?? []).join(", "));
     setMode((current) => {
       const derived = deriveIssuerMode(value);
       // A "sticky" Other selection (no key yet, mode already other) wins so
@@ -951,20 +998,15 @@ function CredentialCardEditor({
       </Row>
 
       <Field label="Skills" hint="Comma separated, max 15">
-        <TextInput
-          value={skillsInput}
-          onChange={(v) => {
-            setSkillsInput(v);
-            const skills = v
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
-              .slice(0, 15);
+        <CommaListInput
+          value={value.skills ?? []}
+          onChange={(skills) => {
             onChange({
               ...value,
               skills: skills.length ? skills : undefined,
             });
           }}
+          maxItems={15}
           placeholder="Azure AI, Cognitive Services, Python"
         />
       </Field>
@@ -1268,25 +1310,27 @@ function CommaListInput({
   value,
   onChange,
   placeholder,
+  maxItems,
 }: {
   value: string[];
   onChange: (v: string[]) => void;
   placeholder?: string;
+  maxItems?: number;
 }) {
   const [raw, setRaw] = useState(() => value.join(", "));
 
   useEffect(() => {
-    if (!sameStringList(parseCommaList(raw), value)) {
+    if (!sameStringList(parseCommaList(raw, maxItems), value)) {
       setRaw(value.join(", "));
     }
-  }, [raw, value]);
+  }, [maxItems, raw, value]);
 
   return (
     <TextInput
       value={raw}
       onChange={(nextRaw) => {
         setRaw(nextRaw);
-        onChange(parseCommaList(nextRaw));
+        onChange(parseCommaList(nextRaw, maxItems));
       }}
       placeholder={placeholder}
     />
@@ -1324,11 +1368,12 @@ function TextInput({
   );
 }
 
-function parseCommaList(value: string): string[] {
+function parseCommaList(value: string, maxItems?: number): string[] {
   return value
     .split(",")
     .map((item) => item.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .slice(0, maxItems);
 }
 
 function sameStringList(a: string[], b: string[]): boolean {

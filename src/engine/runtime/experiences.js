@@ -45,10 +45,7 @@
   function socialHandle(url, hostPattern) {
     url = l_safe(url);
     if (!url) return "";
-    return url
-      .replace(hostPattern, "")
-      .replace(/^@/, "")
-      .replace(/\/.*$/, "");
+    return url.replace(hostPattern, "").replace(/^@/, "").replace(/\/.*$/, "");
   }
   // site URL → bare host for the browser address bar (ramisworld.dev)
   function siteHost(data) {
@@ -73,6 +70,13 @@
   }
 
   function tnStack(data) {
+    var authored = arr(data.stack)
+      .map(function (item) {
+        return String(item || "").trim();
+      })
+      .filter(Boolean);
+    if (authored.length) return authored.slice(0, 18).join(", ");
+
     var seen = {};
     var out = [];
     arr(data.languages).forEach(function (l) {
@@ -310,9 +314,16 @@
     return out;
   }
 
-  // Authored focus line — ProfileData has no `focus` field, so the engine owns a
-  // sensible, role-aware default an AI engineer can edit. Kept terse on purpose.
+  // Authored focus line. Older profiles fall back to a sensible, role-aware
+  // default so existing portfolios render the same until the user edits them.
   function tnFocus(data) {
+    var authored = arr(data.focus)
+      .map(function (item) {
+        return String(item || "").trim();
+      })
+      .filter(Boolean);
+    if (authored.length) return authored.slice(0, 8).join(" \u00b7 ");
+
     var r = (role(data) || "").toLowerCase();
     if (/ai|ml|machine|agent|llm|model/.test(r))
       return "LLMs \u00b7 agents \u00b7 developer tooling";
@@ -671,10 +682,7 @@
           esc(l.linkedin) +
           '" target="_blank" rel="noreferrer"><span>OPEN</span>linkedin.com/' +
           esc(
-            socialHandle(
-              l.linkedin,
-              /^https?:\/\/(www\.)?linkedin\.com\//i,
-            ),
+            socialHandle(l.linkedin, /^https?:\/\/(www\.)?linkedin\.com\//i),
           ) +
           "<i>&#8599;</i></a>"
         : "") +

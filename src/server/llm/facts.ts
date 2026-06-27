@@ -9,6 +9,7 @@ import type { RawProfile, RawRepo } from "~/server/github/types";
 import {
   profileDataSchema,
   type Ability,
+  type Language,
   type ProfileData,
   type Project,
 } from "~/server/profile/model";
@@ -24,7 +25,10 @@ import { buildUsageRecord, logUsage, type UsageRecord } from "./cost";
 // ---- helpers (deterministic) ----
 
 function firstSentences(text: string, n: number): string {
-  const parts = text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/);
+  const parts = text
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(/(?<=[.!?])\s+/);
   return parts.slice(0, n).join(" ").slice(0, 280);
 }
 
@@ -145,7 +149,10 @@ const ABILITY_ALIASES: Record<string, string> = {
 };
 
 function prettyAbility(raw: string): string {
-  const key = raw.toLowerCase().replace(/^@/, "").replace(/[\s_]+/g, "-");
+  const key = raw
+    .toLowerCase()
+    .replace(/^@/, "")
+    .replace(/[\s_]+/g, "-");
   if (ABILITY_ALIASES[key]) return ABILITY_ALIASES[key];
   return raw
     .replace(/^@[^/]+\//, "")
@@ -157,8 +164,15 @@ function deriveAbilities(
   languages: { label: string; share: number }[],
   repos: RawRepo[],
 ): Ability[] {
-  const scores = new Map<string, { label: string; source: string; weight: number }>();
-  const add = (raw: string | null | undefined, source: string, weight: number) => {
+  const scores = new Map<
+    string,
+    { label: string; source: string; weight: number }
+  >();
+  const add = (
+    raw: string | null | undefined,
+    source: string,
+    weight: number,
+  ) => {
     if (!raw) return;
     const label = prettyAbility(raw.trim());
     if (!label || label.length > 34) return;
@@ -176,12 +190,37 @@ function deriveAbilities(
   // Languages + repo topics + primary languages always count; deps must resolve
   // to a known ability alias to make the cut.
   const knownDep = (d: string) =>
-    !!ABILITY_ALIASES[d.toLowerCase().replace(/^@/, "").replace(/[\s_]+/g, "-")];
+    !!ABILITY_ALIASES[
+      d
+        .toLowerCase()
+        .replace(/^@/, "")
+        .replace(/[\s_]+/g, "-")
+    ];
   // GitHub linguist reports build/markup files as "languages" — drop the non-skills.
   const NOISE_LANG = new Set([
-    "makefile", "dockerfile", "roff", "tex", "batchfile", "gnuplot", "m4", "procfile",
-    "vim script", "vim snippet", "rich text format", "smarty", "ec", "hcl", "blade",
-    "mdx", "glossary", "raku", "nunjucks", "pug", "ejs", "handlebars", "gettext catalog",
+    "makefile",
+    "dockerfile",
+    "roff",
+    "tex",
+    "batchfile",
+    "gnuplot",
+    "m4",
+    "procfile",
+    "vim script",
+    "vim snippet",
+    "rich text format",
+    "smarty",
+    "ec",
+    "hcl",
+    "blade",
+    "mdx",
+    "glossary",
+    "raku",
+    "nunjucks",
+    "pug",
+    "ejs",
+    "handlebars",
+    "gettext catalog",
   ]);
   const skillLang = (label: string) => !NOISE_LANG.has(label.toLowerCase());
   languages.forEach((l) => {
@@ -210,7 +249,10 @@ function inferRole(languages: { label: string }[], repos: RawRepo[]): string {
     xs.some((x) => langs.includes(x) || topics.includes(x));
   if (has("machine-learning", "ml", "deep-learning", "pytorch", "tensorflow"))
     return "Machine learning engineer";
-  if (has("typescript", "javascript", "react", "next") && has("python", "go", "rust"))
+  if (
+    has("typescript", "javascript", "react", "next") &&
+    has("python", "go", "rust")
+  )
     return "Full-stack developer";
   if (has("typescript", "javascript", "react", "next", "vue", "svelte"))
     return "Frontend developer";
@@ -229,7 +271,9 @@ function safeUrl(s: string | null | undefined): string | undefined {
   }
 }
 
-function buildIdentityLinks(profile: RawProfile): ProfileData["identity"]["links"] {
+function buildIdentityLinks(
+  profile: RawProfile,
+): ProfileData["identity"]["links"] {
   const u = profile.user;
   // GitHub returns "" (not null) for unset fields, and websites may lack a scheme.
   const email =
@@ -251,7 +295,10 @@ const factsOutputSchema = z.object({
 });
 type FactsOutput = z.infer<typeof factsOutputSchema>;
 
-function mockFacts(profile: RawProfile, languages: { label: string }[]): FactsOutput {
+function mockFacts(
+  profile: RawProfile,
+  languages: { label: string }[],
+): FactsOutput {
   const top = languages.slice(0, 2).map((l) => l.label);
   return {
     headline:
@@ -284,7 +331,10 @@ Rules:
 Return ONLY JSON: {"headline": string, "role": string, "projects": [{"name": string, "blurb": string}]}.`;
 
 function stripFences(s: string): string {
-  return s.replace(/^\s*```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+  return s
+    .replace(/^\s*```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/i, "")
+    .trim();
 }
 
 async function liveFacts(
@@ -318,11 +368,44 @@ async function liveFacts(
     const raw: unknown = JSON.parse(stripFences(textOf(msg)));
     return { out: factsOutputSchema.parse(raw), usage };
   } catch (e) {
-    return { out: null, usage, reason: e instanceof Error ? e.message : "parse failed" };
+    return {
+      out: null,
+      usage,
+      reason: e instanceof Error ? e.message : "parse failed",
+    };
   }
 }
 
 // ---- assembly ----
+
+function deriveProfileFocus(role: string): string[] {
+  const r = role.toLowerCase();
+  if (/ai|ml|machine|agent|llm|model/.test(r)) {
+    return ["LLMs", "agents", "developer tooling"];
+  }
+  if (/full.?stack|backend|frontend|web/.test(r)) {
+    return ["Systems", "interfaces", "tooling"];
+  }
+  return ["Systems", "tooling", "interfaces"];
+}
+
+function deriveProfileStack(
+  languages: Language[],
+  projects: Project[],
+): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const add = (label: string | undefined) => {
+    const trimmed = label?.trim();
+    if (!trimmed || seen.has(trimmed)) return;
+    seen.add(trimmed);
+    out.push(trimmed);
+  };
+
+  languages.forEach((language) => add(language.label));
+  projects.forEach((project) => project.tech.forEach(add));
+  return out.slice(0, 18);
+}
 
 export async function buildFacts(
   profile: RawProfile,
@@ -346,7 +429,10 @@ export async function buildFacts(
         out = mockFacts(profile, languages);
       }
     } catch (e) {
-      console.warn("[facts] fallback to mock (request failed):", e instanceof Error ? e.message : e);
+      console.warn(
+        "[facts] fallback to mock (request failed):",
+        e instanceof Error ? e.message : e,
+      );
       out = mockFacts(profile, languages);
     }
   }
@@ -365,6 +451,9 @@ export async function buildFacts(
     repoUrl: r.url,
   }));
 
+  const focus = deriveProfileFocus(out.role);
+  const stack = deriveProfileStack(languages, projects);
+
   const data: ProfileData = {
     identity: {
       name: profile.user.name ?? profile.user.login,
@@ -374,6 +463,8 @@ export async function buildFacts(
       links: buildIdentityLinks(profile),
     },
     languages,
+    focus,
+    stack,
     abilities,
     stats,
     projects,

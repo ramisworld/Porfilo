@@ -46,6 +46,8 @@ export default async function DashboardPage() {
           links: {},
         },
         languages: [],
+        focus: [],
+        stack: [],
         abilities: [],
         stats: [],
         projects: [],
@@ -53,7 +55,9 @@ export default async function DashboardPage() {
       };
 
   const displayName =
-    session.user.name?.split(" ")[0] ?? session.user.email?.split("@")[0] ?? null;
+    session.user.name?.split(" ")[0] ??
+    session.user.email?.split("@")[0] ??
+    null;
 
   const rootDomain = env.NEXT_PUBLIC_ROOT_DOMAIN;
   const protocol =

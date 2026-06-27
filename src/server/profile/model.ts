@@ -28,6 +28,9 @@ export const abilitySchema = z.object({
   weight: z.number().min(0).max(100).optional(),
 });
 
+export const focusLabelSchema = z.string().trim().min(1).max(48);
+export const stackLabelSchema = z.string().trim().min(1).max(40);
+
 export const statSchema = z.object({
   /** Pre-formatted, flattering-but-true (never a zero). e.g. "1.2k", "6", "2023". */
   value: z.string(),
@@ -67,6 +70,8 @@ export const profileDataSchema = z.object({
     links: linksSchema,
   }),
   languages: z.array(languageSchema),
+  focus: z.array(focusLabelSchema).max(8).default([]),
+  stack: z.array(stackLabelSchema).max(18).default([]),
   abilities: z.array(abilitySchema).default([]),
   stats: z.array(statSchema),
   projects: z.array(projectSchema).max(9),
