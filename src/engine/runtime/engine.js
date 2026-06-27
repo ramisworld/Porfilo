@@ -88,9 +88,15 @@
   }
 
   // ---- reveal on scroll ----
+  // On phone-width viewports (and the nested srcDoc iframe inside the
+  // dashboard preview), scroll events on mobile are unreliable, so
+  // IntersectionObserver-driven reveals never fire and everything below
+  // the initial viewport stays at opacity: 0 — the page looks blank below
+  // the hero. Short-circuit there and just reveal everything.
   function initReveal() {
     var els = document.querySelectorAll(".reveal");
-    if (!("IntersectionObserver" in window)) {
+    var narrow = typeof window !== "undefined" && window.innerWidth <= 720;
+    if (!("IntersectionObserver" in window) || narrow) {
       els.forEach(function (e) { e.classList.add("in"); }); return;
     }
     var io = new IntersectionObserver(function (entries) {
