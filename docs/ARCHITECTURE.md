@@ -68,7 +68,7 @@ Scaffolded with **`create-t3-app`**, with BetterAuth for auth.
   - The app is reachable at `porthub.rami.co.nz` (a Railway custom domain).
   - `NEXT_PUBLIC_ROOT_DOMAIN=porthub.rami.co.nz` in prod, `localhost:3000` locally.
 
-## 2. Multi-tenant / subdomain routing (local-first)
+## 2. Multi-tenant / subdomain routing (local first)
 
 ```
 Request ──▶ middleware.ts  (effectiveHost = x-porthub-host header ?? Host)
