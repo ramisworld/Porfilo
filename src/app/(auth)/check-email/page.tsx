@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { PorfiloWordmark } from "~/app/_components/porfilo-logo";
 import { CheckEmailInner } from "./inner";
 
 export const dynamic = "force-dynamic";
@@ -25,12 +26,8 @@ export default function CheckEmailPage() {
       />
 
       <nav className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] text-white/55 uppercase transition hover:text-white"
-        >
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.7)]" />
-          PortHub
+        <Link href="/" className="transition hover:opacity-90">
+          <PorfiloWordmark />
         </Link>
       </nav>
 

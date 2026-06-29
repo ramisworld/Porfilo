@@ -1,25 +1,12 @@
-# PortHub custom-domain router (Cloudflare Worker).
-#
-# Role: the fallback origin for Cloudflare-for-SaaS custom hostnames. When a
-# visitor hits a user-owned domain (e.g. john.com), Cloudflare for SaaS
-# terminates TLS and forwards the request here. This Worker then proxies it to
-# the Railway app (which only knows `porthub.rami.co.nz`), tagging the original
-# hostname in the `x-porthub-host` header so the app can render the right
-# portfolio. This lets us serve unlimited custom domains without ever touching
-# Railway's per-service custom-domain limit.
-name = "porthub-domain-router"
+# Porfilo custom-domain router (Cloudflare Worker).
+name = "porfilo-domain-router"
 main = "src/index.js"
 compatibility_date = "2026-06-01"
 
-# Catch-all route: captures every host entering the zone, including external
-# custom hostnames (john.com). The app's own hosts (rami.co.nz + *.rami.co.nz)
-# are excluded via separate "no worker" routes added through the Cloudflare API.
 workers_dev = false
 routes = [
-  { pattern = "*/*", zone_name = "rami.co.nz" }
+  { pattern = "*/*", zone_name = "porfilo.com" }
 ]
 
 [vars]
-# The Railway app's known-good hostname (Railway has this registered, with a
-# valid cert). All custom-domain traffic is proxied here.
-UPSTREAM = "https://porthub.rami.co.nz"
+UPSTREAM = "https://3jekg11a.up.railway.app"

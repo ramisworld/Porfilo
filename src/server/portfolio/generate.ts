@@ -8,8 +8,13 @@ import { buildDesignSpec } from "~/server/llm/design";
 import { logRunTotal, type UsageRecord } from "~/server/llm/cost";
 import { ENGINE_VERSION } from "~/engine/version";
 
-// DNS-safe lowercase slug for the subdomain.
+// DNS-safe lowercase slug for internal routing + legacy fallback.
 const newSlug = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 10);
+// Long crypto-safe slug for preview URLs: https://<slug>.porfilo.com
+const newPublicSlug = customAlphabet(
+  "0123456789abcdefghijklmnopqrstuvwxyz",
+  32,
+);
 
 export type Stage =
   | "fetching"
@@ -80,8 +85,9 @@ export async function* runGeneration(
     const { spec, usage: designUsage } = await buildDesignSpec(data, vibe);
     if (designUsage) usages.push(designUsage);
 
-    yield { stage: "saving", message: "Publishing…" };
+    yield { stage: "saving", message: "Publishing preview URL…" };
     const slug = newSlug();
+    const publicSubdomainSlug = newPublicSlug();
     // Race-proof one-portfolio-per-user: re-check inside a serializable
     // transaction so two concurrent requests can't both slip a row past the
     // pre-flight count in the route handler.
@@ -96,6 +102,7 @@ export async function* runGeneration(
             ownerId: opts.ownerId,
             githubUsername: profile.user.login,
             slug,
+            publicSubdomainSlug,
             vibe,
             profileData: JSON.parse(JSON.stringify(data)) as Prisma.InputJsonValue,
             designSpec: JSON.parse(JSON.stringify(spec)) as Prisma.InputJsonValue,
@@ -108,8 +115,8 @@ export async function* runGeneration(
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
 
-    logRunTotal({ username: profile.user.login, slug }, usages);
-    yield { stage: "done", slug };
+    logRunTotal({ username: profile.user.login, slug: publicSubdomainSlug }, usages);
+    yield { stage: "done", slug: publicSubdomainSlug };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg === "QUOTA_REACHED") {
@@ -117,7 +124,7 @@ export async function* runGeneration(
         stage: "error",
         code: "quota_reached",
         error:
-          "You already have a portfolio. PortHub is in beta — only one portfolio per account for now.",
+          "You already have a portfolio. Porfilo is in beta — only one portfolio per account for now.",
       };
       return;
     }

@@ -16,7 +16,7 @@ function safeCallbackURL(raw: string | null) {
   if (!raw.startsWith("/") || raw.startsWith("//")) return DEFAULT_CALLBACK_URL;
 
   try {
-    const url = new URL(raw, "http://porthub.local");
+    const url = new URL(raw, "http://porfilo.local");
     if (!ALLOWED_CALLBACK_PATHS.has(url.pathname)) return DEFAULT_CALLBACK_URL;
     return `${url.pathname}${url.search}${url.hash}`;
   } catch {
@@ -225,7 +225,7 @@ export function SignInForm({ providers }: { providers: Providers }) {
               type="submit"
               disabled={isPending || oauthPending !== null || sentTo === email}
               aria-busy={isPending}
-              className="group inline-flex h-10 items-center gap-1.5 rounded-lg bg-white px-4 text-[13.5px] font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="porfilo-btn porfilo-btn-primary group disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <>

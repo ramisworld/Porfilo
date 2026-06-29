@@ -71,7 +71,7 @@ export async function acquireGenerationLock(
         code: "quota_reached",
         status: 409,
         error:
-          "You already have a portfolio. PortHub is in beta — only one portfolio per account for now.",
+          "You already have a portfolio. Porfilo is in beta — only one portfolio per account for now.",
       };
     }
 

@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     return json(
       {
         error:
-          "You already have a portfolio. PortHub is in beta — only one portfolio per account for now.",
+          "You already have a portfolio. Porfilo is in beta — only one portfolio per account for now.",
         code: "quota_reached",
       },
       409,

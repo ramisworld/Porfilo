@@ -14,7 +14,7 @@ import { limit } from "~/server/ratelimit";
  *
  *  - Sessions are server-side rows (`Session` table) + an httpOnly cookie.
  *  - Cookie domain is `.${NEXT_PUBLIC_ROOT_DOMAIN}` so the session survives the
- *    cross-subdomain navigation to `<slug>.porthub.dev`.
+ *    cross-subdomain navigation to `<slug>.porfilo.com`.
  *  - Providers: email magic link (Resend), Google, GitHub. Missing credentials
  *    are tolerated so the app still boots — the corresponding provider is
  *    simply hidden from the sign-in UI via `isAuthProviderConfigured()`.
@@ -35,7 +35,7 @@ const authSecret = (() => {
   return randomBytes(32).toString("base64url");
 })();
 
-// Build a cookie domain like `.porthub.dev` so subdomains share the session.
+// Build a cookie domain like `.porfilo.com` so subdomains share the session.
 // In dev with `localhost:3000`, leave it undefined (browsers don't allow
 // dotted-localhost cookie domains).
 const rawRoot = env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
@@ -53,9 +53,9 @@ async function sendMagicLinkEmail(email: string, url: string) {
   await resend.emails.send({
     from: env.EMAIL_FROM,
     to: email,
-    subject: "Your PortHub sign-in link",
+    subject: "Your Porfilo sign-in link",
     html: magicLinkEmailHtml(url),
-    text: `Sign in to PortHub:\n\n${url}\n\nThis link expires in 10 minutes.`,
+    text: `Sign in to Porfilo:\n\n${url}\n\nThis link expires in 10 minutes.`,
   });
 }
 
@@ -63,8 +63,8 @@ function magicLinkEmailHtml(url: string): string {
   return `<!doctype html>
 <html><body style="margin:0;padding:0;background:#06060a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#e8e8ef">
   <div style="max-width:480px;margin:0 auto;padding:48px 24px">
-    <div style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:32px">PortHub</div>
-    <h1 style="font-size:24px;font-weight:500;letter-spacing:-.01em;margin:0 0 12px">Sign in to PortHub</h1>
+    <div style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:32px">Porfilo</div>
+    <h1 style="font-size:24px;font-weight:500;letter-spacing:-.01em;margin:0 0 12px">Sign in to Porfilo</h1>
     <p style="color:rgba(255,255,255,.6);line-height:1.5;margin:0 0 32px">Click the button below to sign in. This link expires in 10 minutes and can only be used once.</p>
     <a href="${url}" style="display:inline-block;background:#fff;color:#000;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:500;font-size:14px">Sign in →</a>
     <p style="color:rgba(255,255,255,.35);font-size:12px;line-height:1.5;margin:32px 0 0">If you didn't request this, you can safely ignore it.</p>

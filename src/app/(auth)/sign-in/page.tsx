@@ -2,12 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getSession, isAuthProviderConfigured } from "~/server/auth";
+import { PorfiloWordmark } from "~/app/_components/porfilo-logo";
 import { SignInForm } from "./form";
 
 export const dynamic = "force-dynamic";
 
 export default async function SignInPage() {
-  // Returning users with a valid PortHub session skip auth and continue.
+  // Returning users with a valid Porfilo session skip auth and continue.
   const session = await getSession(await headers());
   if (session?.user) redirect("/generate");
 
@@ -18,12 +19,8 @@ export default async function SignInPage() {
       <BackgroundDecor />
 
       <nav className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] text-white/55 uppercase transition hover:text-white"
-        >
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.7)]" />
-          PortHub
+        <Link href="/" className="transition hover:opacity-90">
+          <PorfiloWordmark />
         </Link>
         <Link href="/" className="text-sm text-white/50 transition hover:text-white">
           ← Home
@@ -32,7 +29,7 @@ export default async function SignInPage() {
 
       <section className="relative z-10 mx-auto flex min-h-[calc(100vh-88px)] max-w-md flex-col items-center justify-center px-6 pb-24">
         <h1 className="text-center text-3xl font-medium tracking-tight sm:text-4xl">
-          Sign in to PortHub
+          Sign in to Porfilo
         </h1>
         <p className="mt-3 text-center text-[15px] text-white/55">
           Create an account or sign back in. No passwords.

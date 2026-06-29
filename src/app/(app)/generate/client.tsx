@@ -15,14 +15,24 @@ const VIBE_EXAMPLES = [
   "retro 8-bit arcade with a starfield background",
 ];
 
-const PIPELINE = [
-  { id: "fetching", label: "Reading your GitHub" },
-  { id: "curating", label: "Curating your best work" },
-  { id: "writing", label: "Writing your story" },
-  { id: "designing", label: "Designing your site" },
-  { id: "saving", label: "Publishing" },
+const TERMINAL_STEPS = [
+  "Scanning GitHub profile",
+  "Reading repositories",
+  "Extracting signal",
+  "Building portfolio shell",
+  "Compiling terminal interface",
+  "Publishing preview URL",
 ] as const;
-type StageId = (typeof PIPELINE)[number]["id"];
+
+type StageId = "fetching" | "curating" | "writing" | "designing" | "saving";
+
+const STAGE_TO_STEP: Record<StageId, number> = {
+  fetching: 0,
+  curating: 1,
+  writing: 2,
+  designing: 3,
+  saving: 4,
+};
 
 // Three top-level views:
 //  - "form":    inputs visible, no request in flight
@@ -106,7 +116,7 @@ const INITIAL: State = {
 };
 
 function isStageId(s: string): s is StageId {
-  return PIPELINE.some((p) => p.id === s);
+  return s in STAGE_TO_STEP;
 }
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -130,8 +140,11 @@ export function GenerateClient() {
   useEffect(() => {
     router.prefetch("/dashboard");
   }, [router]);
-  const onDone = (_slug: string) => {
-    router.replace("/dashboard");
+  const onDone = (slug: string) => {
+    console.info("[porfilo] generation complete, redirecting to dashboard", {
+      slug,
+    });
+    window.location.assign("/dashboard");
   };
 
   // Fire the build pipeline. Pre-flight validates the GitHub username so we
@@ -593,7 +606,7 @@ function GenerateForm({
               type="submit"
               disabled={!canSubmit}
               aria-busy={submitting}
-              className="group inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-white px-4 text-[13.5px] font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="porfilo-btn porfilo-btn-primary group shrink-0 disabled:cursor-not-allowed"
             >
               {submitting ? (
                 <>
@@ -631,10 +644,10 @@ function BuildLog({
   username: string;
   onRetry: () => void;
 }) {
-  const activeIdx = useMemo(() => {
-    if (state.view === "done") return PIPELINE.length;
-    if (!state.stage) return -1;
-    return PIPELINE.findIndex((p) => p.id === state.stage);
+  const activeStep = useMemo(() => {
+    if (state.view === "done") return TERMINAL_STEPS.length;
+    if (!state.stage) return 0;
+    return STAGE_TO_STEP[state.stage] ?? 0;
   }, [state.stage, state.view]);
 
   const stalled = useStalledFlag(state.lastEventAt, state.view, state.streamError);
@@ -643,20 +656,20 @@ function BuildLog({
     return (
       <div
         role="alert"
-        className="w-full max-w-md rounded-2xl border border-red-500/25 bg-red-500/[0.04] p-5 backdrop-blur-xl"
+        className="w-full max-w-lg rounded-2xl border border-red-500/25 bg-red-500/[0.04] p-5 backdrop-blur-xl"
       >
         <p className="font-medium text-red-300">Couldn&apos;t generate</p>
         <p className="mt-1 text-sm text-white/55">{state.streamError}</p>
         <div className="mt-5 flex gap-3 text-sm">
           <button
             onClick={onRetry}
-            className="rounded-lg bg-white px-3.5 py-1.5 font-medium text-black transition hover:bg-white/90"
+            className="porfilo-btn porfilo-btn-primary px-3.5"
           >
             Try again
           </button>
           <Link
             href="/"
-            className="rounded-lg border border-white/10 px-3.5 py-1.5 text-white/70 transition hover:text-white"
+            className="porfilo-btn porfilo-btn-secondary px-3.5"
           >
             Home
           </Link>
@@ -666,72 +679,79 @@ function BuildLog({
   }
 
   return (
-    <div className="w-full max-w-md">
-      <p className="text-[11px] font-medium tracking-[0.18em] text-white/45 uppercase">
-        {state.view === "done"
-          ? "Opening your portfolio"
-          : `Building @${username}`}
-      </p>
+    <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-white/[0.08] bg-[#05060a]/90 backdrop-blur-2xl">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-20"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+        }}
+      />
 
-      <ol className="mt-6 space-y-2.5 font-mono text-[13.5px]" aria-live="polite">
-        {PIPELINE.map((step, idx) => {
-          const finishing = state.view === "done";
-          const isDone = finishing || idx < activeIdx;
-          const isActive = !isDone && idx === activeIdx;
+      <div className="relative border-b border-white/[0.06] px-4 py-3">
+        <p className="font-mono text-[10px] tracking-[0.2em] text-emerald-400/80 uppercase">
+          porfilo · build
+        </p>
+        <p className="mt-1 font-mono text-[13px] text-white/75">
+          {state.view === "done"
+            ? "Launch sequence complete"
+            : `Generating @${username}`}
+        </p>
+      </div>
+
+      <div className="relative space-y-1 px-4 py-5 font-mono text-[13px]" aria-live="polite">
+        {TERMINAL_STEPS.map((step, idx) => {
+          const done = state.view === "done" || idx < activeStep;
+          const active = !done && idx === activeStep;
           return (
-            <li
-              key={step.id}
-              className={`flex items-center gap-2.5 transition-colors ${
-                isDone
-                  ? "text-white/80"
-                  : isActive
+            <div
+              key={step}
+              className={`flex items-center gap-3 transition-colors duration-300 ${
+                done
+                  ? "text-emerald-300/90"
+                  : active
                     ? "text-white"
-                    : "text-white/30"
+                    : "text-white/25"
               }`}
             >
-              <span className="inline-flex h-4 w-4 items-center justify-center">
-                {isDone ? (
-                  <span aria-hidden className="text-emerald-400">
-                    ✓
-                  </span>
-                ) : isActive ? (
-                  <span
-                    aria-hidden
-                    className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-white/20 border-t-white/80"
-                  />
-                ) : (
-                  <span
-                    aria-hidden
-                    className="h-1.5 w-1.5 rounded-full bg-white/15"
-                  />
-                )}
+              <span className="w-4 shrink-0 text-center text-[11px]">
+                {done ? "✓" : active ? "›" : "·"}
               </span>
-              <span>{step.label}</span>
-              {isActive && (
-                <span
-                  aria-hidden
-                  className="ml-1 h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"
-                />
+              <span>{step}</span>
+              {active && (
+                <span className="ml-1 inline-block h-3 w-1.5 animate-pulse bg-emerald-400/90" />
               )}
-            </li>
+            </div>
           );
         })}
-      </ol>
+      </div>
 
       {state.log.length > 0 && (
-        <p className="mt-5 truncate font-mono text-[11.5px] text-white/40">
-          › {state.log[state.log.length - 1]!.text}
+        <p className="relative border-t border-white/[0.04] px-4 py-3 font-mono text-[11px] text-white/40">
+          {state.log[state.log.length - 1]!.text}
         </p>
       )}
 
       {stalled && (
-        <p className="mt-4 text-[11.5px] text-amber-300/70">
+        <p className="relative px-4 pb-4 font-mono text-[11px] text-amber-300/70">
           Still working — large repos can take a moment.
         </p>
       )}
 
       {state.view === "done" && (
-        <p className="mt-5 text-[12px] text-white/45">Opening your dashboard…</p>
+        <p className="relative px-4 pb-5 font-mono text-[12px] text-white/50">
+          Opening your dashboard…
+        </p>
       )}
     </div>
   );

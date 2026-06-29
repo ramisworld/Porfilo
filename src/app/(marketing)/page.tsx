@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PorfiloWordmark } from "~/app/_components/porfilo-logo";
 
 const USERNAME_RE = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
 
@@ -122,10 +123,7 @@ export default function Landing() {
       />
 
       <nav className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <div className="flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] text-white/55 uppercase">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.7)]" />
-          PortHub
-        </div>
+        <PorfiloWordmark />
         <a
           href="/sign-in"
           className="text-sm text-white/50 transition hover:text-white"
@@ -219,7 +217,7 @@ export default function Landing() {
                 type="submit"
                 disabled={!canSubmit}
                 onMouseEnter={() => router.prefetch("/sign-in")}
-                className="group inline-flex h-10 items-center gap-1.5 rounded-lg bg-white px-4 text-[13.5px] font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="porfilo-btn porfilo-btn-primary group disabled:cursor-not-allowed"
               >
                 Generate
                 <svg

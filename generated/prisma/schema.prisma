@@ -74,27 +74,29 @@ model Verification {
   @@index([identifier])
 }
 
-// ───────────────────────── PortHub domain models ────────────────────────────
+// ───────────────────────── Porfilo domain models ────────────────────────────
 
 // A generated portfolio. From Phase 2 onward, ownerId is always set on new rows.
 // Pre-Phase-2 rows may still be ownerless until they're claimed or pruned.
 model Portfolio {
-  id             String        @id @default(cuid())
-  ownerId        String?       @unique
-  owner          User?         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  githubUsername String
-  slug           String        @unique
-  vibe           String
-  profileData    Json
-  designSpec     Json?
-  engineVersion  String?
-  template       String        @default("terminalNexus")
-  code           String?       @db.Text
-  isPublic       Boolean       @default(true)
-  views          Int           @default(0)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  customDomain   CustomDomain?
+  id                  String        @id @default(cuid())
+  ownerId             String?       @unique
+  owner               User?         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  githubUsername      String
+  slug                String        @unique
+  // Long crypto-safe slug for preview URLs: https://<publicSubdomainSlug>.porfilo.com
+  publicSubdomainSlug String        @unique
+  vibe                String
+  profileData         Json
+  designSpec          Json?
+  engineVersion       String?
+  template            String        @default("terminalNexus")
+  code                String?       @db.Text
+  isPublic            Boolean       @default(true)
+  views               Int           @default(0)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  customDomain        CustomDomain?
 
   @@index([githubUsername])
 }
@@ -110,7 +112,9 @@ model CustomDomain {
   portfolioId       String    @unique
   portfolio         Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
   hostname          String    @unique
-  // Cloudflare's id for this custom hostname (legacy CF-for-SaaS path).
+  // free_subdomain | custom_domain
+  type              String    @default("custom_domain")
+  // Cloudflare's id for this custom hostname (custom_domain only).
   // Nullable so we can persist the row even if the call fails mid-creation.
   cfHostnameId      String?   @unique
   // Railway Custom Domains API: the id Railway assigns to this domain, plus
@@ -120,8 +124,10 @@ model CustomDomain {
   cnameTarget       String? // e.g. w9kc0szy.up.railway.app
   verificationHost  String? // zone-relative TXT name, e.g. _railway-verify
   verificationToken String? // TXT value to prove ownership
-  // Local rollup status: pending | active | action_needed | error.
+  // Internal status: pending_dns | verifying | active | action_needed | error
   status            String    @default("pending")
+  dnsVerified       Boolean   @default(false)
+  httpVerified      Boolean   @default(false)
   // Raw provider sub-statuses cached for the UI.
   ownershipStatus   String?
   sslStatus         String?

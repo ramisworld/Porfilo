@@ -6,12 +6,13 @@ vi.mock("~/env", () => ({
   env: {
     CLOUDFLARE_ZONE_ID: "test-zone-id",
     CLOUDFLARE_API_TOKEN: "test-token",
-    NEXT_PUBLIC_ROOT_DOMAIN: "porthub.dev",
+    NEXT_PUBLIC_ROOT_DOMAIN: "porfilo.com",
   },
 }));
 
 import {
   cfCreateHostname,
+  cfCreateOrGetHostname,
   cfDeleteHostname,
   cfGetHostname,
   CloudflareApiError,
@@ -129,6 +130,32 @@ describe("cfCreateHostname", () => {
       status: 409,
       message: "already exists",
     });
+  });
+});
+
+describe("cfCreateOrGetHostname", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("reuses an existing hostname when Cloudflare returns 409", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    fetchSpy
+      .mockResolvedValueOnce(err(409, "Duplicate custom hostname found."))
+      .mockResolvedValueOnce(
+        ok([
+          {
+            id: "cf-existing",
+            hostname: "rami.co.nz",
+            status: "pending",
+            ssl: { status: "pending_validation" },
+          },
+        ]),
+      );
+
+    const result = await cfCreateOrGetHostname("rami.co.nz");
+    expect(result.id).toBe("cf-existing");
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 });
 

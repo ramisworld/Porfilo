@@ -1,5 +1,5 @@
 {
-  "name": "porthub",
+  "name": "porfilo",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,8 @@
   "scripts": {
     "build": "pnpm engine:build && next build",
     "check": "next lint && tsc --noEmit",
-    "engine:build": "node scripts/build-engine.mjs",
+    "engine:build": "node scripts/build-engine.mjs && node scripts/sync-brand-icons.mjs",
+    "icons:sync": "node scripts/sync-brand-icons.mjs",
     "engine:watch": "node --watch-path=src/engine scripts/build-engine.mjs",
     "db:generate": "prisma migrate dev",
     "db:migrate": "prisma migrate deploy",

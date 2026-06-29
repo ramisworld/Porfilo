@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { validateHostname } from "./validate";
 
-const ROOT = "porthub.dev";
+const ROOT = "porfilo.com";
 
 describe("validateHostname", () => {
   describe("accepts", () => {
@@ -42,8 +42,8 @@ describe("validateHostname", () => {
       ["::1", "IPv6"],
       ["localhost", "localhost"],
       ["x.localhost", "localhost subdomain"],
-      ["porthub.dev", "the root itself"],
-      ["x.porthub.dev", "subdomain of the root"],
+      ["porfilo.com", "the root itself"],
+      ["x.porfilo.com", "subdomain of the root"],
       ["x".repeat(254) + ".com", "too long"],
       ["space ce.com", "internal space"],
     ])("rejects '%s' (%s)", (input) => {
@@ -53,7 +53,7 @@ describe("validateHostname", () => {
 
     it("returns a clear reason for each rejection", () => {
       // Smoke-test that the .reason field is always a non-empty string.
-      for (const input of ["", "localhost", "porthub.dev", "1.2.3.4"]) {
+      for (const input of ["", "localhost", "porfilo.com", "1.2.3.4"]) {
         const result = validateHostname(input, ROOT);
         if (result.ok) throw new Error("unexpected pass: " + input);
         expect(result.reason).toBeTruthy();
@@ -67,7 +67,7 @@ describe("validateHostname", () => {
       expect(
         validateHostname("foo.app.example", "app.example").ok,
       ).toBe(false);
-      expect(validateHostname("foo.app.example", "porthub.dev").ok).toBe(true);
+      expect(validateHostname("foo.app.example", "porfilo.com").ok).toBe(true);
     });
 
     it("ignores :port suffixes in the root (dev localhost:3000)", () => {

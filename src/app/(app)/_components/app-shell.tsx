@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { SignOutButton } from "./sign-out-button";
+import { PorfiloWordmark } from "~/app/_components/porfilo-logo";
 
 /**
  * Shared chrome for all signed-in pages: dark canvas, aurora wash, grain,
- * top nav with PortHub mark + "Signed in as <name>" + Sign out.
+ * top nav with Porfilo mark + "Signed in as <name>" + Sign out.
  *
  * Two layouts:
  *   default — content centered in a max-width column with min-h-screen.
@@ -46,10 +47,9 @@ export function AppShell({
       <nav className="relative z-10 mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] text-white/55 uppercase transition hover:text-white"
+          className="transition hover:opacity-90"
         >
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.7)]" />
-          PortHub
+          <PorfiloWordmark />
         </Link>
         <div className="flex items-center gap-4 text-[12px] text-white/45">
           {navAction}

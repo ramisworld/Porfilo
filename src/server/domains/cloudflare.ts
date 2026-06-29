@@ -160,6 +160,36 @@ export async function cfCreateHostname(hostname: string): Promise<CfHostname> {
   return normalize(raw);
 }
 
+/** Look up an existing custom hostname by exact hostname (for 409 recovery). */
+export async function cfFindHostname(
+  hostname: string,
+): Promise<CfHostname | null> {
+  const list = await cfRequest<RawHostname[]>(
+    `/custom_hostnames?hostname=${encodeURIComponent(hostname)}`,
+  );
+  const match = list.find(
+    (row) => row.hostname.toLowerCase() === hostname.toLowerCase(),
+  );
+  return match ? normalize(match) : null;
+}
+
+/**
+ * Register a hostname or reuse the existing Cloudflare row if already present.
+ */
+export async function cfCreateOrGetHostname(
+  hostname: string,
+): Promise<CfHostname> {
+  try {
+    return await cfCreateHostname(hostname);
+  } catch (err) {
+    if (err instanceof CloudflareApiError && err.status === 409) {
+      const existing = await cfFindHostname(hostname);
+      if (existing) return existing;
+    }
+    throw err;
+  }
+}
+
 export async function cfGetHostname(id: string): Promise<CfHostname> {
   const raw = await cfRequest<RawHostname>(`/custom_hostnames/${id}`);
   return normalize(raw);

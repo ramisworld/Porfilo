@@ -3,16 +3,9 @@ import { db } from "~/server/db";
 import { renderPortfolioPage } from "~/engine/render";
 import { DEFAULT_SPEC, designSpecSchema } from "~/engine/spec";
 import { ENGINE_VERSION } from "~/engine/version";
+import { env } from "~/env";
 import type { ProfileData } from "~/server/profile/model";
 
-/**
- * Build the sandboxed iframe that serves a portfolio. Shared between the slug
- * route (`/sites/[slug]`) and the custom-domain route (`/sites-by-host/[host]`)
- * so both stay byte-identical.
- *
- * Returns either an iframe element ready to render, or `null` if the portfolio
- * has no usable design+data (caller should `notFound()`).
- */
 export function buildPortfolioIframe(
   portfolio: {
     designSpec: unknown;
@@ -36,9 +29,6 @@ export function buildPortfolioIframe(
   }
   if (!html) return null;
 
-  // The generated page is untrusted → sandbox it. allow-scripts (its animations
-  // need JS), allow-popups so clicked links open as real tabs; NOT
-  // allow-same-origin, so it can't reach the app or its storage.
   return (
     <iframe
       title="portfolio"
@@ -49,19 +39,64 @@ export function buildPortfolioIframe(
   );
 }
 
+/** Look up portfolio by slug or publicSubdomainSlug (path-based /sites route). */
+export async function findPortfolioBySlug(slug: string) {
+  return db.portfolio.findFirst({
+    where: {
+      OR: [{ slug }, { publicSubdomainSlug: slug }],
+    },
+  });
+}
+
+function rootDomainNoPort(): string {
+  return env.NEXT_PUBLIC_ROOT_DOMAIN.toLowerCase().replace(/:\d+$/, "");
+}
+
 /**
- * Find the Portfolio bound to a custom hostname. Returns null if no row
- * exists, or if the row exists but isn't yet `active`.
+ * Resolve a hostname to a portfolio — custom domains, free subdomains, and
+ * public preview slugs (*.porfilo.com).
  */
-export async function findPortfolioForCustomHost(hostname: string) {
+export async function findPortfolioForHost(hostname: string) {
+  const host = hostname.toLowerCase();
+
   const domain = await db.customDomain.findUnique({
-    where: { hostname: hostname.toLowerCase() },
+    where: { hostname: host },
     select: {
       status: true,
+      type: true,
+      dnsVerified: true,
+      httpVerified: true,
       portfolio: true,
     },
   });
-  if (!domain) return null;
-  if (domain.status !== "active") return null;
-  return domain.portfolio;
+
+  if (domain) {
+    if (domain.type === "free_subdomain" && domain.status === "active") {
+      return domain.portfolio;
+    }
+    if (
+      domain.type === "custom_domain" &&
+      domain.status === "active" &&
+      domain.dnsVerified &&
+      domain.httpVerified
+    ) {
+      return domain.portfolio;
+    }
+    return null;
+  }
+
+  const root = rootDomainNoPort();
+  if (host.endsWith(`.${root}`)) {
+    const label = host.slice(0, host.length - root.length - 1);
+    if (label) {
+      return findPortfolioBySlug(label);
+    }
+  }
+
+  return null;
+}
+
+/** @deprecated Use findPortfolioForHost */
+export async function findPortfolioForCustomHost(hostname: string) {
+  return findPortfolioForHost(hostname);
 }

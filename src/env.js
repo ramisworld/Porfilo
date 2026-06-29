@@ -34,7 +34,7 @@ export const env = createEnv({
         ? z.string().min(16)
         : z.string().min(16).optional(),
     // Public base URL of the app, e.g. http://localhost:3000 in dev,
-    // https://porthub.dev in prod.
+    // https://porfilo.com in prod.
     BETTER_AUTH_URL: z.string().url().optional(),
 
     // ── OAuth providers (end-user sign-in) ────────────────────────────────
@@ -45,15 +45,15 @@ export const env = createEnv({
 
     // ── Email (Resend) for magic-link sign-in ─────────────────────────────
     RESEND_API_KEY: z.string().optional(),
-    // The "from" address. Use a verified domain in prod (e.g. "PortHub <auth@porthub.dev>").
+    // The "from" address. Use a verified domain in prod (e.g. "Porfilo <auth@mail.rami.co.nz>").
     // In dev with no Resend key, the magic-link URL is logged to the server console.
     EMAIL_FROM: z.string().optional(),
 
     // ── Custom domains (Cloudflare for SaaS) — legacy, kept for fallback ──
-    // Zone id of the root domain (porthub.dev) in our Cloudflare account.
+    // Zone id of the root domain (porfilo.com) in our Cloudflare account.
     CLOUDFLARE_ZONE_ID: z.string().optional(),
     // API token scoped to: Custom Hostnames:Edit + SSL and Certificates:Edit
-    // on the porthub.dev zone. Server-only.
+    // on the porfilo.com zone. Server-only.
     CLOUDFLARE_API_TOKEN: z.string().optional(),
 
     // ── Custom domains (Railway Custom Domains API) ───────────────────────

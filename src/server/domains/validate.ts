@@ -19,7 +19,7 @@ const IP_RE =
 
 /**
  * Normalize + reject anything we don't want as a custom domain. `rootDomain`
- * is the app's own root (e.g. `porthub.dev`) — we never let a user claim it
+ * is the app's own root (e.g. `porfilo.com`) — we never let a user claim it
  * or any of its subdomains as their own.
  */
 export function validateHostname(
@@ -74,13 +74,13 @@ export function validateHostname(
     }
   }
 
-  // No user may claim porthub.dev (or any sub of it) as their custom domain.
+  // No user may claim the app root (or any sub of it) as their custom domain.
   const root = rootDomain.toLowerCase().replace(/:\d+$/, "");
   if (host === root || host.endsWith(`.${root}`)) {
     return {
       ok: false,
       reason:
-        "That domain is part of PortHub. Use a domain you own (e.g. your.com).",
+        "That domain is part of Porfilo. Use a domain you own (e.g. your.com).",
     };
   }
 

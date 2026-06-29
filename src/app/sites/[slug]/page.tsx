@@ -1,10 +1,12 @@
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { db } from "~/server/db";
+import {
+  buildPortfolioIframe,
+  findPortfolioBySlug,
+} from "~/server/portfolio/render-iframe";
 import { getSession } from "~/server/auth";
-import { buildPortfolioIframe } from "~/server/portfolio/render-iframe";
 import { buildPortfolioMetadata } from "~/server/portfolio/metadata";
+import { PortfolioNotFound } from "~/app/_components/portfolio-not-found";
 
 export const dynamic = "force-dynamic";
 
@@ -20,11 +22,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const p = await db.portfolio.findUnique({
-    where: { slug },
-    select: { isPublic: true, githubUsername: true, profileData: true },
-  });
-  if (!p) return {};
+  const p = await findPortfolioBySlug(slug);
+  if (!p) return { title: "Portfolio not found — Porfilo" };
   const h = await headers();
   return buildPortfolioMetadata({
     profileData: p.profileData,
@@ -40,18 +39,17 @@ export default async function SitePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
-  const portfolio = await db.portfolio.findUnique({ where: { slug } });
-  if (!portfolio) notFound();
+  const portfolio = await findPortfolioBySlug(slug);
+  if (!portfolio) return <PortfolioNotFound host={slug} />;
 
   if (!portfolio.isPublic) {
     const session = await getSession(await headers());
     if (session?.user?.id !== portfolio.ownerId) {
-      notFound();
+      return <PortfolioNotFound host={slug} />;
     }
   }
 
   const frame = buildPortfolioIframe(portfolio);
-  if (!frame) notFound();
+  if (!frame) return <PortfolioNotFound host={slug} />;
   return frame;
 }

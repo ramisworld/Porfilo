@@ -6013,6 +6013,7 @@ export namespace Prisma {
     ownerId: string | null
     githubUsername: string | null
     slug: string | null
+    publicSubdomainSlug: string | null
     vibe: string | null
     engineVersion: string | null
     template: string | null
@@ -6028,6 +6029,7 @@ export namespace Prisma {
     ownerId: string | null
     githubUsername: string | null
     slug: string | null
+    publicSubdomainSlug: string | null
     vibe: string | null
     engineVersion: string | null
     template: string | null
@@ -6043,6 +6045,7 @@ export namespace Prisma {
     ownerId: number
     githubUsername: number
     slug: number
+    publicSubdomainSlug: number
     vibe: number
     profileData: number
     designSpec: number
@@ -6070,6 +6073,7 @@ export namespace Prisma {
     ownerId?: true
     githubUsername?: true
     slug?: true
+    publicSubdomainSlug?: true
     vibe?: true
     engineVersion?: true
     template?: true
@@ -6085,6 +6089,7 @@ export namespace Prisma {
     ownerId?: true
     githubUsername?: true
     slug?: true
+    publicSubdomainSlug?: true
     vibe?: true
     engineVersion?: true
     template?: true
@@ -6100,6 +6105,7 @@ export namespace Prisma {
     ownerId?: true
     githubUsername?: true
     slug?: true
+    publicSubdomainSlug?: true
     vibe?: true
     profileData?: true
     designSpec?: true
@@ -6204,6 +6210,7 @@ export namespace Prisma {
     ownerId: string | null
     githubUsername: string
     slug: string
+    publicSubdomainSlug: string
     vibe: string
     profileData: JsonValue
     designSpec: JsonValue | null
@@ -6240,6 +6247,7 @@ export namespace Prisma {
     ownerId?: boolean
     githubUsername?: boolean
     slug?: boolean
+    publicSubdomainSlug?: boolean
     vibe?: boolean
     profileData?: boolean
     designSpec?: boolean
@@ -6259,6 +6267,7 @@ export namespace Prisma {
     ownerId?: boolean
     githubUsername?: boolean
     slug?: boolean
+    publicSubdomainSlug?: boolean
     vibe?: boolean
     profileData?: boolean
     designSpec?: boolean
@@ -6277,6 +6286,7 @@ export namespace Prisma {
     ownerId?: boolean
     githubUsername?: boolean
     slug?: boolean
+    publicSubdomainSlug?: boolean
     vibe?: boolean
     profileData?: boolean
     designSpec?: boolean
@@ -6295,6 +6305,7 @@ export namespace Prisma {
     ownerId?: boolean
     githubUsername?: boolean
     slug?: boolean
+    publicSubdomainSlug?: boolean
     vibe?: boolean
     profileData?: boolean
     designSpec?: boolean
@@ -6307,7 +6318,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PortfolioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "slug" | "vibe" | "profileData" | "designSpec" | "engineVersion" | "template" | "code" | "isPublic" | "views" | "createdAt" | "updatedAt", ExtArgs["result"]["portfolio"]>
+  export type PortfolioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "slug" | "publicSubdomainSlug" | "vibe" | "profileData" | "designSpec" | "engineVersion" | "template" | "code" | "isPublic" | "views" | "createdAt" | "updatedAt", ExtArgs["result"]["portfolio"]>
   export type PortfolioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | Portfolio$ownerArgs<ExtArgs>
     customDomain?: boolean | Portfolio$customDomainArgs<ExtArgs>
@@ -6330,6 +6341,7 @@ export namespace Prisma {
       ownerId: string | null
       githubUsername: string
       slug: string
+      publicSubdomainSlug: string
       vibe: string
       profileData: Prisma.JsonValue
       designSpec: Prisma.JsonValue | null
@@ -6769,6 +6781,7 @@ export namespace Prisma {
     readonly ownerId: FieldRef<"Portfolio", 'String'>
     readonly githubUsername: FieldRef<"Portfolio", 'String'>
     readonly slug: FieldRef<"Portfolio", 'String'>
+    readonly publicSubdomainSlug: FieldRef<"Portfolio", 'String'>
     readonly vibe: FieldRef<"Portfolio", 'String'>
     readonly profileData: FieldRef<"Portfolio", 'Json'>
     readonly designSpec: FieldRef<"Portfolio", 'Json'>
@@ -7245,6 +7258,7 @@ export namespace Prisma {
     id: string | null
     portfolioId: string | null
     hostname: string | null
+    type: string | null
     cfHostnameId: string | null
     railwayDomainId: string | null
     cnameHost: string | null
@@ -7252,6 +7266,8 @@ export namespace Prisma {
     verificationHost: string | null
     verificationToken: string | null
     status: string | null
+    dnsVerified: boolean | null
+    httpVerified: boolean | null
     ownershipStatus: string | null
     sslStatus: string | null
     errorReason: string | null
@@ -7265,6 +7281,7 @@ export namespace Prisma {
     id: string | null
     portfolioId: string | null
     hostname: string | null
+    type: string | null
     cfHostnameId: string | null
     railwayDomainId: string | null
     cnameHost: string | null
@@ -7272,6 +7289,8 @@ export namespace Prisma {
     verificationHost: string | null
     verificationToken: string | null
     status: string | null
+    dnsVerified: boolean | null
+    httpVerified: boolean | null
     ownershipStatus: string | null
     sslStatus: string | null
     errorReason: string | null
@@ -7285,6 +7304,7 @@ export namespace Prisma {
     id: number
     portfolioId: number
     hostname: number
+    type: number
     cfHostnameId: number
     railwayDomainId: number
     cnameHost: number
@@ -7292,6 +7312,8 @@ export namespace Prisma {
     verificationHost: number
     verificationToken: number
     status: number
+    dnsVerified: number
+    httpVerified: number
     ownershipStatus: number
     sslStatus: number
     errorReason: number
@@ -7307,6 +7329,7 @@ export namespace Prisma {
     id?: true
     portfolioId?: true
     hostname?: true
+    type?: true
     cfHostnameId?: true
     railwayDomainId?: true
     cnameHost?: true
@@ -7314,6 +7337,8 @@ export namespace Prisma {
     verificationHost?: true
     verificationToken?: true
     status?: true
+    dnsVerified?: true
+    httpVerified?: true
     ownershipStatus?: true
     sslStatus?: true
     errorReason?: true
@@ -7327,6 +7352,7 @@ export namespace Prisma {
     id?: true
     portfolioId?: true
     hostname?: true
+    type?: true
     cfHostnameId?: true
     railwayDomainId?: true
     cnameHost?: true
@@ -7334,6 +7360,8 @@ export namespace Prisma {
     verificationHost?: true
     verificationToken?: true
     status?: true
+    dnsVerified?: true
+    httpVerified?: true
     ownershipStatus?: true
     sslStatus?: true
     errorReason?: true
@@ -7347,6 +7375,7 @@ export namespace Prisma {
     id?: true
     portfolioId?: true
     hostname?: true
+    type?: true
     cfHostnameId?: true
     railwayDomainId?: true
     cnameHost?: true
@@ -7354,6 +7383,8 @@ export namespace Prisma {
     verificationHost?: true
     verificationToken?: true
     status?: true
+    dnsVerified?: true
+    httpVerified?: true
     ownershipStatus?: true
     sslStatus?: true
     errorReason?: true
@@ -7440,6 +7471,7 @@ export namespace Prisma {
     id: string
     portfolioId: string
     hostname: string
+    type: string
     cfHostnameId: string | null
     railwayDomainId: string | null
     cnameHost: string | null
@@ -7447,6 +7479,8 @@ export namespace Prisma {
     verificationHost: string | null
     verificationToken: string | null
     status: string
+    dnsVerified: boolean
+    httpVerified: boolean
     ownershipStatus: string | null
     sslStatus: string | null
     errorReason: string | null
@@ -7477,6 +7511,7 @@ export namespace Prisma {
     id?: boolean
     portfolioId?: boolean
     hostname?: boolean
+    type?: boolean
     cfHostnameId?: boolean
     railwayDomainId?: boolean
     cnameHost?: boolean
@@ -7484,6 +7519,8 @@ export namespace Prisma {
     verificationHost?: boolean
     verificationToken?: boolean
     status?: boolean
+    dnsVerified?: boolean
+    httpVerified?: boolean
     ownershipStatus?: boolean
     sslStatus?: boolean
     errorReason?: boolean
@@ -7498,6 +7535,7 @@ export namespace Prisma {
     id?: boolean
     portfolioId?: boolean
     hostname?: boolean
+    type?: boolean
     cfHostnameId?: boolean
     railwayDomainId?: boolean
     cnameHost?: boolean
@@ -7505,6 +7543,8 @@ export namespace Prisma {
     verificationHost?: boolean
     verificationToken?: boolean
     status?: boolean
+    dnsVerified?: boolean
+    httpVerified?: boolean
     ownershipStatus?: boolean
     sslStatus?: boolean
     errorReason?: boolean
@@ -7519,6 +7559,7 @@ export namespace Prisma {
     id?: boolean
     portfolioId?: boolean
     hostname?: boolean
+    type?: boolean
     cfHostnameId?: boolean
     railwayDomainId?: boolean
     cnameHost?: boolean
@@ -7526,6 +7567,8 @@ export namespace Prisma {
     verificationHost?: boolean
     verificationToken?: boolean
     status?: boolean
+    dnsVerified?: boolean
+    httpVerified?: boolean
     ownershipStatus?: boolean
     sslStatus?: boolean
     errorReason?: boolean
@@ -7540,6 +7583,7 @@ export namespace Prisma {
     id?: boolean
     portfolioId?: boolean
     hostname?: boolean
+    type?: boolean
     cfHostnameId?: boolean
     railwayDomainId?: boolean
     cnameHost?: boolean
@@ -7547,6 +7591,8 @@ export namespace Prisma {
     verificationHost?: boolean
     verificationToken?: boolean
     status?: boolean
+    dnsVerified?: boolean
+    httpVerified?: boolean
     ownershipStatus?: boolean
     sslStatus?: boolean
     errorReason?: boolean
@@ -7556,7 +7602,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type CustomDomainOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "portfolioId" | "hostname" | "cfHostnameId" | "railwayDomainId" | "cnameHost" | "cnameTarget" | "verificationHost" | "verificationToken" | "status" | "ownershipStatus" | "sslStatus" | "errorReason" | "lastCheckedAt" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customDomain"]>
+  export type CustomDomainOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "portfolioId" | "hostname" | "type" | "cfHostnameId" | "railwayDomainId" | "cnameHost" | "cnameTarget" | "verificationHost" | "verificationToken" | "status" | "dnsVerified" | "httpVerified" | "ownershipStatus" | "sslStatus" | "errorReason" | "lastCheckedAt" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customDomain"]>
   export type CustomDomainInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
   }
@@ -7576,6 +7622,7 @@ export namespace Prisma {
       id: string
       portfolioId: string
       hostname: string
+      type: string
       cfHostnameId: string | null
       railwayDomainId: string | null
       cnameHost: string | null
@@ -7583,6 +7630,8 @@ export namespace Prisma {
       verificationHost: string | null
       verificationToken: string | null
       status: string
+      dnsVerified: boolean
+      httpVerified: boolean
       ownershipStatus: string | null
       sslStatus: string | null
       errorReason: string | null
@@ -8017,6 +8066,7 @@ export namespace Prisma {
     readonly id: FieldRef<"CustomDomain", 'String'>
     readonly portfolioId: FieldRef<"CustomDomain", 'String'>
     readonly hostname: FieldRef<"CustomDomain", 'String'>
+    readonly type: FieldRef<"CustomDomain", 'String'>
     readonly cfHostnameId: FieldRef<"CustomDomain", 'String'>
     readonly railwayDomainId: FieldRef<"CustomDomain", 'String'>
     readonly cnameHost: FieldRef<"CustomDomain", 'String'>
@@ -8024,6 +8074,8 @@ export namespace Prisma {
     readonly verificationHost: FieldRef<"CustomDomain", 'String'>
     readonly verificationToken: FieldRef<"CustomDomain", 'String'>
     readonly status: FieldRef<"CustomDomain", 'String'>
+    readonly dnsVerified: FieldRef<"CustomDomain", 'Boolean'>
+    readonly httpVerified: FieldRef<"CustomDomain", 'Boolean'>
     readonly ownershipStatus: FieldRef<"CustomDomain", 'String'>
     readonly sslStatus: FieldRef<"CustomDomain", 'String'>
     readonly errorReason: FieldRef<"CustomDomain", 'String'>
@@ -10545,6 +10597,7 @@ export namespace Prisma {
     ownerId: 'ownerId',
     githubUsername: 'githubUsername',
     slug: 'slug',
+    publicSubdomainSlug: 'publicSubdomainSlug',
     vibe: 'vibe',
     profileData: 'profileData',
     designSpec: 'designSpec',
@@ -10564,6 +10617,7 @@ export namespace Prisma {
     id: 'id',
     portfolioId: 'portfolioId',
     hostname: 'hostname',
+    type: 'type',
     cfHostnameId: 'cfHostnameId',
     railwayDomainId: 'railwayDomainId',
     cnameHost: 'cnameHost',
@@ -10571,6 +10625,8 @@ export namespace Prisma {
     verificationHost: 'verificationHost',
     verificationToken: 'verificationToken',
     status: 'status',
+    dnsVerified: 'dnsVerified',
+    httpVerified: 'httpVerified',
     ownershipStatus: 'ownershipStatus',
     sslStatus: 'sslStatus',
     errorReason: 'errorReason',
@@ -11041,6 +11097,7 @@ export namespace Prisma {
     ownerId?: StringNullableFilter<"Portfolio"> | string | null
     githubUsername?: StringFilter<"Portfolio"> | string
     slug?: StringFilter<"Portfolio"> | string
+    publicSubdomainSlug?: StringFilter<"Portfolio"> | string
     vibe?: StringFilter<"Portfolio"> | string
     profileData?: JsonFilter<"Portfolio">
     designSpec?: JsonNullableFilter<"Portfolio">
@@ -11060,6 +11117,7 @@ export namespace Prisma {
     ownerId?: SortOrderInput | SortOrder
     githubUsername?: SortOrder
     slug?: SortOrder
+    publicSubdomainSlug?: SortOrder
     vibe?: SortOrder
     profileData?: SortOrder
     designSpec?: SortOrderInput | SortOrder
@@ -11078,6 +11136,7 @@ export namespace Prisma {
     id?: string
     ownerId?: string
     slug?: string
+    publicSubdomainSlug?: string
     AND?: PortfolioWhereInput | PortfolioWhereInput[]
     OR?: PortfolioWhereInput[]
     NOT?: PortfolioWhereInput | PortfolioWhereInput[]
@@ -11094,13 +11153,14 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Portfolio"> | Date | string
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     customDomain?: XOR<CustomDomainNullableScalarRelationFilter, CustomDomainWhereInput> | null
-  }, "id" | "ownerId" | "slug">
+  }, "id" | "ownerId" | "slug" | "publicSubdomainSlug">
 
   export type PortfolioOrderByWithAggregationInput = {
     id?: SortOrder
     ownerId?: SortOrderInput | SortOrder
     githubUsername?: SortOrder
     slug?: SortOrder
+    publicSubdomainSlug?: SortOrder
     vibe?: SortOrder
     profileData?: SortOrder
     designSpec?: SortOrderInput | SortOrder
@@ -11126,6 +11186,7 @@ export namespace Prisma {
     ownerId?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
     githubUsername?: StringWithAggregatesFilter<"Portfolio"> | string
     slug?: StringWithAggregatesFilter<"Portfolio"> | string
+    publicSubdomainSlug?: StringWithAggregatesFilter<"Portfolio"> | string
     vibe?: StringWithAggregatesFilter<"Portfolio"> | string
     profileData?: JsonWithAggregatesFilter<"Portfolio">
     designSpec?: JsonNullableWithAggregatesFilter<"Portfolio">
@@ -11145,6 +11206,7 @@ export namespace Prisma {
     id?: StringFilter<"CustomDomain"> | string
     portfolioId?: StringFilter<"CustomDomain"> | string
     hostname?: StringFilter<"CustomDomain"> | string
+    type?: StringFilter<"CustomDomain"> | string
     cfHostnameId?: StringNullableFilter<"CustomDomain"> | string | null
     railwayDomainId?: StringNullableFilter<"CustomDomain"> | string | null
     cnameHost?: StringNullableFilter<"CustomDomain"> | string | null
@@ -11152,6 +11214,8 @@ export namespace Prisma {
     verificationHost?: StringNullableFilter<"CustomDomain"> | string | null
     verificationToken?: StringNullableFilter<"CustomDomain"> | string | null
     status?: StringFilter<"CustomDomain"> | string
+    dnsVerified?: BoolFilter<"CustomDomain"> | boolean
+    httpVerified?: BoolFilter<"CustomDomain"> | boolean
     ownershipStatus?: StringNullableFilter<"CustomDomain"> | string | null
     sslStatus?: StringNullableFilter<"CustomDomain"> | string | null
     errorReason?: StringNullableFilter<"CustomDomain"> | string | null
@@ -11166,6 +11230,7 @@ export namespace Prisma {
     id?: SortOrder
     portfolioId?: SortOrder
     hostname?: SortOrder
+    type?: SortOrder
     cfHostnameId?: SortOrderInput | SortOrder
     railwayDomainId?: SortOrderInput | SortOrder
     cnameHost?: SortOrderInput | SortOrder
@@ -11173,6 +11238,8 @@ export namespace Prisma {
     verificationHost?: SortOrderInput | SortOrder
     verificationToken?: SortOrderInput | SortOrder
     status?: SortOrder
+    dnsVerified?: SortOrder
+    httpVerified?: SortOrder
     ownershipStatus?: SortOrderInput | SortOrder
     sslStatus?: SortOrderInput | SortOrder
     errorReason?: SortOrderInput | SortOrder
@@ -11192,11 +11259,14 @@ export namespace Prisma {
     AND?: CustomDomainWhereInput | CustomDomainWhereInput[]
     OR?: CustomDomainWhereInput[]
     NOT?: CustomDomainWhereInput | CustomDomainWhereInput[]
+    type?: StringFilter<"CustomDomain"> | string
     cnameHost?: StringNullableFilter<"CustomDomain"> | string | null
     cnameTarget?: StringNullableFilter<"CustomDomain"> | string | null
     verificationHost?: StringNullableFilter<"CustomDomain"> | string | null
     verificationToken?: StringNullableFilter<"CustomDomain"> | string | null
     status?: StringFilter<"CustomDomain"> | string
+    dnsVerified?: BoolFilter<"CustomDomain"> | boolean
+    httpVerified?: BoolFilter<"CustomDomain"> | boolean
     ownershipStatus?: StringNullableFilter<"CustomDomain"> | string | null
     sslStatus?: StringNullableFilter<"CustomDomain"> | string | null
     errorReason?: StringNullableFilter<"CustomDomain"> | string | null
@@ -11211,6 +11281,7 @@ export namespace Prisma {
     id?: SortOrder
     portfolioId?: SortOrder
     hostname?: SortOrder
+    type?: SortOrder
     cfHostnameId?: SortOrderInput | SortOrder
     railwayDomainId?: SortOrderInput | SortOrder
     cnameHost?: SortOrderInput | SortOrder
@@ -11218,6 +11289,8 @@ export namespace Prisma {
     verificationHost?: SortOrderInput | SortOrder
     verificationToken?: SortOrderInput | SortOrder
     status?: SortOrder
+    dnsVerified?: SortOrder
+    httpVerified?: SortOrder
     ownershipStatus?: SortOrderInput | SortOrder
     sslStatus?: SortOrderInput | SortOrder
     errorReason?: SortOrderInput | SortOrder
@@ -11237,6 +11310,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"CustomDomain"> | string
     portfolioId?: StringWithAggregatesFilter<"CustomDomain"> | string
     hostname?: StringWithAggregatesFilter<"CustomDomain"> | string
+    type?: StringWithAggregatesFilter<"CustomDomain"> | string
     cfHostnameId?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
     railwayDomainId?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
     cnameHost?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
@@ -11244,6 +11318,8 @@ export namespace Prisma {
     verificationHost?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
     verificationToken?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
     status?: StringWithAggregatesFilter<"CustomDomain"> | string
+    dnsVerified?: BoolWithAggregatesFilter<"CustomDomain"> | boolean
+    httpVerified?: BoolWithAggregatesFilter<"CustomDomain"> | boolean
     ownershipStatus?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
     sslStatus?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
     errorReason?: StringNullableWithAggregatesFilter<"CustomDomain"> | string | null
@@ -11690,6 +11766,7 @@ export namespace Prisma {
     id?: string
     githubUsername: string
     slug: string
+    publicSubdomainSlug: string
     vibe: string
     profileData: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -11709,6 +11786,7 @@ export namespace Prisma {
     ownerId?: string | null
     githubUsername: string
     slug: string
+    publicSubdomainSlug: string
     vibe: string
     profileData: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -11726,6 +11804,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     githubUsername?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    publicSubdomainSlug?: StringFieldUpdateOperationsInput | string
     vibe?: StringFieldUpdateOperationsInput | string
     profileData?: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -11745,6 +11824,7 @@ export namespace Prisma {
     ownerId?: NullableStringFieldUpdateOperationsInput | string | null
     githubUsername?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    publicSubdomainSlug?: StringFieldUpdateOperationsInput | string
     vibe?: StringFieldUpdateOperationsInput | string
     profileData?: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -11763,6 +11843,7 @@ export namespace Prisma {
     ownerId?: string | null
     githubUsername: string
     slug: string
+    publicSubdomainSlug: string
     vibe: string
     profileData: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -11779,6 +11860,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     githubUsername?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    publicSubdomainSlug?: StringFieldUpdateOperationsInput | string
     vibe?: StringFieldUpdateOperationsInput | string
     profileData?: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -11796,6 +11878,7 @@ export namespace Prisma {
     ownerId?: NullableStringFieldUpdateOperationsInput | string | null
     githubUsername?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    publicSubdomainSlug?: StringFieldUpdateOperationsInput | string
     vibe?: StringFieldUpdateOperationsInput | string
     profileData?: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -11811,6 +11894,7 @@ export namespace Prisma {
   export type CustomDomainCreateInput = {
     id?: string
     hostname: string
+    type?: string
     cfHostnameId?: string | null
     railwayDomainId?: string | null
     cnameHost?: string | null
@@ -11818,6 +11902,8 @@ export namespace Prisma {
     verificationHost?: string | null
     verificationToken?: string | null
     status?: string
+    dnsVerified?: boolean
+    httpVerified?: boolean
     ownershipStatus?: string | null
     sslStatus?: string | null
     errorReason?: string | null
@@ -11832,6 +11918,7 @@ export namespace Prisma {
     id?: string
     portfolioId: string
     hostname: string
+    type?: string
     cfHostnameId?: string | null
     railwayDomainId?: string | null
     cnameHost?: string | null
@@ -11839,6 +11926,8 @@ export namespace Prisma {
     verificationHost?: string | null
     verificationToken?: string | null
     status?: string
+    dnsVerified?: boolean
+    httpVerified?: boolean
     ownershipStatus?: string | null
     sslStatus?: string | null
     errorReason?: string | null
@@ -11851,6 +11940,7 @@ export namespace Prisma {
   export type CustomDomainUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     hostname?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
     railwayDomainId?: NullableStringFieldUpdateOperationsInput | string | null
     cnameHost?: NullableStringFieldUpdateOperationsInput | string | null
@@ -11858,6 +11948,8 @@ export namespace Prisma {
     verificationHost?: NullableStringFieldUpdateOperationsInput | string | null
     verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    dnsVerified?: BoolFieldUpdateOperationsInput | boolean
+    httpVerified?: BoolFieldUpdateOperationsInput | boolean
     ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
     sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
     errorReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -11872,6 +11964,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     portfolioId?: StringFieldUpdateOperationsInput | string
     hostname?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
     railwayDomainId?: NullableStringFieldUpdateOperationsInput | string | null
     cnameHost?: NullableStringFieldUpdateOperationsInput | string | null
@@ -11879,6 +11972,8 @@ export namespace Prisma {
     verificationHost?: NullableStringFieldUpdateOperationsInput | string | null
     verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    dnsVerified?: BoolFieldUpdateOperationsInput | boolean
+    httpVerified?: BoolFieldUpdateOperationsInput | boolean
     ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
     sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
     errorReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -11892,6 +11987,7 @@ export namespace Prisma {
     id?: string
     portfolioId: string
     hostname: string
+    type?: string
     cfHostnameId?: string | null
     railwayDomainId?: string | null
     cnameHost?: string | null
@@ -11899,6 +11995,8 @@ export namespace Prisma {
     verificationHost?: string | null
     verificationToken?: string | null
     status?: string
+    dnsVerified?: boolean
+    httpVerified?: boolean
     ownershipStatus?: string | null
     sslStatus?: string | null
     errorReason?: string | null
@@ -11911,6 +12009,7 @@ export namespace Prisma {
   export type CustomDomainUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     hostname?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
     railwayDomainId?: NullableStringFieldUpdateOperationsInput | string | null
     cnameHost?: NullableStringFieldUpdateOperationsInput | string | null
@@ -11918,6 +12017,8 @@ export namespace Prisma {
     verificationHost?: NullableStringFieldUpdateOperationsInput | string | null
     verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    dnsVerified?: BoolFieldUpdateOperationsInput | boolean
+    httpVerified?: BoolFieldUpdateOperationsInput | boolean
     ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
     sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
     errorReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -11931,6 +12032,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     portfolioId?: StringFieldUpdateOperationsInput | string
     hostname?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
     railwayDomainId?: NullableStringFieldUpdateOperationsInput | string | null
     cnameHost?: NullableStringFieldUpdateOperationsInput | string | null
@@ -11938,6 +12040,8 @@ export namespace Prisma {
     verificationHost?: NullableStringFieldUpdateOperationsInput | string | null
     verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    dnsVerified?: BoolFieldUpdateOperationsInput | boolean
+    httpVerified?: BoolFieldUpdateOperationsInput | boolean
     ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
     sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
     errorReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12433,6 +12537,7 @@ export namespace Prisma {
     ownerId?: SortOrder
     githubUsername?: SortOrder
     slug?: SortOrder
+    publicSubdomainSlug?: SortOrder
     vibe?: SortOrder
     profileData?: SortOrder
     designSpec?: SortOrder
@@ -12454,6 +12559,7 @@ export namespace Prisma {
     ownerId?: SortOrder
     githubUsername?: SortOrder
     slug?: SortOrder
+    publicSubdomainSlug?: SortOrder
     vibe?: SortOrder
     engineVersion?: SortOrder
     template?: SortOrder
@@ -12469,6 +12575,7 @@ export namespace Prisma {
     ownerId?: SortOrder
     githubUsername?: SortOrder
     slug?: SortOrder
+    publicSubdomainSlug?: SortOrder
     vibe?: SortOrder
     engineVersion?: SortOrder
     template?: SortOrder
@@ -12560,6 +12667,7 @@ export namespace Prisma {
     id?: SortOrder
     portfolioId?: SortOrder
     hostname?: SortOrder
+    type?: SortOrder
     cfHostnameId?: SortOrder
     railwayDomainId?: SortOrder
     cnameHost?: SortOrder
@@ -12567,6 +12675,8 @@ export namespace Prisma {
     verificationHost?: SortOrder
     verificationToken?: SortOrder
     status?: SortOrder
+    dnsVerified?: SortOrder
+    httpVerified?: SortOrder
     ownershipStatus?: SortOrder
     sslStatus?: SortOrder
     errorReason?: SortOrder
@@ -12580,6 +12690,7 @@ export namespace Prisma {
     id?: SortOrder
     portfolioId?: SortOrder
     hostname?: SortOrder
+    type?: SortOrder
     cfHostnameId?: SortOrder
     railwayDomainId?: SortOrder
     cnameHost?: SortOrder
@@ -12587,6 +12698,8 @@ export namespace Prisma {
     verificationHost?: SortOrder
     verificationToken?: SortOrder
     status?: SortOrder
+    dnsVerified?: SortOrder
+    httpVerified?: SortOrder
     ownershipStatus?: SortOrder
     sslStatus?: SortOrder
     errorReason?: SortOrder
@@ -12600,6 +12713,7 @@ export namespace Prisma {
     id?: SortOrder
     portfolioId?: SortOrder
     hostname?: SortOrder
+    type?: SortOrder
     cfHostnameId?: SortOrder
     railwayDomainId?: SortOrder
     cnameHost?: SortOrder
@@ -12607,6 +12721,8 @@ export namespace Prisma {
     verificationHost?: SortOrder
     verificationToken?: SortOrder
     status?: SortOrder
+    dnsVerified?: SortOrder
+    httpVerified?: SortOrder
     ownershipStatus?: SortOrder
     sslStatus?: SortOrder
     errorReason?: SortOrder
@@ -13240,6 +13356,7 @@ export namespace Prisma {
     id?: string
     githubUsername: string
     slug: string
+    publicSubdomainSlug: string
     vibe: string
     profileData: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -13257,6 +13374,7 @@ export namespace Prisma {
     id?: string
     githubUsername: string
     slug: string
+    publicSubdomainSlug: string
     vibe: string
     profileData: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -13388,6 +13506,7 @@ export namespace Prisma {
     ownerId?: StringNullableFilter<"Portfolio"> | string | null
     githubUsername?: StringFilter<"Portfolio"> | string
     slug?: StringFilter<"Portfolio"> | string
+    publicSubdomainSlug?: StringFilter<"Portfolio"> | string
     vibe?: StringFilter<"Portfolio"> | string
     profileData?: JsonFilter<"Portfolio">
     designSpec?: JsonNullableFilter<"Portfolio">
@@ -13595,6 +13714,7 @@ export namespace Prisma {
   export type CustomDomainCreateWithoutPortfolioInput = {
     id?: string
     hostname: string
+    type?: string
     cfHostnameId?: string | null
     railwayDomainId?: string | null
     cnameHost?: string | null
@@ -13602,6 +13722,8 @@ export namespace Prisma {
     verificationHost?: string | null
     verificationToken?: string | null
     status?: string
+    dnsVerified?: boolean
+    httpVerified?: boolean
     ownershipStatus?: string | null
     sslStatus?: string | null
     errorReason?: string | null
@@ -13614,6 +13736,7 @@ export namespace Prisma {
   export type CustomDomainUncheckedCreateWithoutPortfolioInput = {
     id?: string
     hostname: string
+    type?: string
     cfHostnameId?: string | null
     railwayDomainId?: string | null
     cnameHost?: string | null
@@ -13621,6 +13744,8 @@ export namespace Prisma {
     verificationHost?: string | null
     verificationToken?: string | null
     status?: string
+    dnsVerified?: boolean
+    httpVerified?: boolean
     ownershipStatus?: string | null
     sslStatus?: string | null
     errorReason?: string | null
@@ -13686,6 +13811,7 @@ export namespace Prisma {
   export type CustomDomainUpdateWithoutPortfolioInput = {
     id?: StringFieldUpdateOperationsInput | string
     hostname?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
     railwayDomainId?: NullableStringFieldUpdateOperationsInput | string | null
     cnameHost?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13693,6 +13819,8 @@ export namespace Prisma {
     verificationHost?: NullableStringFieldUpdateOperationsInput | string | null
     verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    dnsVerified?: BoolFieldUpdateOperationsInput | boolean
+    httpVerified?: BoolFieldUpdateOperationsInput | boolean
     ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
     sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
     errorReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13705,6 +13833,7 @@ export namespace Prisma {
   export type CustomDomainUncheckedUpdateWithoutPortfolioInput = {
     id?: StringFieldUpdateOperationsInput | string
     hostname?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     cfHostnameId?: NullableStringFieldUpdateOperationsInput | string | null
     railwayDomainId?: NullableStringFieldUpdateOperationsInput | string | null
     cnameHost?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13712,6 +13841,8 @@ export namespace Prisma {
     verificationHost?: NullableStringFieldUpdateOperationsInput | string | null
     verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    dnsVerified?: BoolFieldUpdateOperationsInput | boolean
+    httpVerified?: BoolFieldUpdateOperationsInput | boolean
     ownershipStatus?: NullableStringFieldUpdateOperationsInput | string | null
     sslStatus?: NullableStringFieldUpdateOperationsInput | string | null
     errorReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -13725,6 +13856,7 @@ export namespace Prisma {
     id?: string
     githubUsername: string
     slug: string
+    publicSubdomainSlug: string
     vibe: string
     profileData: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -13743,6 +13875,7 @@ export namespace Prisma {
     ownerId?: string | null
     githubUsername: string
     slug: string
+    publicSubdomainSlug: string
     vibe: string
     profileData: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -13775,6 +13908,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     githubUsername?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    publicSubdomainSlug?: StringFieldUpdateOperationsInput | string
     vibe?: StringFieldUpdateOperationsInput | string
     profileData?: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -13793,6 +13927,7 @@ export namespace Prisma {
     ownerId?: NullableStringFieldUpdateOperationsInput | string | null
     githubUsername?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    publicSubdomainSlug?: StringFieldUpdateOperationsInput | string
     vibe?: StringFieldUpdateOperationsInput | string
     profileData?: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -13902,6 +14037,7 @@ export namespace Prisma {
     id?: string
     githubUsername: string
     slug: string
+    publicSubdomainSlug: string
     vibe: string
     profileData: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -13993,6 +14129,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     githubUsername?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    publicSubdomainSlug?: StringFieldUpdateOperationsInput | string
     vibe?: StringFieldUpdateOperationsInput | string
     profileData?: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -14010,6 +14147,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     githubUsername?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    publicSubdomainSlug?: StringFieldUpdateOperationsInput | string
     vibe?: StringFieldUpdateOperationsInput | string
     profileData?: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue
@@ -14027,6 +14165,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     githubUsername?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    publicSubdomainSlug?: StringFieldUpdateOperationsInput | string
     vibe?: StringFieldUpdateOperationsInput | string
     profileData?: JsonNullValueInput | InputJsonValue
     designSpec?: NullableJsonNullValueInput | InputJsonValue

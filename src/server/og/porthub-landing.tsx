@@ -1,9 +1,10 @@
 /* @jsxImportSource react */
 import { ImageResponse } from "next/og";
+import { PorfiloIcon } from "~/lib/brand-icons";
 import { OG_SIZE } from "~/server/portfolio/og-image";
 
-/** Link-preview image for porthub.rami.co.nz — mirrors the marketing hero. */
-export function renderPorthubLandingOgImage() {
+/** Link-preview image for porfilo.com — mirrors the marketing hero. */
+export function renderPorfiloLandingOgImage() {
   return new ImageResponse(
     (
       <div
@@ -50,16 +51,8 @@ export function renderPorthubLandingOgImage() {
               textTransform: "uppercase",
             }}
           >
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: 999,
-                background: "white",
-                boxShadow: "0 0 12px rgba(255,255,255,0.7)",
-              }}
-            />
-            PortHub
+            <PorfiloIcon size={28} />
+            Porfilo
           </div>
         </div>
 
@@ -223,3 +216,6 @@ export function renderPorthubLandingOgImage() {
     { ...OG_SIZE },
   );
 }
+
+/** @deprecated Use renderPorfiloLandingOgImage */
+export const renderPorthubLandingOgImage = renderPorfiloLandingOgImage;
