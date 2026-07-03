@@ -1,15 +1,28 @@
 import { type NextRequest } from "next/server";
 import { headers as nextHeaders } from "next/headers";
+import { randomBytes, createHash } from "node:crypto";
 import { z } from "zod";
 import { getSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { limit } from "~/server/ratelimit";
+import { clientIp } from "~/server/client-ip";
+import {
+  tryAcquireGlobalSlot,
+  releaseGlobalSlot,
+} from "~/server/generation-guard";
 import { checkBudget } from "~/server/llm/cost";
 import {
   acquireGenerationLock,
   releaseGenerationLock,
 } from "~/server/generation-lock";
 import { runGeneration } from "~/server/portfolio/generate";
+
+// Absolute per-process ceiling on generations started per hour, independent of
+// any client-derived identity. Backstops a per-IP rate-limit bypass.
+const GLOBAL_HOURLY_MAX = Math.max(
+  1,
+  Number(process.env.GLOBAL_GENERATIONS_PER_HOUR ?? 120),
+);
 
 // Prisma / Octokit / Anthropic are Node-only — do NOT run on the Edge runtime.
 export const runtime = "nodejs";
@@ -20,14 +33,16 @@ export const fetchCache = "force-no-store";
 // (or move it to a per-plan policy) when payments / plans land.
 const PORTFOLIO_QUOTA_PER_USER = 1;
 
+// The generated design is a single hand-crafted world (GHOST_PROTOCOL) that
+// ignores the vibe. We store a sentinel so the non-nullable DB column stays
+// meaningful without pretending the user's prose influenced the output.
+const DESIGN_SENTINEL = "ghost-protocol";
+
 const bodySchema = z.object({
   username: z
     .string()
     .trim()
     .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i, "Invalid GitHub username"),
-  // 100-char cap matches the client field; vibe is currently informational
-  // (TERMINAL_NEXUS is hard-pinned), but we still bound it to keep payloads small.
-  vibe: z.string().trim().min(1, "Describe a vibe").max(100),
 });
 
 function json(data: unknown, status: number, headers?: HeadersInit) {
@@ -42,10 +57,11 @@ function sseFrame(ev: unknown): string {
 }
 
 export async function POST(req: NextRequest) {
+  // Anonymous-first: a session is *not* required. An unauthenticated caller
+  // generates an ownerless portfolio they later "claim" by signing in. A
+  // signed-in caller generates straight into their account (current behavior).
   const session = await getSession(await nextHeaders());
-  if (!session?.user) {
-    return json({ error: "Sign in to generate a portfolio." }, 401);
-  }
+  const ownerId = session?.user?.id ?? null;
 
   let parsed: z.infer<typeof bodySchema>;
   try {
@@ -54,23 +70,23 @@ export async function POST(req: NextRequest) {
     const msg = e instanceof z.ZodError ? e.issues[0]?.message : "Invalid request";
     return json({ error: msg ?? "Invalid request" }, 400);
   }
-  const { username, vibe } = parsed;
-  const ownerId = session.user.id;
+  const { username } = parsed;
 
-  // ── Beta cap: one portfolio per account ────────────────────────────────
-  // This is the authoritative server-side gate. The UI also disables the form
-  // when a portfolio exists, but a determined client could call the API
-  // directly, so the truth check lives here.
-  const existing = await db.portfolio.count({ where: { ownerId } });
-  if (existing >= PORTFOLIO_QUOTA_PER_USER) {
-    return json(
-      {
-        error:
-          "You already have a portfolio. Porfilo is in beta — only one portfolio per account for now.",
-        code: "quota_reached",
-      },
-      409,
-    );
+  // ── Beta cap: one portfolio per *signed-in* account ─────────────────────
+  // Anonymous callers have no account yet — the cap is enforced at claim
+  // time instead (see /claim). IP + username rate limits below guard anon abuse.
+  if (ownerId) {
+    const existing = await db.portfolio.count({ where: { ownerId } });
+    if (existing >= PORTFOLIO_QUOTA_PER_USER) {
+      return json(
+        {
+          error:
+            "You already have a portfolio. Porfilo is in beta — only one portfolio per account for now.",
+          code: "quota_reached",
+        },
+        409,
+      );
+    }
   }
 
   // ── Daily LLM budget kill-switch ───────────────────────────────────────
@@ -79,18 +95,40 @@ export async function POST(req: NextRequest) {
     return json({ error: budget, code: "budget_reached" }, 503);
   }
 
+  // ── Global ceiling (identity-independent) ──────────────────────────────
+  // Holds even if the per-IP key below is spoofed. Concurrency is reserved
+  // later, just before work starts, and released in the stream's finally.
+  const globalHourly = limit("gen:global:hour", {
+    window: "1h",
+    max: GLOBAL_HOURLY_MAX,
+  });
+  if (!globalHourly.ok) {
+    return json(
+      { error: "We're at capacity right now. Please try again shortly.", code: "at_capacity" },
+      503,
+      { "retry-after": String(globalHourly.retryAfter) },
+    );
+  }
+
   // ── Rate limits ────────────────────────────────────────────────────────
-  //   - 3 generations / hour / user (defence in depth on top of the quota above)
+  //   - 3 generations / hour  keyed on user id (authed) or IP (anonymous)
   //   - 5 IP-bursts / minute    (catches scripted abuse on a shared NAT)
   //   - 1 generation / 10s / GitHub username   (cooldown to keep the cache warm)
-  const hourly = limit(`gen:hour:${ownerId}`, { window: "1h", max: 3 });
+  //
+  // The IP is derived via clientIp() — NOT the raw leftmost X-Forwarded-For,
+  // which a caller can forge to land every request in a fresh bucket.
+  const ip = clientIp(req.headers);
+
+  const hourly = limit(`gen:hour:${ownerId ?? `anon:${ip}`}`, {
+    window: "1h",
+    max: 3,
+  });
   if (!hourly.ok) {
     return json({ error: "Hourly limit reached. Try again later." }, 429, {
       "retry-after": String(hourly.retryAfter),
     });
   }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
   const ipBurst = limit(`gen:ipburst:${ip}`, { window: "1m", max: 5 });
   if (!ipBurst.ok) {
     return json({ error: "Too many requests. Slow down." }, 429, {
@@ -110,12 +148,35 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const lock = await acquireGenerationLock(ownerId, username);
-  if (!lock.ok) {
-    return json({ error: lock.error, code: lock.code }, lock.status, {
-      ...(lock.retryAfter ? { "retry-after": String(lock.retryAfter) } : {}),
-    });
+  // The generation lock table FKs to User, so it's only usable for signed-in
+  // callers. Anonymous generation is protected by the IP/username limits above.
+  if (ownerId) {
+    const lock = await acquireGenerationLock(ownerId, username);
+    if (!lock.ok) {
+      return json({ error: lock.error, code: lock.code }, lock.status, {
+        ...(lock.retryAfter ? { "retry-after": String(lock.retryAfter) } : {}),
+      });
+    }
   }
+
+  // ── Global concurrency slot: the last gate before paid work ────────────
+  // Released in the stream's finally (covers success, error, and client abort).
+  if (!tryAcquireGlobalSlot()) {
+    if (ownerId) await releaseGenerationLock(ownerId);
+    return json(
+      { error: "We're at capacity right now. Please try again shortly.", code: "at_capacity" },
+      503,
+      { "retry-after": "15" },
+    );
+  }
+
+  // One-time claim token for anonymous runs. The plaintext is sent only to this
+  // browser (in the `done` event); only its SHA-256 is persisted. Required at
+  // /claim so knowledge of the public preview URL alone cannot take ownership.
+  const claimToken = ownerId ? null : randomBytes(32).toString("base64url");
+  const claimNonceHash = claimToken
+    ? createHash("sha256").update(claimToken).digest("hex")
+    : null;
 
   // -----------------------------------------------------------------------
   // Why TransformStream instead of `new ReadableStream({ start })`:
@@ -188,15 +249,24 @@ export async function POST(req: NextRequest) {
       // its "connecting" state on this, before any backend work runs.
       await safeWrite(encoder.encode(sseFrame({ stage: "open" })));
 
-      for await (const event of runGeneration(username, vibe, { ownerId })) {
+      for await (const event of runGeneration(username, DESIGN_SENTINEL, {
+        ownerId,
+        claimNonceHash,
+      })) {
         if (closed) break;
-        await safeWrite(encoder.encode(sseFrame(event)));
+        // Attach the plaintext claim token to the terminal event only.
+        const out =
+          event.stage === "done" && claimToken
+            ? { ...event, claimToken }
+            : event;
+        await safeWrite(encoder.encode(sseFrame(out)));
       }
     } catch (err) {
       const error = err instanceof Error ? err.message : "Generation failed.";
       await safeWrite(encoder.encode(sseFrame({ stage: "error", error })));
     } finally {
-      await releaseGenerationLock(ownerId);
+      if (ownerId) await releaseGenerationLock(ownerId);
+      releaseGlobalSlot();
       clearInterval(heartbeat);
       await safeClose();
     }

@@ -6020,6 +6020,7 @@ export namespace Prisma {
     code: string | null
     isPublic: boolean | null
     views: number | null
+    claimNonce: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6036,6 +6037,7 @@ export namespace Prisma {
     code: string | null
     isPublic: boolean | null
     views: number | null
+    claimNonce: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6054,6 +6056,7 @@ export namespace Prisma {
     code: number
     isPublic: number
     views: number
+    claimNonce: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -6080,6 +6083,7 @@ export namespace Prisma {
     code?: true
     isPublic?: true
     views?: true
+    claimNonce?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6096,6 +6100,7 @@ export namespace Prisma {
     code?: true
     isPublic?: true
     views?: true
+    claimNonce?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6114,6 +6119,7 @@ export namespace Prisma {
     code?: true
     isPublic?: true
     views?: true
+    claimNonce?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -6219,6 +6225,7 @@ export namespace Prisma {
     code: string | null
     isPublic: boolean
     views: number
+    claimNonce: string | null
     createdAt: Date
     updatedAt: Date
     _count: PortfolioCountAggregateOutputType | null
@@ -6256,6 +6263,7 @@ export namespace Prisma {
     code?: boolean
     isPublic?: boolean
     views?: boolean
+    claimNonce?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     owner?: boolean | Portfolio$ownerArgs<ExtArgs>
@@ -6276,6 +6284,7 @@ export namespace Prisma {
     code?: boolean
     isPublic?: boolean
     views?: boolean
+    claimNonce?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     owner?: boolean | Portfolio$ownerArgs<ExtArgs>
@@ -6295,6 +6304,7 @@ export namespace Prisma {
     code?: boolean
     isPublic?: boolean
     views?: boolean
+    claimNonce?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     owner?: boolean | Portfolio$ownerArgs<ExtArgs>
@@ -6314,11 +6324,12 @@ export namespace Prisma {
     code?: boolean
     isPublic?: boolean
     views?: boolean
+    claimNonce?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PortfolioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "slug" | "publicSubdomainSlug" | "vibe" | "profileData" | "designSpec" | "engineVersion" | "template" | "code" | "isPublic" | "views" | "createdAt" | "updatedAt", ExtArgs["result"]["portfolio"]>
+  export type PortfolioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "slug" | "publicSubdomainSlug" | "vibe" | "profileData" | "designSpec" | "engineVersion" | "template" | "code" | "isPublic" | "views" | "claimNonce" | "createdAt" | "updatedAt", ExtArgs["result"]["portfolio"]>
   export type PortfolioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | Portfolio$ownerArgs<ExtArgs>
     customDomain?: boolean | Portfolio$customDomainArgs<ExtArgs>
@@ -6350,6 +6361,7 @@ export namespace Prisma {
       code: string | null
       isPublic: boolean
       views: number
+      claimNonce: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["portfolio"]>
@@ -6790,6 +6802,7 @@ export namespace Prisma {
     readonly code: FieldRef<"Portfolio", 'String'>
     readonly isPublic: FieldRef<"Portfolio", 'Boolean'>
     readonly views: FieldRef<"Portfolio", 'Int'>
+    readonly claimNonce: FieldRef<"Portfolio", 'String'>
     readonly createdAt: FieldRef<"Portfolio", 'DateTime'>
     readonly updatedAt: FieldRef<"Portfolio", 'DateTime'>
   }
@@ -10606,6 +10619,7 @@ export namespace Prisma {
     code: 'code',
     isPublic: 'isPublic',
     views: 'views',
+    claimNonce: 'claimNonce',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -11106,6 +11120,7 @@ export namespace Prisma {
     code?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
     views?: IntFilter<"Portfolio"> | number
+    claimNonce?: StringNullableFilter<"Portfolio"> | string | null
     createdAt?: DateTimeFilter<"Portfolio"> | Date | string
     updatedAt?: DateTimeFilter<"Portfolio"> | Date | string
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -11126,6 +11141,7 @@ export namespace Prisma {
     code?: SortOrderInput | SortOrder
     isPublic?: SortOrder
     views?: SortOrder
+    claimNonce?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     owner?: UserOrderByWithRelationInput
@@ -11149,6 +11165,7 @@ export namespace Prisma {
     code?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
     views?: IntFilter<"Portfolio"> | number
+    claimNonce?: StringNullableFilter<"Portfolio"> | string | null
     createdAt?: DateTimeFilter<"Portfolio"> | Date | string
     updatedAt?: DateTimeFilter<"Portfolio"> | Date | string
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -11169,6 +11186,7 @@ export namespace Prisma {
     code?: SortOrderInput | SortOrder
     isPublic?: SortOrder
     views?: SortOrder
+    claimNonce?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: PortfolioCountOrderByAggregateInput
@@ -11195,6 +11213,7 @@ export namespace Prisma {
     code?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
     isPublic?: BoolWithAggregatesFilter<"Portfolio"> | boolean
     views?: IntWithAggregatesFilter<"Portfolio"> | number
+    claimNonce?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Portfolio"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Portfolio"> | Date | string
   }
@@ -11775,6 +11794,7 @@ export namespace Prisma {
     code?: string | null
     isPublic?: boolean
     views?: number
+    claimNonce?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     owner?: UserCreateNestedOneWithoutPortfoliosInput
@@ -11795,6 +11815,7 @@ export namespace Prisma {
     code?: string | null
     isPublic?: boolean
     views?: number
+    claimNonce?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customDomain?: CustomDomainUncheckedCreateNestedOneWithoutPortfolioInput
@@ -11813,6 +11834,7 @@ export namespace Prisma {
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
+    claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: UserUpdateOneWithoutPortfoliosNestedInput
@@ -11833,6 +11855,7 @@ export namespace Prisma {
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
+    claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customDomain?: CustomDomainUncheckedUpdateOneWithoutPortfolioNestedInput
@@ -11852,6 +11875,7 @@ export namespace Prisma {
     code?: string | null
     isPublic?: boolean
     views?: number
+    claimNonce?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -11869,6 +11893,7 @@ export namespace Prisma {
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
+    claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -11887,6 +11912,7 @@ export namespace Prisma {
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
+    claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12546,6 +12572,7 @@ export namespace Prisma {
     code?: SortOrder
     isPublic?: SortOrder
     views?: SortOrder
+    claimNonce?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -12566,6 +12593,7 @@ export namespace Prisma {
     code?: SortOrder
     isPublic?: SortOrder
     views?: SortOrder
+    claimNonce?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -12582,6 +12610,7 @@ export namespace Prisma {
     code?: SortOrder
     isPublic?: SortOrder
     views?: SortOrder
+    claimNonce?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -13365,6 +13394,7 @@ export namespace Prisma {
     code?: string | null
     isPublic?: boolean
     views?: number
+    claimNonce?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customDomain?: CustomDomainCreateNestedOneWithoutPortfolioInput
@@ -13383,6 +13413,7 @@ export namespace Prisma {
     code?: string | null
     isPublic?: boolean
     views?: number
+    claimNonce?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customDomain?: CustomDomainUncheckedCreateNestedOneWithoutPortfolioInput
@@ -13515,6 +13546,7 @@ export namespace Prisma {
     code?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
     views?: IntFilter<"Portfolio"> | number
+    claimNonce?: StringNullableFilter<"Portfolio"> | string | null
     createdAt?: DateTimeFilter<"Portfolio"> | Date | string
     updatedAt?: DateTimeFilter<"Portfolio"> | Date | string
   }
@@ -13865,6 +13897,7 @@ export namespace Prisma {
     code?: string | null
     isPublic?: boolean
     views?: number
+    claimNonce?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     owner?: UserCreateNestedOneWithoutPortfoliosInput
@@ -13884,6 +13917,7 @@ export namespace Prisma {
     code?: string | null
     isPublic?: boolean
     views?: number
+    claimNonce?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13917,6 +13951,7 @@ export namespace Prisma {
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
+    claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: UserUpdateOneWithoutPortfoliosNestedInput
@@ -13936,6 +13971,7 @@ export namespace Prisma {
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
+    claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14046,6 +14082,7 @@ export namespace Prisma {
     code?: string | null
     isPublic?: boolean
     views?: number
+    claimNonce?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14138,6 +14175,7 @@ export namespace Prisma {
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
+    claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customDomain?: CustomDomainUpdateOneWithoutPortfolioNestedInput
@@ -14156,6 +14194,7 @@ export namespace Prisma {
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
+    claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customDomain?: CustomDomainUncheckedUpdateOneWithoutPortfolioNestedInput
@@ -14174,6 +14213,7 @@ export namespace Prisma {
     code?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
+    claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

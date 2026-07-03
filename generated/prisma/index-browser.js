@@ -181,6 +181,7 @@ exports.Prisma.PortfolioScalarFieldEnum = {
   code: 'code',
   isPublic: 'isPublic',
   views: 'views',
+  claimNonce: 'claimNonce',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

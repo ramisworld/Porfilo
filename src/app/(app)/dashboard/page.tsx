@@ -29,8 +29,8 @@ export default async function DashboardPage() {
     },
   });
 
-  // No portfolio yet → /generate is the right place.
-  if (!portfolio) redirect("/generate");
+  // No portfolio yet → the landing is where generation starts.
+  if (!portfolio) redirect("/");
 
   // Parse ProfileData with the Zod schema so the editor opens against a known
   // shape. Older rows that don't quite match the latest schema should still

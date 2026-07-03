@@ -36,13 +36,33 @@ export interface GenerateEvent {
   stage: Stage;
   message?: string;
   slug?: string;
+  /** True when the portfolio was created without an owner (anonymous, pre-claim). */
+  ownerless?: boolean;
+  /**
+   * One-time claim token (plaintext), emitted only on `done` for anonymous
+   * runs. The route injects it — the generator only persists its hash.
+   */
+  claimToken?: string;
   error?: string;
   code?: GenerateErrorCode;
 }
 
 export interface RunGenerationOptions {
-  /** Currently signed-in user id; required from Phase 3 onward. */
-  ownerId: string;
+  /**
+   * Owning user id, or `null` for an anonymous (pre-claim) generation.
+   *
+   * Anonymous generations create an ownerless portfolio (`ownerId = null`)
+   * that a signed-in user later claims. The one-per-account quota check only
+   * applies when an owner exists.
+   */
+  ownerId: string | null;
+  /**
+   * SHA-256 hash of the one-time claim token for an anonymous run. Persisted so
+   * `/claim` can require the plaintext token (delivered only to the generating
+   * browser) — the public preview URL alone must not grant ownership. Null for
+   * signed-in runs (they own the row immediately).
+   */
+  claimNonceHash?: string | null;
 }
 
 /**
@@ -90,12 +110,17 @@ export async function* runGeneration(
     const publicSubdomainSlug = newPublicSlug();
     // Race-proof one-portfolio-per-user: re-check inside a serializable
     // transaction so two concurrent requests can't both slip a row past the
-    // pre-flight count in the route handler.
+    // pre-flight count in the route handler. Anonymous (ownerless)
+    // generations skip this — there's no per-owner cap to enforce.
     await db.$transaction(
       async (tx) => {
-        const owned = await tx.portfolio.count({ where: { ownerId: opts.ownerId } });
-        if (owned >= 1) {
-          throw new Error("QUOTA_REACHED");
+        if (opts.ownerId) {
+          const owned = await tx.portfolio.count({
+            where: { ownerId: opts.ownerId },
+          });
+          if (owned >= 1) {
+            throw new Error("QUOTA_REACHED");
+          }
         }
         await tx.portfolio.create({
           data: {
@@ -109,6 +134,8 @@ export async function* runGeneration(
             engineVersion: ENGINE_VERSION,
             template: "terminalNexus",
             isPublic: true,
+            // Only anonymous rows carry a claim hash; owned rows are already claimed.
+            claimNonce: opts.ownerId ? null : (opts.claimNonceHash ?? null),
           },
         });
       },
@@ -116,7 +143,11 @@ export async function* runGeneration(
     );
 
     logRunTotal({ username: profile.user.login, slug: publicSubdomainSlug }, usages);
-    yield { stage: "done", slug: publicSubdomainSlug };
+    yield {
+      stage: "done",
+      slug: publicSubdomainSlug,
+      ownerless: !opts.ownerId,
+    };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg === "QUOTA_REACHED") {

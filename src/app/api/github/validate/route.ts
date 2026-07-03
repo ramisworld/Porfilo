@@ -4,6 +4,7 @@ import { headers as nextHeaders } from "next/headers";
 import { getSession } from "~/server/auth";
 import { githubUserExists } from "~/server/github/fetch";
 import { limit } from "~/server/ratelimit";
+import { clientIp } from "~/server/client-ip";
 import { db } from "~/server/db";
 
 export const runtime = "nodejs";
@@ -27,15 +28,19 @@ function json(data: unknown, status: number, headers?: HeadersInit) {
 }
 
 /**
- * Pre-flight check used by /generate before we kick off the SSE pipeline.
+ * Pre-flight check used before kicking off the SSE pipeline.
  * Returns { exists: boolean }; an invalid format is a 400.
  *
- * Auth required — anonymous callers can't grind through GitHub via this.
- * Per-user rate-limited (5 / 60s) to discourage typo-bursting.
+ * Anonymous-first: an unauthenticated caller can validate a GitHub username
+ * so the landing can pre-flight before generating. Rate-limited per IP (10 /
+ * 60s) to discourage typo-bursting. Signed-in callers additionally get the
+ * beta-cap check so we surface "you already have one" before hitting GitHub.
  */
 export async function POST(req: NextRequest) {
   const session = await getSession(await nextHeaders());
-  if (!session?.user) return json({ error: "Unauthorized" }, 401);
+  const userId = session?.user?.id ?? null;
+  // Hardened client IP (never the forgeable leftmost X-Forwarded-For).
+  const ip = clientIp(req.headers);
 
   let parsed: z.infer<typeof bodySchema>;
   try {
@@ -45,22 +50,25 @@ export async function POST(req: NextRequest) {
     return json({ error: msg ?? "Invalid request", exists: false }, 400);
   }
 
-  // Cheap pre-check: if this user already owns a portfolio (beta quota), no
-  // point hitting GitHub. Surface the quota error to the client.
-  const owned = await db.portfolio.count({ where: { ownerId: session.user.id } });
-  if (owned >= 1) {
-    return json(
-      {
-        error:
-          "You already have a portfolio. Porfilo is in beta — only one portfolio per account for now.",
-        code: "quota_reached",
-        exists: false,
-      },
-      409,
-    );
+  // Signed-in beta-cap pre-check: if this user already owns a portfolio, no
+  // point hitting GitHub. Anonymous callers skip this (the cap is enforced
+  // at claim time on /claim).
+  if (userId) {
+    const owned = await db.portfolio.count({ where: { ownerId: userId } });
+    if (owned >= 1) {
+      return json(
+        {
+          error:
+            "You already have a portfolio. Porfilo is in beta — only one portfolio per account for now.",
+          code: "quota_reached",
+          exists: false,
+        },
+        409,
+      );
+    }
   }
 
-  const rl = limit(`validate:${session.user.id}`, { window: "1m", max: 10 });
+  const rl = limit(`validate:${userId ?? `anon:${ip}`}`, { window: "1m", max: 10 });
   if (!rl.ok) {
     return json({ error: "Too many requests" }, 429, {
       "retry-after": String(rl.retryAfter),

@@ -94,6 +94,11 @@ model Portfolio {
   code           String?        @db.Text
   isPublic       Boolean        @default(true)
   views          Int            @default(0)
+  // SHA-256 of the one-time claim token handed to the anonymous browser that
+  // generated this portfolio. Required to claim it, so knowledge of the public
+  // preview URL alone is NOT sufficient to take ownership. Null once claimed or
+  // for portfolios created while signed in.
+  claimNonce     String?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   customDomain   CustomDomain?

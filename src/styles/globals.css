@@ -1,8 +1,76 @@
 @import "tailwindcss";
 
+/*
+ * Porfilo design tokens.
+ *
+ * Dark-first, developer-grade. Consolidates the previously implicit palette
+ * (raw #06060a / #05060a literals and the copy-pasted glass box-shadow) into
+ * a single source of truth. Existing files still using arbitrary values keep
+ * working; new surfaces consume these tokens via Tailwind v4 utilities
+ * (bg-bg, text-muted, border-border, shadow-glass …).
+ */
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* ── Surfaces ────────────────────────────────────────────────────────── */
+  --color-bg: #06060a; /* app void (consolidates the old #06060a / #05060a split) */
+  --color-bg-elevated: #0a0a0f; /* generated-portfolio canvas; matches engine base.css */
+  --color-surface: rgba(255, 255, 255, 0.035); /* glass card fill */
+  --color-surface-strong: rgba(255, 255, 255, 0.05);
+  --color-well: rgba(0, 0, 0, 0.35); /* inset input well */
+
+  /* ── Borders ──────────────────────────────────────────────────────────── */
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-faint: rgba(255, 255, 255, 0.04);
+
+  /* ── Text tiers ───────────────────────────────────────────────────────── */
+  --color-fg: #ffffff;
+  --color-muted: rgba(255, 255, 255, 0.55);
+  --color-muted-2: rgba(255, 255, 255, 0.45);
+  --color-muted-3: rgba(255, 255, 255, 0.35);
+  --color-faint: rgba(255, 255, 255, 0.3);
+
+  /* ── Accents ──────────────────────────────────────────────────────────── */
+  --color-accent: #6c7bff; /* indigo — shared with the default generated portfolio */
+  --color-accent-2: #9a6cff; /* violet */
+  --color-success: #34d399; /* emerald — success / active only */
+  --color-warn: #fbbf24; /* amber — beta / warn only */
+  --color-danger: #ef4444; /* red — destructive */
+
+  /* ── Radius ───────────────────────────────────────────────────────────── */
+  --radius-card: 1rem; /* 16px — glass cards */
+  --radius-lg: 0.75rem; /* 12px — buttons / inputs */
+  --radius-pill: 9999px;
+
+  /* ── Shadows ─────────────────────────────────────────────────────────── */
+  /* The Porfilo glass depth — previously copy-pasted across landing / sign-in / generate. */
+  --shadow-glass:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+    0 30px 60px -20px rgba(0, 0, 0, 0.65);
+  --shadow-elev:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 20px 40px -20px rgba(0, 0, 0, 0.5);
+
+  /* ── Motion ───────────────────────────────────────────────────────────── */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * Root body gets the void background so force-dynamic server-component pages
+ * never flash white before their <main> mounts. The page-level <main>
+ * backgrounds (aurora canvas etc.) layer on top.
+ */
+@layer base {
+  html {
+    background-color: var(--color-bg);
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+  }
 }
 
 /* Tailwind v4 ships with cursor:default on buttons by default. Porfilo treats

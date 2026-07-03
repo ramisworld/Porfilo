@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "~/lib/auth-client";
+import { Arrow, Spinner } from "~/app/_components/icons";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type Providers = { google: boolean; github: boolean; email: boolean };
 
-const DEFAULT_CALLBACK_URL = "/generate";
-const ALLOWED_CALLBACK_PATHS = new Set([DEFAULT_CALLBACK_URL]);
+const DEFAULT_CALLBACK_URL = "/dashboard";
+const ALLOWED_CALLBACK_PATHS = new Set([DEFAULT_CALLBACK_URL, "/claim"]);
 
 function safeCallbackURL(raw: string | null) {
   if (!raw) return DEFAULT_CALLBACK_URL;
@@ -30,7 +31,6 @@ export function SignInForm({ providers }: { providers: Providers }) {
   const callbackURL = safeCallbackURL(params.get("next"));
 
   const [email, setEmail] = useState("");
-  const [sentTo, setSentTo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [oauthPending, setOauthPending] = useState<"google" | "github" | null>(
     null,
@@ -68,8 +68,6 @@ export function SignInForm({ providers }: { providers: Providers }) {
         setError(res.error.message ?? "Couldn't send the link. Try again.");
         return;
       }
-      setSentTo(value);
-      // Move to a dedicated "check your email" view.
       router.push(`/check-email?email=${encodeURIComponent(value)}`);
     });
   };
@@ -78,8 +76,6 @@ export function SignInForm({ providers }: { providers: Providers }) {
     setError(null);
     setOauthPending(provider);
     try {
-      // BetterAuth returns the provider URL. We navigate explicitly so the
-      // handoff is predictable and only happens after we inspect the target.
       const res = await signIn.social({
         provider,
         callbackURL,
@@ -112,7 +108,6 @@ export function SignInForm({ providers }: { providers: Providers }) {
       } catch {
         // Non-URL target — fall through to the navigation; the browser will surface any failure.
       }
-      // Hard nav — leaves the SPA and hands the tab off to the OAuth provider.
       window.location.href = target;
     } catch (e) {
       const message =
@@ -128,12 +123,7 @@ export function SignInForm({ providers }: { providers: Providers }) {
     <div
       ref={cardRef}
       className="relative mt-10 w-full"
-      style={
-        {
-          "--mx": "50%",
-          "--my": "0%",
-        } as React.CSSProperties
-      }
+      style={{ "--mx": "50%", "--my": "0%" } as React.CSSProperties}
     >
       {/* Cursor-following aura */}
       <div
@@ -145,16 +135,10 @@ export function SignInForm({ providers }: { providers: Providers }) {
         }}
       />
 
-      <div
-        className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5 backdrop-blur-xl"
-        style={{
-          boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.10), inset 0 0 0 1px rgba(255,255,255,0.02), 0 30px 60px -20px rgba(0,0,0,0.65)",
-        }}
-      >
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-6 backdrop-blur-xl shadow-glass">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
+          className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
         />
         <div
           aria-hidden
@@ -167,7 +151,7 @@ export function SignInForm({ providers }: { providers: Providers }) {
 
         {/* OAuth providers */}
         {anyOauth && (
-          <div className="relative space-y-2">
+          <div className="relative space-y-2.5">
             {providers.github && (
               <OAuthButton
                 provider="github"
@@ -199,10 +183,13 @@ export function SignInForm({ providers }: { providers: Providers }) {
 
         {/* Email magic link */}
         <form onSubmit={sendMagicLink} noValidate className="relative">
-          <label htmlFor="email" className="mb-2 block text-[12px] text-white/55">
+          <label
+            htmlFor="email"
+            className="mb-2 block text-[12px] text-muted-2"
+          >
             Email
           </label>
-          <div className="flex items-center gap-1 rounded-xl bg-black/35 p-1 ring-1 ring-white/[0.04]">
+          <div className="flex items-center gap-1 rounded-xl bg-well p-1 ring-1 ring-border-faint">
             <input
               id="email"
               type="email"
@@ -223,7 +210,7 @@ export function SignInForm({ providers }: { providers: Providers }) {
             />
             <button
               type="submit"
-              disabled={isPending || oauthPending !== null || sentTo === email}
+              disabled={isPending || oauthPending !== null}
               aria-busy={isPending}
               className="porfilo-btn porfilo-btn-primary group disabled:cursor-not-allowed"
             >
@@ -243,7 +230,7 @@ export function SignInForm({ providers }: { providers: Providers }) {
           <p
             role={error ? "alert" : undefined}
             className={`mt-2.5 px-1 text-[11.5px] transition-colors ${
-              error ? "text-red-300/80" : "text-white/35"
+              error ? "text-red-300/80" : "text-faint"
             }`}
           >
             {error ?? "We'll email you a one-tap sign-in link. No password."}
@@ -273,9 +260,9 @@ function OAuthButton({
       onClick={onClick}
       disabled={disabled}
       aria-busy={pending}
-      className="relative flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-[14px] font-medium text-white/90 transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
+      className="relative flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-border bg-white/[0.03] text-[14px] font-medium text-white/90 transition hover:bg-white/[0.06] hover:border-white/[0.14] disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {pending ? <Spinner /> : <ProviderIcon provider={provider} />}
+      {pending ? <Spinner tone="onDark" /> : <ProviderIcon provider={provider} />}
       {label}
     </button>
   );
@@ -296,35 +283,5 @@ function ProviderIcon({ provider }: { provider: "google" | "github" }) {
         d="M12 11v3.2h4.5c-.2 1.2-1.5 3.5-4.5 3.5-2.7 0-4.9-2.2-4.9-5s2.2-5 4.9-5c1.5 0 2.6.6 3.2 1.2L17.5 7C16 5.7 14.2 5 12 5 7.6 5 4 8.6 4 13s3.6 8 8 8c4.6 0 7.7-3.2 7.7-7.8 0-.5-.1-.9-.1-1.2H12Z"
       />
     </svg>
-  );
-}
-
-function Arrow() {
-  return (
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 14 14"
-      fill="none"
-      aria-hidden
-      className="transition-transform group-hover:translate-x-0.5"
-    >
-      <path
-        d="M2 7h9m0 0L7 3m4 4l-4 4"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function Spinner() {
-  return (
-    <span
-      aria-hidden
-      className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current/25 border-t-current"
-    />
   );
 }

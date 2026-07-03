@@ -12,17 +12,17 @@ const siteOrigin =
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
-  title: "Porfilo — your GitHub, as a bespoke portfolio",
+  title: "Porfilo — your GitHub, as a portfolio",
   description:
-    "Type your GitHub username, describe a vibe, and get a unique interactive portfolio in seconds.",
+    "Type your GitHub username and get a unique, interactive portfolio built from your real work — in seconds.",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
   openGraph: {
-    title: "Porfilo — your GitHub, as a bespoke portfolio",
+    title: "Porfilo — your GitHub, as a portfolio",
     description:
-      "Type your GitHub username, describe a vibe, and get a unique interactive portfolio in seconds.",
+      "Type your GitHub username and get a unique, interactive portfolio built from your real work — in seconds.",
     type: "website",
     url: siteOrigin,
     images: [
@@ -36,9 +36,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Porfilo — your GitHub, as a bespoke portfolio",
+    title: "Porfilo — your GitHub, as a portfolio",
     description:
-      "Type your GitHub username, describe a vibe, and get a unique interactive portfolio in seconds.",
+      "Type your GitHub username and get a unique, interactive portfolio built from your real work — in seconds.",
     images: ["/api/og"],
   },
 };
@@ -53,7 +53,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable}`}>
-      <body>
+      <body className="bg-bg text-fg antialiased">
         <TRPCReactProvider>
           <ToastProvider>{children}</ToastProvider>
         </TRPCReactProvider>

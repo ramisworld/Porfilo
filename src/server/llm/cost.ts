@@ -117,13 +117,21 @@ function recordSpend(usd: number) {
   spendUsd += usd;
 }
 
+// If the operator forgets to set DAILY_LLM_BUDGET_USD, production must NOT run
+// uncapped — a rate-limit bypass could otherwise run up an unbounded bill. Fall
+// back to a conservative daily ceiling in production; dev stays uncapped.
+const PROD_DEFAULT_BUDGET_USD = 25;
+
 /** Returns `null` when there's headroom, or a reason string when the cap is reached. */
 export function checkBudget(): string | null {
   rollIfNewDay();
   const raw = process.env.DAILY_LLM_BUDGET_USD;
-  if (!raw) return null;
-  const cap = Number.parseFloat(raw);
-  if (!Number.isFinite(cap) || cap <= 0) return null;
+  let cap = raw ? Number.parseFloat(raw) : NaN;
+  if (!Number.isFinite(cap) || cap <= 0) {
+    // No valid explicit cap: enforce a default in production, stay uncapped in dev.
+    if (process.env.NODE_ENV === "production") cap = PROD_DEFAULT_BUDGET_USD;
+    else return null;
+  }
   if (spendUsd >= cap) {
     return `Daily generation budget reached ($${spendUsd.toFixed(2)} / $${cap.toFixed(2)}). Try again tomorrow.`;
   }
