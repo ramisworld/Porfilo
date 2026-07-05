@@ -66,6 +66,18 @@ export const env = createEnv({
     RAILWAY_ENVIRONMENT_ID: z.string().optional(),
     // Port the app listens on (Railway routes the custom domain to it).
     RAILWAY_TARGET_PORT: z.coerce.number().optional(),
+
+    // ── Payments (Stripe) — one-time $9 custom-domain unlock ──────────────
+    // Secret key (sk_test_… in test mode / sk_live_… in prod). Server-only.
+    // Optional so the app still boots without it — the checkout mutation
+    // friendly-fails (PRECONDITION_FAILED) when unset.
+    STRIPE_SECRET_KEY: z.string().optional(),
+    // Signing secret for POST /api/stripe/webhook (whsec_…). From the Stripe
+    // CLI (`stripe listen`) in dev, or the Dashboard endpoint in prod.
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
+    // Price id (price_…) for the $9 one-time "Porfilo Custom Domains" line item.
+    // Optional — falls back to inline price_data (900 / usd) when unset.
+    STRIPE_CUSTOM_DOMAIN_PRICE_ID: z.string().optional(),
   },
 
   /**
@@ -110,6 +122,9 @@ export const env = createEnv({
     RAILWAY_SERVICE_ID: process.env.RAILWAY_SERVICE_ID,
     RAILWAY_ENVIRONMENT_ID: process.env.RAILWAY_ENVIRONMENT_ID,
     RAILWAY_TARGET_PORT: process.env.RAILWAY_TARGET_PORT,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    STRIPE_CUSTOM_DOMAIN_PRICE_ID: process.env.STRIPE_CUSTOM_DOMAIN_PRICE_ID,
     NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
     NEXT_PUBLIC_CUSTOM_DOMAIN_CNAME_TARGET:
       process.env.NEXT_PUBLIC_CUSTOM_DOMAIN_CNAME_TARGET,

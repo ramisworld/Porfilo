@@ -9,7 +9,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { PorfiloWordmark } from "~/app/_components/porfilo-logo";
-import { Arrow, ExternalArrow, Spinner } from "~/app/_components/icons";
+import { Arrow, Spinner } from "~/app/_components/icons";
 
 // Same regex as the server-side Zod check.
 const USERNAME_RE = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
@@ -437,24 +437,28 @@ function GenerationOverlay({
   username: string;
   onReset: () => void;
 }) {
-  // Authed completion → straight to dashboard.
+  // On completion we move the visitor straight on — no intermediate preview /
+  // claim card. Authed users land on their dashboard; anonymous users go create
+  // an account to claim the freshly-built portfolio. The one-time claim token
+  // rides along in the callback URL so ownership stays bound to this browser's
+  // generation through the sign-in round trip.
   useEffect(() => {
-    if (state.view === "done" && !state.ownerless && state.slug) {
-      window.setTimeout(() => window.location.assign("/dashboard"), 500);
-    }
-  }, [state.view, state.ownerless, state.slug]);
+    if (state.view !== "done" || !state.slug) return;
+    const next = `/claim?slug=${encodeURIComponent(state.slug)}${
+      state.claimToken ? `&ct=${encodeURIComponent(state.claimToken)}` : ""
+    }`;
+    const target = state.ownerless
+      ? `/sign-in?next=${encodeURIComponent(next)}`
+      : "/dashboard";
+    const t = window.setTimeout(() => window.location.assign(target), 650);
+    return () => window.clearTimeout(t);
+  }, [state.view, state.ownerless, state.slug, state.claimToken]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/85 px-6 backdrop-blur-md">
       <div className="w-full max-w-md">
         {state.view === "error" ? (
           <ErrorCard error={state.error} onReset={onReset} />
-        ) : state.view === "done" && state.ownerless ? (
-          <ClaimCard
-            slug={state.slug!}
-            claimToken={state.claimToken}
-            onReset={onReset}
-          />
         ) : (
           <BuildLog state={state} username={username} onReset={onReset} />
         )}
@@ -557,93 +561,27 @@ function BuildLog({
         })}
       </div>
 
-      {/* Live log line */}
-      {state.log.length > 0 && (
+      {/* Live log line (while building) */}
+      {state.view !== "done" && state.log.length > 0 && (
         <p className="relative border-t border-border-faint px-5 py-3 font-mono text-[11px] text-white/40">
           {state.log[state.log.length - 1]!.text}
         </p>
       )}
 
-      {stalled && (
-        <p className="relative px-5 pb-4 font-mono text-[11px] text-warn/70">
-          Still working — large repos can take a moment.
+      {state.view === "done" ? (
+        <p className="relative flex items-center gap-2.5 border-t border-border-faint px-5 py-3.5 font-mono text-[11.5px] text-success/90">
+          <Spinner tone="onDark" />
+          {state.ownerless
+            ? "Ready — create your account to claim it…"
+            : "Ready — opening your dashboard…"}
         </p>
+      ) : (
+        stalled && (
+          <p className="relative px-5 pb-4 font-mono text-[11px] text-warn/70">
+            Still working — large repos can take a moment.
+          </p>
+        )
       )}
-    </div>
-  );
-}
-
-function ClaimCard({
-  slug,
-  claimToken,
-  onReset,
-}: {
-  slug: string;
-  claimToken: string | null;
-  onReset: () => void;
-}) {
-  // The claim token binds ownership to this browser's generation. Carried
-  // through sign-in via the callback URL so it survives the magic-link round
-  // trip (and works cross-device).
-  const claimNext = `/claim?slug=${encodeURIComponent(slug)}${
-    claimToken ? `&ct=${encodeURIComponent(claimToken)}` : ""
-  }`;
-  const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN?.replace(/:\d+$/, "") ?? "localhost";
-  const liveUrl = `${slug}.${root}`;
-
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface backdrop-blur-xl shadow-glass">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-success/60 to-transparent"
-      />
-      <div className="p-7 text-center">
-        <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-success/30 bg-success/[0.06]">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path
-              d="M5 13l4 4L19 7"
-              stroke="#34d399"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-        <h2 className="text-xl font-medium tracking-tight">
-          Your portfolio is live
-        </h2>
-        <p className="mt-2 text-[13.5px] leading-relaxed text-muted">
-          We built an interactive site from your real work. Create a free
-          account to claim it, edit the facts, and connect your domain.
-        </p>
-        <p className="mt-4 truncate font-mono text-[11.5px] text-faint">
-          {liveUrl}
-        </p>
-        <div className="mt-6 flex flex-col gap-2">
-          <Link
-            href={`/sign-in?next=${encodeURIComponent(claimNext)}`}
-            className="porfilo-btn porfilo-btn-primary group w-full"
-          >
-            Claim your portfolio
-            <Arrow />
-          </Link>
-          <a
-            href={`//${liveUrl}`}
-            target="_blank"
-            rel="noreferrer"
-            className="porfilo-btn porfilo-btn-secondary w-full"
-          >
-            Preview it first
-            <ExternalArrow />
-          </a>
-        </div>
-        <button
-          onClick={onReset}
-          className="mt-5 text-[12px] text-faint transition hover:text-muted-2"
-        >
-          Generate a different one
-        </button>
-      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { api } from "~/trpc/react";
 import type { DomainWithInstructions } from "~/server/api/routers/domain";
 import type { DomainDisplayStatus } from "~/server/domains/types";
@@ -19,11 +19,26 @@ import { useToast } from "~/app/_components/toast";
 
 type FlowStep = "choose" | "free" | "custom" | "manage";
 
-export function DomainModal({ onClose }: { onClose: () => void }) {
+export function DomainModal({
+  onClose,
+  pendingUnlock = false,
+}: {
+  onClose: () => void;
+  /** True when reopened after returning from Stripe checkout — poll for unlock. */
+  pendingUnlock?: boolean;
+}) {
   const utils = api.useUtils();
   const { toast } = useToast();
   const mine = api.domain.mine.useQuery();
   const existing = mine.data;
+
+  // The paywall: the whole tile is gated behind the one-time $9 unlock. While
+  // returning from checkout, poll until the webhook flips access to unlocked.
+  const access = api.billing.customDomainAccess.useQuery(undefined, {
+    refetchInterval: (query) =>
+      pendingUnlock && !query.state.data?.unlocked ? 2000 : false,
+  });
+  const unlocked = access.data?.unlocked ?? false;
 
   const [step, setStep] = useState<FlowStep>("choose");
   const [freeLabel, setFreeLabel] = useState("");
@@ -88,13 +103,18 @@ export function DomainModal({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose, confirmRemove]);
 
-  const title = existing
-    ? modalTitle(existing.displayStatus)
-    : step === "choose"
-      ? "Choose your portfolio URL"
-      : step === "free"
-        ? "Free Porfilo subdomain"
-        : "Use your own domain";
+  const eyebrow = unlocked ? "Portfolio URL" : "Custom domains";
+  const title = !unlocked
+    ? pendingUnlock
+      ? "Unlocking access"
+      : "Unlock custom domains"
+    : existing
+      ? modalTitle(existing.displayStatus)
+      : step === "choose"
+        ? "Choose your portfolio URL"
+        : step === "free"
+          ? "Free Porfilo subdomain"
+          : "Use your own domain";
 
   return (
     <div
@@ -122,7 +142,7 @@ export function DomainModal({ onClose }: { onClose: () => void }) {
         <header className="relative flex flex-none items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
           <div className="min-w-0">
             <p className="text-[10px] font-medium tracking-[0.18em] text-indigo-200/70 uppercase">
-              Portfolio URL
+              {eyebrow}
             </p>
             <h2
               id="domain-modal-title"
@@ -142,15 +162,21 @@ export function DomainModal({ onClose }: { onClose: () => void }) {
         </header>
 
         <div className="relative px-5 py-5">
-          {confirmRemove && existing ? (
+          {mine.isLoading || access.isLoading ? (
+            <LoadingRow />
+          ) : !unlocked ? (
+            pendingUnlock ? (
+              <UnlockingState />
+            ) : (
+              <UpgradePanel onClose={onClose} />
+            )
+          ) : confirmRemove && existing ? (
             <RemoveConfirm
               hostname={existing.hostname}
               removing={remove.isPending}
               onCancel={() => setConfirmRemove(false)}
               onConfirm={() => remove.mutate()}
             />
-          ) : mine.isLoading ? (
-            <LoadingRow />
           ) : existing ? (
             <ManageStep
               domain={existing}
@@ -698,6 +724,174 @@ function LoadingRow() {
       <Spinner />
       Loading…
     </div>
+  );
+}
+
+/**
+ * Premium paywall shown when the user hasn't unlocked custom domains. One-time
+ * $9 unlock — deliberately no subscription language. Kicks off a Stripe Checkout
+ * Session and redirects; the webhook does the actual unlock on return.
+ */
+function UpgradePanel({ onClose }: { onClose: () => void }) {
+  const utils = api.useUtils();
+  const [redirecting, setRedirecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const checkout = api.billing.createCustomDomainCheckoutSession.useMutation({
+    onSuccess: async (res) => {
+      if ("alreadyUnlocked" in res) {
+        // Already paid (e.g. a second tab) — just refresh access and drop into
+        // the normal flow instead of charging again.
+        await utils.billing.customDomainAccess.invalidate();
+        return;
+      }
+      setRedirecting(true);
+      window.location.assign(res.url);
+    },
+    onError: (e) => setError(e.message),
+  });
+
+  const busy = checkout.isPending || redirecting;
+  const cta = redirecting
+    ? "Redirecting to Stripe…"
+    : checkout.isPending
+      ? "Creating secure checkout…"
+      : "Unlock custom domains";
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h3 className="text-[17px] font-medium tracking-tight text-white">
+          Unlock custom domains
+        </h3>
+        <p className="mt-1 text-[13px] leading-relaxed text-white/60">
+          Connect your own domain to your Porfilo site.
+        </p>
+      </div>
+
+      <ul className="space-y-2">
+        <FeatureRow>
+          Bring a domain you own — like max.com or portfolio.max.com
+        </FeatureRow>
+        <FeatureRow>Free porfilo.com subdomain included</FeatureRow>
+        <FeatureRow>Automatic SSL, issued and renewed for you</FeatureRow>
+      </ul>
+
+      <div
+        className="relative flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-indigo-400/20 bg-gradient-to-b from-indigo-500/[0.10] to-indigo-950/[0.30] px-4 py-3.5"
+        style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.10)" }}
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-70"
+          style={{
+            background:
+              "radial-gradient(120px 80px at 15% 0%, rgba(129,140,248,0.18), transparent 70%)",
+          }}
+        />
+        <div className="relative min-w-0">
+          <p className="text-[10.5px] font-medium tracking-[0.16em] text-indigo-200/70 uppercase">
+            One-time payment
+          </p>
+          <p className="mt-0.5 text-[30px] font-semibold leading-none tracking-tight text-white">
+            $9
+          </p>
+        </div>
+        <PorfiloButton
+          type="button"
+          onClick={() => {
+            setError(null);
+            checkout.mutate();
+          }}
+          disabled={busy}
+          className="relative shrink-0"
+        >
+          {busy && <Spinner />}
+          {cta}
+        </PorfiloButton>
+      </div>
+
+      {error && (
+        <p role="alert" className="text-[12.5px] text-red-300/90">
+          {error} Please try again.
+        </p>
+      )}
+
+      <div className="flex items-center justify-between gap-3 pt-0.5">
+        <p className="text-[11px] text-white/35">
+          Secure checkout by Stripe · One-time, not a subscription
+        </p>
+        <PorfiloButton
+          type="button"
+          variant="ghost"
+          onClick={onClose}
+          disabled={busy}
+        >
+          Maybe later
+        </PorfiloButton>
+      </div>
+    </div>
+  );
+}
+
+/** Post-checkout state: payment captured, waiting for the webhook to unlock. */
+function UnlockingState() {
+  return (
+    <div className="flex flex-col items-center gap-3.5 py-7 text-center">
+      <span className="relative flex h-10 w-10 items-center justify-center">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400/25" />
+        <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-indigo-400/30 bg-indigo-500/15 text-indigo-100">
+          <UnlockIcon />
+        </span>
+      </span>
+      <div>
+        <p className="text-[14px] font-medium text-white">Payment received</p>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-white/55">
+          Unlocking your custom domain access…
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function FeatureRow({ children }: { children: ReactNode }) {
+  return (
+    <li className="flex items-start gap-2.5 text-[13px] text-white/70">
+      <span className="mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-indigo-400/30 bg-indigo-400/10 text-indigo-200">
+        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden>
+          <path
+            d="M2 5.2 4 7.2 8 3"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+      <span className="leading-relaxed">{children}</span>
+    </li>
+  );
+}
+
+function UnlockIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect
+        x="3.25"
+        y="7"
+        width="9.5"
+        height="6.5"
+        rx="1.6"
+        stroke="currentColor"
+        strokeWidth="1.3"
+      />
+      <path
+        d="M5.5 7V5a2.5 2.5 0 0 1 4.9-.55"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 

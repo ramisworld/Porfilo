@@ -25,6 +25,7 @@ import {
 import { limit } from "~/server/ratelimit";
 import type { DomainDisplayStatus } from "~/server/domains/types";
 import { cnameLabel } from "~/server/domains/cname-label";
+import { hasCustomDomainAccess } from "~/server/billing/access";
 
 export const domainRouter = createTRPCRouter({
   mine: protectedProcedure.query(async ({ ctx }) => {
@@ -49,6 +50,7 @@ export const domainRouter = createTRPCRouter({
   addFreeSubdomain: protectedProcedure
     .input(z.object({ label: z.string().min(1).max(63) }))
     .mutation(async ({ ctx, input }) => {
+      await requireCustomDomainAccess(ctx);
       const portfolio = await requirePortfolio(ctx);
       await ensureNoExistingDomain(ctx, portfolio.id);
 
@@ -125,6 +127,7 @@ export const domainRouter = createTRPCRouter({
   addCustomDomain: protectedProcedure
     .input(z.object({ hostname: z.string().min(1).max(253) }))
     .mutation(async ({ ctx, input }) => {
+      await requireCustomDomainAccess(ctx);
       const portfolio = await requirePortfolio(ctx);
       await ensureNoExistingDomain(ctx, portfolio.id);
 
@@ -254,6 +257,21 @@ type Ctx = {
   db: typeof DbType;
   user: { id: string };
 };
+
+/**
+ * Server-side paywall: the whole "Add custom domain" tile (free subdomain AND
+ * bring-your-own) is gated behind the one-time $9 unlock. Enforced here so the
+ * feature can't be used by bypassing the UI. Access is granted only by verified
+ * Stripe webhook fulfilment.
+ */
+async function requireCustomDomainAccess(ctx: Ctx) {
+  if (!(await hasCustomDomainAccess(ctx.db, ctx.user.id))) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Unlock custom domains to continue.",
+    });
+  }
+}
 
 async function requirePortfolio(ctx: Ctx) {
   const portfolio = await ctx.db.portfolio.findUnique({

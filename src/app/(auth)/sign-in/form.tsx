@@ -135,7 +135,7 @@ export function SignInForm({ providers }: { providers: Providers }) {
         }}
       />
 
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-6 backdrop-blur-xl shadow-glass">
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-6 backdrop-blur-xl shadow-glass sm:p-7">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
@@ -174,9 +174,9 @@ export function SignInForm({ providers }: { providers: Providers }) {
         )}
 
         {anyOauth && (
-          <div className="relative my-5 flex items-center gap-3 text-[10.5px] tracking-[0.18em] text-white/30 uppercase">
+          <div className="relative my-5 flex items-center gap-3 text-[10px] tracking-[0.18em] text-white/30 uppercase">
             <div className="h-px flex-1 bg-white/10" />
-            or
+            or with email
             <div className="h-px flex-1 bg-white/10" />
           </div>
         )}
@@ -189,7 +189,7 @@ export function SignInForm({ providers }: { providers: Providers }) {
           >
             Email
           </label>
-          <div className="flex items-center gap-1 rounded-xl bg-well p-1 ring-1 ring-border-faint">
+          <div className="flex items-center gap-1 rounded-xl bg-well p-1 ring-1 ring-border-faint transition focus-within:ring-white/20">
             <input
               id="email"
               type="email"
@@ -260,7 +260,7 @@ function OAuthButton({
       onClick={onClick}
       disabled={disabled}
       aria-busy={pending}
-      className="relative flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-border bg-white/[0.03] text-[14px] font-medium text-white/90 transition hover:bg-white/[0.06] hover:border-white/[0.14] disabled:cursor-not-allowed disabled:opacity-60"
+      className="group relative flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-white/[0.10] bg-white/[0.04] text-[14px] font-medium text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition hover:border-white/[0.18] hover:bg-white/[0.07] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending ? <Spinner tone="onDark" /> : <ProviderIcon provider={provider} />}
       {label}
@@ -276,11 +276,24 @@ function ProviderIcon({ provider }: { provider: "google" | "github" }) {
       </svg>
     );
   }
+  // Official multi-colour Google "G".
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
       <path
+        fill="#4285F4"
+        d="M23.52 12.27c0-.79-.07-1.55-.2-2.27H12v4.51h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.87z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.24 0 5.96-1.08 7.95-2.91l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.27 14.28a7.2 7.2 0 0 1-.38-2.28c0-.79.14-1.56.38-2.28V6.63H1.27a12 12 0 0 0 0 10.74l4-3.09z"
+      />
+      <path
         fill="#EA4335"
-        d="M12 11v3.2h4.5c-.2 1.2-1.5 3.5-4.5 3.5-2.7 0-4.9-2.2-4.9-5s2.2-5 4.9-5c1.5 0 2.6.6 3.2 1.2L17.5 7C16 5.7 14.2 5 12 5 7.6 5 4 8.6 4 13s3.6 8 8 8c4.6 0 7.7-3.2 7.7-7.8 0-.5-.1-.9-.1-1.2H12Z"
+        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44A11.5 11.5 0 0 0 12 0 12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z"
       />
     </svg>
   );

@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import { displayStatusHint, isPendingDisplayStatus } from "~/server/domains/types";
 import { DOMAIN_REFRESH_INTERVAL_MS } from "~/server/domains/row-state";
 import type { DomainWithInstructions } from "~/server/api/routers/domain";
+import { useToast } from "~/app/_components/toast";
 import { DomainModal } from "./domain-modal";
 
 /** Poll slightly after the server refresh interval so each tick can persist. */
 const PENDING_POLL_MS = DOMAIN_REFRESH_INTERVAL_MS + 1_000;
 
 export function DomainTile() {
+  const utils = api.useUtils();
+  const { toast } = useToast();
   const mine = api.domain.mine.useQuery(undefined, {
     refetchInterval: (query) => {
       const row = query.state.data;
@@ -20,6 +23,32 @@ export function DomainTile() {
     },
   });
   const [open, setOpen] = useState(false);
+  const [pendingUnlock, setPendingUnlock] = useState(false);
+
+  // Handle the return from Stripe Checkout. On success we reopen the modal in
+  // its "unlocking" state and poll access until the webhook lands; on cancel we
+  // land safely on the dashboard, still locked, with a calm toast. The query is
+  // stripped so a refresh can't replay it.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get("checkout");
+    if (!checkout) return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete("checkout");
+    url.searchParams.delete("session_id");
+    window.history.replaceState(null, "", url.toString());
+
+    if (checkout === "success") {
+      setPendingUnlock(true);
+      setOpen(true);
+      void utils.billing.customDomainAccess.invalidate();
+    } else if (checkout === "cancelled") {
+      toast("Checkout cancelled — no charge.");
+    }
+    // utils + toast are stable references; run once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const row = mine.data;
 
@@ -55,7 +84,15 @@ export function DomainTile() {
         <DomainStatusButton row={row} onClick={() => setOpen(true)} />
       )}
 
-      {open && <DomainModal onClose={() => setOpen(false)} />}
+      {open && (
+        <DomainModal
+          pendingUnlock={pendingUnlock}
+          onClose={() => {
+            setOpen(false);
+            setPendingUnlock(false);
+          }}
+        />
+      )}
     </>
   );
 }

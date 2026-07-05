@@ -27,6 +27,7 @@ model User {
   accounts       Account[]
   portfolios     Portfolio[]
   generationLock GenerationLock?
+  featureAccess  FeatureAccess[]
 }
 
 model Session {
@@ -147,6 +148,42 @@ model GitHubCache {
   username  String   @id
   raw       Json
   fetchedAt DateTime @default(now())
+}
+
+// A one-time, account-level entitlement unlocking a paid feature.
+//
+// Today the only feature is "custom_domain" — a single $9 one-time unlock that
+// gates the "Add custom domain" dashboard tile (both the free subdomain and the
+// bring-your-own-domain paths). Access is permanent: removing a domain later
+// does not revoke it. Fulfilment happens ONLY from a verified Stripe webhook,
+// never from the client success URL.
+//
+// One row per (userId, featureKey) — the @@unique makes duplicate paid records
+// impossible and makes webhook fulfilment idempotent. The pending row is created
+// when checkout starts; the webhook flips it to "paid".
+model FeatureAccess {
+  id                      String    @id @default(cuid())
+  userId                  String
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Stable feature identifier, e.g. "custom_domain".
+  featureKey              String
+  // pending | paid | failed
+  status                  String    @default("pending")
+  // Stripe references. Unique so a session/intent can fulfil at most one row.
+  stripeCheckoutSessionId String?   @unique
+  stripePaymentIntentId   String?   @unique
+  // Amount in the smallest currency unit (cents). $9 = 900. Internal only.
+  amount                  Int       @default(900)
+  // ISO currency code — internal bookkeeping only, never rendered in the UI.
+  currency                String    @default("usd")
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  paidAt                  DateTime?
+
+  @@unique([userId, featureKey])
+  @@index([userId])
+  @@index([featureKey])
+  @@index([status])
 }
 
 // Short-lived lock acquired before expensive GitHub/LLM work starts.

@@ -215,6 +215,20 @@ exports.Prisma.GitHubCacheScalarFieldEnum = {
   fetchedAt: 'fetchedAt'
 };
 
+exports.Prisma.FeatureAccessScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  featureKey: 'featureKey',
+  status: 'status',
+  stripeCheckoutSessionId: 'stripeCheckoutSessionId',
+  stripePaymentIntentId: 'stripePaymentIntentId',
+  amount: 'amount',
+  currency: 'currency',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  paidAt: 'paidAt'
+};
+
 exports.Prisma.GenerationLockScalarFieldEnum = {
   id: 'id',
   ownerId: 'ownerId',
@@ -262,6 +276,7 @@ exports.Prisma.ModelName = {
   Portfolio: 'Portfolio',
   CustomDomain: 'CustomDomain',
   GitHubCache: 'GitHubCache',
+  FeatureAccess: 'FeatureAccess',
   GenerationLock: 'GenerationLock'
 };
 

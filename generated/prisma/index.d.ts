@@ -49,6 +49,11 @@ export type CustomDomain = $Result.DefaultSelection<Prisma.$CustomDomainPayload>
  */
 export type GitHubCache = $Result.DefaultSelection<Prisma.$GitHubCachePayload>
 /**
+ * Model FeatureAccess
+ * 
+ */
+export type FeatureAccess = $Result.DefaultSelection<Prisma.$FeatureAccessPayload>
+/**
  * Model GenerationLock
  * 
  */
@@ -241,6 +246,16 @@ export class PrismaClient<
     * ```
     */
   get gitHubCache(): Prisma.GitHubCacheDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.featureAccess`: Exposes CRUD operations for the **FeatureAccess** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FeatureAccesses
+    * const featureAccesses = await prisma.featureAccess.findMany()
+    * ```
+    */
+  get featureAccess(): Prisma.FeatureAccessDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.generationLock`: Exposes CRUD operations for the **GenerationLock** model.
@@ -699,6 +714,7 @@ export namespace Prisma {
     Portfolio: 'Portfolio',
     CustomDomain: 'CustomDomain',
     GitHubCache: 'GitHubCache',
+    FeatureAccess: 'FeatureAccess',
     GenerationLock: 'GenerationLock'
   };
 
@@ -718,7 +734,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "portfolio" | "customDomain" | "gitHubCache" | "generationLock"
+      modelProps: "user" | "session" | "account" | "verification" | "portfolio" | "customDomain" | "gitHubCache" | "featureAccess" | "generationLock"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1240,6 +1256,80 @@ export namespace Prisma {
           }
         }
       }
+      FeatureAccess: {
+        payload: Prisma.$FeatureAccessPayload<ExtArgs>
+        fields: Prisma.FeatureAccessFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FeatureAccessFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FeatureAccessFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload>
+          }
+          findFirst: {
+            args: Prisma.FeatureAccessFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FeatureAccessFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload>
+          }
+          findMany: {
+            args: Prisma.FeatureAccessFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload>[]
+          }
+          create: {
+            args: Prisma.FeatureAccessCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload>
+          }
+          createMany: {
+            args: Prisma.FeatureAccessCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FeatureAccessCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload>[]
+          }
+          delete: {
+            args: Prisma.FeatureAccessDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload>
+          }
+          update: {
+            args: Prisma.FeatureAccessUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload>
+          }
+          deleteMany: {
+            args: Prisma.FeatureAccessDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FeatureAccessUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FeatureAccessUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload>[]
+          }
+          upsert: {
+            args: Prisma.FeatureAccessUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeatureAccessPayload>
+          }
+          aggregate: {
+            args: Prisma.FeatureAccessAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFeatureAccess>
+          }
+          groupBy: {
+            args: Prisma.FeatureAccessGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FeatureAccessGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FeatureAccessCountArgs<ExtArgs>
+            result: $Utils.Optional<FeatureAccessCountAggregateOutputType> | number
+          }
+        }
+      }
       GenerationLock: {
         payload: Prisma.$GenerationLockPayload<ExtArgs>
         fields: Prisma.GenerationLockFieldRefs
@@ -1417,6 +1507,7 @@ export namespace Prisma {
     portfolio?: PortfolioOmit
     customDomain?: CustomDomainOmit
     gitHubCache?: GitHubCacheOmit
+    featureAccess?: FeatureAccessOmit
     generationLock?: GenerationLockOmit
   }
 
@@ -1501,12 +1592,14 @@ export namespace Prisma {
     sessions: number
     accounts: number
     portfolios: number
+    featureAccess: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
     accounts?: boolean | UserCountOutputTypeCountAccountsArgs
     portfolios?: boolean | UserCountOutputTypeCountPortfoliosArgs
+    featureAccess?: boolean | UserCountOutputTypeCountFeatureAccessArgs
   }
 
   // Custom InputTypes
@@ -1539,6 +1632,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountPortfoliosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PortfolioWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountFeatureAccessArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeatureAccessWhereInput
   }
 
 
@@ -1730,6 +1830,7 @@ export namespace Prisma {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     portfolios?: boolean | User$portfoliosArgs<ExtArgs>
     generationLock?: boolean | User$generationLockArgs<ExtArgs>
+    featureAccess?: boolean | User$featureAccessArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1769,6 +1870,7 @@ export namespace Prisma {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     portfolios?: boolean | User$portfoliosArgs<ExtArgs>
     generationLock?: boolean | User$generationLockArgs<ExtArgs>
+    featureAccess?: boolean | User$featureAccessArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1781,6 +1883,7 @@ export namespace Prisma {
       accounts: Prisma.$AccountPayload<ExtArgs>[]
       portfolios: Prisma.$PortfolioPayload<ExtArgs>[]
       generationLock: Prisma.$GenerationLockPayload<ExtArgs> | null
+      featureAccess: Prisma.$FeatureAccessPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2188,6 +2291,7 @@ export namespace Prisma {
     accounts<T extends User$accountsArgs<ExtArgs> = {}>(args?: Subset<T, User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     portfolios<T extends User$portfoliosArgs<ExtArgs> = {}>(args?: Subset<T, User$portfoliosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PortfolioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     generationLock<T extends User$generationLockArgs<ExtArgs> = {}>(args?: Subset<T, User$generationLockArgs<ExtArgs>>): Prisma__GenerationLockClient<$Result.GetResult<Prisma.$GenerationLockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    featureAccess<T extends User$featureAccessArgs<ExtArgs> = {}>(args?: Subset<T, User$featureAccessArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2700,6 +2804,30 @@ export namespace Prisma {
      */
     include?: GenerationLockInclude<ExtArgs> | null
     where?: GenerationLockWhereInput
+  }
+
+  /**
+   * User.featureAccess
+   */
+  export type User$featureAccessArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+    where?: FeatureAccessWhereInput
+    orderBy?: FeatureAccessOrderByWithRelationInput | FeatureAccessOrderByWithRelationInput[]
+    cursor?: FeatureAccessWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FeatureAccessScalarFieldEnum | FeatureAccessScalarFieldEnum[]
   }
 
   /**
@@ -9476,6 +9604,1176 @@ export namespace Prisma {
 
 
   /**
+   * Model FeatureAccess
+   */
+
+  export type AggregateFeatureAccess = {
+    _count: FeatureAccessCountAggregateOutputType | null
+    _avg: FeatureAccessAvgAggregateOutputType | null
+    _sum: FeatureAccessSumAggregateOutputType | null
+    _min: FeatureAccessMinAggregateOutputType | null
+    _max: FeatureAccessMaxAggregateOutputType | null
+  }
+
+  export type FeatureAccessAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type FeatureAccessSumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type FeatureAccessMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    featureKey: string | null
+    status: string | null
+    stripeCheckoutSessionId: string | null
+    stripePaymentIntentId: string | null
+    amount: number | null
+    currency: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    paidAt: Date | null
+  }
+
+  export type FeatureAccessMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    featureKey: string | null
+    status: string | null
+    stripeCheckoutSessionId: string | null
+    stripePaymentIntentId: string | null
+    amount: number | null
+    currency: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    paidAt: Date | null
+  }
+
+  export type FeatureAccessCountAggregateOutputType = {
+    id: number
+    userId: number
+    featureKey: number
+    status: number
+    stripeCheckoutSessionId: number
+    stripePaymentIntentId: number
+    amount: number
+    currency: number
+    createdAt: number
+    updatedAt: number
+    paidAt: number
+    _all: number
+  }
+
+
+  export type FeatureAccessAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type FeatureAccessSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type FeatureAccessMinAggregateInputType = {
+    id?: true
+    userId?: true
+    featureKey?: true
+    status?: true
+    stripeCheckoutSessionId?: true
+    stripePaymentIntentId?: true
+    amount?: true
+    currency?: true
+    createdAt?: true
+    updatedAt?: true
+    paidAt?: true
+  }
+
+  export type FeatureAccessMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    featureKey?: true
+    status?: true
+    stripeCheckoutSessionId?: true
+    stripePaymentIntentId?: true
+    amount?: true
+    currency?: true
+    createdAt?: true
+    updatedAt?: true
+    paidAt?: true
+  }
+
+  export type FeatureAccessCountAggregateInputType = {
+    id?: true
+    userId?: true
+    featureKey?: true
+    status?: true
+    stripeCheckoutSessionId?: true
+    stripePaymentIntentId?: true
+    amount?: true
+    currency?: true
+    createdAt?: true
+    updatedAt?: true
+    paidAt?: true
+    _all?: true
+  }
+
+  export type FeatureAccessAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FeatureAccess to aggregate.
+     */
+    where?: FeatureAccessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FeatureAccesses to fetch.
+     */
+    orderBy?: FeatureAccessOrderByWithRelationInput | FeatureAccessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FeatureAccessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FeatureAccesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FeatureAccesses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FeatureAccesses
+    **/
+    _count?: true | FeatureAccessCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FeatureAccessAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FeatureAccessSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FeatureAccessMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FeatureAccessMaxAggregateInputType
+  }
+
+  export type GetFeatureAccessAggregateType<T extends FeatureAccessAggregateArgs> = {
+        [P in keyof T & keyof AggregateFeatureAccess]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFeatureAccess[P]>
+      : GetScalarType<T[P], AggregateFeatureAccess[P]>
+  }
+
+
+
+
+  export type FeatureAccessGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeatureAccessWhereInput
+    orderBy?: FeatureAccessOrderByWithAggregationInput | FeatureAccessOrderByWithAggregationInput[]
+    by: FeatureAccessScalarFieldEnum[] | FeatureAccessScalarFieldEnum
+    having?: FeatureAccessScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FeatureAccessCountAggregateInputType | true
+    _avg?: FeatureAccessAvgAggregateInputType
+    _sum?: FeatureAccessSumAggregateInputType
+    _min?: FeatureAccessMinAggregateInputType
+    _max?: FeatureAccessMaxAggregateInputType
+  }
+
+  export type FeatureAccessGroupByOutputType = {
+    id: string
+    userId: string
+    featureKey: string
+    status: string
+    stripeCheckoutSessionId: string | null
+    stripePaymentIntentId: string | null
+    amount: number
+    currency: string
+    createdAt: Date
+    updatedAt: Date
+    paidAt: Date | null
+    _count: FeatureAccessCountAggregateOutputType | null
+    _avg: FeatureAccessAvgAggregateOutputType | null
+    _sum: FeatureAccessSumAggregateOutputType | null
+    _min: FeatureAccessMinAggregateOutputType | null
+    _max: FeatureAccessMaxAggregateOutputType | null
+  }
+
+  type GetFeatureAccessGroupByPayload<T extends FeatureAccessGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FeatureAccessGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FeatureAccessGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FeatureAccessGroupByOutputType[P]>
+            : GetScalarType<T[P], FeatureAccessGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FeatureAccessSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    featureKey?: boolean
+    status?: boolean
+    stripeCheckoutSessionId?: boolean
+    stripePaymentIntentId?: boolean
+    amount?: boolean
+    currency?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    paidAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["featureAccess"]>
+
+  export type FeatureAccessSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    featureKey?: boolean
+    status?: boolean
+    stripeCheckoutSessionId?: boolean
+    stripePaymentIntentId?: boolean
+    amount?: boolean
+    currency?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    paidAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["featureAccess"]>
+
+  export type FeatureAccessSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    featureKey?: boolean
+    status?: boolean
+    stripeCheckoutSessionId?: boolean
+    stripePaymentIntentId?: boolean
+    amount?: boolean
+    currency?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    paidAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["featureAccess"]>
+
+  export type FeatureAccessSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    featureKey?: boolean
+    status?: boolean
+    stripeCheckoutSessionId?: boolean
+    stripePaymentIntentId?: boolean
+    amount?: boolean
+    currency?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    paidAt?: boolean
+  }
+
+  export type FeatureAccessOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "featureKey" | "status" | "stripeCheckoutSessionId" | "stripePaymentIntentId" | "amount" | "currency" | "createdAt" | "updatedAt" | "paidAt", ExtArgs["result"]["featureAccess"]>
+  export type FeatureAccessInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type FeatureAccessIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type FeatureAccessIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $FeatureAccessPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FeatureAccess"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      featureKey: string
+      status: string
+      stripeCheckoutSessionId: string | null
+      stripePaymentIntentId: string | null
+      amount: number
+      currency: string
+      createdAt: Date
+      updatedAt: Date
+      paidAt: Date | null
+    }, ExtArgs["result"]["featureAccess"]>
+    composites: {}
+  }
+
+  type FeatureAccessGetPayload<S extends boolean | null | undefined | FeatureAccessDefaultArgs> = $Result.GetResult<Prisma.$FeatureAccessPayload, S>
+
+  type FeatureAccessCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FeatureAccessFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FeatureAccessCountAggregateInputType | true
+    }
+
+  export interface FeatureAccessDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FeatureAccess'], meta: { name: 'FeatureAccess' } }
+    /**
+     * Find zero or one FeatureAccess that matches the filter.
+     * @param {FeatureAccessFindUniqueArgs} args - Arguments to find a FeatureAccess
+     * @example
+     * // Get one FeatureAccess
+     * const featureAccess = await prisma.featureAccess.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FeatureAccessFindUniqueArgs>(args: SelectSubset<T, FeatureAccessFindUniqueArgs<ExtArgs>>): Prisma__FeatureAccessClient<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FeatureAccess that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FeatureAccessFindUniqueOrThrowArgs} args - Arguments to find a FeatureAccess
+     * @example
+     * // Get one FeatureAccess
+     * const featureAccess = await prisma.featureAccess.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FeatureAccessFindUniqueOrThrowArgs>(args: SelectSubset<T, FeatureAccessFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FeatureAccessClient<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FeatureAccess that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeatureAccessFindFirstArgs} args - Arguments to find a FeatureAccess
+     * @example
+     * // Get one FeatureAccess
+     * const featureAccess = await prisma.featureAccess.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FeatureAccessFindFirstArgs>(args?: SelectSubset<T, FeatureAccessFindFirstArgs<ExtArgs>>): Prisma__FeatureAccessClient<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FeatureAccess that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeatureAccessFindFirstOrThrowArgs} args - Arguments to find a FeatureAccess
+     * @example
+     * // Get one FeatureAccess
+     * const featureAccess = await prisma.featureAccess.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FeatureAccessFindFirstOrThrowArgs>(args?: SelectSubset<T, FeatureAccessFindFirstOrThrowArgs<ExtArgs>>): Prisma__FeatureAccessClient<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FeatureAccesses that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeatureAccessFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FeatureAccesses
+     * const featureAccesses = await prisma.featureAccess.findMany()
+     * 
+     * // Get first 10 FeatureAccesses
+     * const featureAccesses = await prisma.featureAccess.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const featureAccessWithIdOnly = await prisma.featureAccess.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FeatureAccessFindManyArgs>(args?: SelectSubset<T, FeatureAccessFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FeatureAccess.
+     * @param {FeatureAccessCreateArgs} args - Arguments to create a FeatureAccess.
+     * @example
+     * // Create one FeatureAccess
+     * const FeatureAccess = await prisma.featureAccess.create({
+     *   data: {
+     *     // ... data to create a FeatureAccess
+     *   }
+     * })
+     * 
+     */
+    create<T extends FeatureAccessCreateArgs>(args: SelectSubset<T, FeatureAccessCreateArgs<ExtArgs>>): Prisma__FeatureAccessClient<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FeatureAccesses.
+     * @param {FeatureAccessCreateManyArgs} args - Arguments to create many FeatureAccesses.
+     * @example
+     * // Create many FeatureAccesses
+     * const featureAccess = await prisma.featureAccess.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FeatureAccessCreateManyArgs>(args?: SelectSubset<T, FeatureAccessCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FeatureAccesses and returns the data saved in the database.
+     * @param {FeatureAccessCreateManyAndReturnArgs} args - Arguments to create many FeatureAccesses.
+     * @example
+     * // Create many FeatureAccesses
+     * const featureAccess = await prisma.featureAccess.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FeatureAccesses and only return the `id`
+     * const featureAccessWithIdOnly = await prisma.featureAccess.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FeatureAccessCreateManyAndReturnArgs>(args?: SelectSubset<T, FeatureAccessCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FeatureAccess.
+     * @param {FeatureAccessDeleteArgs} args - Arguments to delete one FeatureAccess.
+     * @example
+     * // Delete one FeatureAccess
+     * const FeatureAccess = await prisma.featureAccess.delete({
+     *   where: {
+     *     // ... filter to delete one FeatureAccess
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FeatureAccessDeleteArgs>(args: SelectSubset<T, FeatureAccessDeleteArgs<ExtArgs>>): Prisma__FeatureAccessClient<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FeatureAccess.
+     * @param {FeatureAccessUpdateArgs} args - Arguments to update one FeatureAccess.
+     * @example
+     * // Update one FeatureAccess
+     * const featureAccess = await prisma.featureAccess.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FeatureAccessUpdateArgs>(args: SelectSubset<T, FeatureAccessUpdateArgs<ExtArgs>>): Prisma__FeatureAccessClient<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FeatureAccesses.
+     * @param {FeatureAccessDeleteManyArgs} args - Arguments to filter FeatureAccesses to delete.
+     * @example
+     * // Delete a few FeatureAccesses
+     * const { count } = await prisma.featureAccess.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FeatureAccessDeleteManyArgs>(args?: SelectSubset<T, FeatureAccessDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FeatureAccesses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeatureAccessUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FeatureAccesses
+     * const featureAccess = await prisma.featureAccess.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FeatureAccessUpdateManyArgs>(args: SelectSubset<T, FeatureAccessUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FeatureAccesses and returns the data updated in the database.
+     * @param {FeatureAccessUpdateManyAndReturnArgs} args - Arguments to update many FeatureAccesses.
+     * @example
+     * // Update many FeatureAccesses
+     * const featureAccess = await prisma.featureAccess.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FeatureAccesses and only return the `id`
+     * const featureAccessWithIdOnly = await prisma.featureAccess.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FeatureAccessUpdateManyAndReturnArgs>(args: SelectSubset<T, FeatureAccessUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FeatureAccess.
+     * @param {FeatureAccessUpsertArgs} args - Arguments to update or create a FeatureAccess.
+     * @example
+     * // Update or create a FeatureAccess
+     * const featureAccess = await prisma.featureAccess.upsert({
+     *   create: {
+     *     // ... data to create a FeatureAccess
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FeatureAccess we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FeatureAccessUpsertArgs>(args: SelectSubset<T, FeatureAccessUpsertArgs<ExtArgs>>): Prisma__FeatureAccessClient<$Result.GetResult<Prisma.$FeatureAccessPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FeatureAccesses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeatureAccessCountArgs} args - Arguments to filter FeatureAccesses to count.
+     * @example
+     * // Count the number of FeatureAccesses
+     * const count = await prisma.featureAccess.count({
+     *   where: {
+     *     // ... the filter for the FeatureAccesses we want to count
+     *   }
+     * })
+    **/
+    count<T extends FeatureAccessCountArgs>(
+      args?: Subset<T, FeatureAccessCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FeatureAccessCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FeatureAccess.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeatureAccessAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FeatureAccessAggregateArgs>(args: Subset<T, FeatureAccessAggregateArgs>): Prisma.PrismaPromise<GetFeatureAccessAggregateType<T>>
+
+    /**
+     * Group by FeatureAccess.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeatureAccessGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FeatureAccessGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FeatureAccessGroupByArgs['orderBy'] }
+        : { orderBy?: FeatureAccessGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FeatureAccessGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFeatureAccessGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FeatureAccess model
+   */
+  readonly fields: FeatureAccessFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FeatureAccess.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FeatureAccessClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FeatureAccess model
+   */
+  interface FeatureAccessFieldRefs {
+    readonly id: FieldRef<"FeatureAccess", 'String'>
+    readonly userId: FieldRef<"FeatureAccess", 'String'>
+    readonly featureKey: FieldRef<"FeatureAccess", 'String'>
+    readonly status: FieldRef<"FeatureAccess", 'String'>
+    readonly stripeCheckoutSessionId: FieldRef<"FeatureAccess", 'String'>
+    readonly stripePaymentIntentId: FieldRef<"FeatureAccess", 'String'>
+    readonly amount: FieldRef<"FeatureAccess", 'Int'>
+    readonly currency: FieldRef<"FeatureAccess", 'String'>
+    readonly createdAt: FieldRef<"FeatureAccess", 'DateTime'>
+    readonly updatedAt: FieldRef<"FeatureAccess", 'DateTime'>
+    readonly paidAt: FieldRef<"FeatureAccess", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FeatureAccess findUnique
+   */
+  export type FeatureAccessFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+    /**
+     * Filter, which FeatureAccess to fetch.
+     */
+    where: FeatureAccessWhereUniqueInput
+  }
+
+  /**
+   * FeatureAccess findUniqueOrThrow
+   */
+  export type FeatureAccessFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+    /**
+     * Filter, which FeatureAccess to fetch.
+     */
+    where: FeatureAccessWhereUniqueInput
+  }
+
+  /**
+   * FeatureAccess findFirst
+   */
+  export type FeatureAccessFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+    /**
+     * Filter, which FeatureAccess to fetch.
+     */
+    where?: FeatureAccessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FeatureAccesses to fetch.
+     */
+    orderBy?: FeatureAccessOrderByWithRelationInput | FeatureAccessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FeatureAccesses.
+     */
+    cursor?: FeatureAccessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FeatureAccesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FeatureAccesses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FeatureAccesses.
+     */
+    distinct?: FeatureAccessScalarFieldEnum | FeatureAccessScalarFieldEnum[]
+  }
+
+  /**
+   * FeatureAccess findFirstOrThrow
+   */
+  export type FeatureAccessFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+    /**
+     * Filter, which FeatureAccess to fetch.
+     */
+    where?: FeatureAccessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FeatureAccesses to fetch.
+     */
+    orderBy?: FeatureAccessOrderByWithRelationInput | FeatureAccessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FeatureAccesses.
+     */
+    cursor?: FeatureAccessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FeatureAccesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FeatureAccesses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FeatureAccesses.
+     */
+    distinct?: FeatureAccessScalarFieldEnum | FeatureAccessScalarFieldEnum[]
+  }
+
+  /**
+   * FeatureAccess findMany
+   */
+  export type FeatureAccessFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+    /**
+     * Filter, which FeatureAccesses to fetch.
+     */
+    where?: FeatureAccessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FeatureAccesses to fetch.
+     */
+    orderBy?: FeatureAccessOrderByWithRelationInput | FeatureAccessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FeatureAccesses.
+     */
+    cursor?: FeatureAccessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FeatureAccesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FeatureAccesses.
+     */
+    skip?: number
+    distinct?: FeatureAccessScalarFieldEnum | FeatureAccessScalarFieldEnum[]
+  }
+
+  /**
+   * FeatureAccess create
+   */
+  export type FeatureAccessCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FeatureAccess.
+     */
+    data: XOR<FeatureAccessCreateInput, FeatureAccessUncheckedCreateInput>
+  }
+
+  /**
+   * FeatureAccess createMany
+   */
+  export type FeatureAccessCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FeatureAccesses.
+     */
+    data: FeatureAccessCreateManyInput | FeatureAccessCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FeatureAccess createManyAndReturn
+   */
+  export type FeatureAccessCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * The data used to create many FeatureAccesses.
+     */
+    data: FeatureAccessCreateManyInput | FeatureAccessCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FeatureAccess update
+   */
+  export type FeatureAccessUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FeatureAccess.
+     */
+    data: XOR<FeatureAccessUpdateInput, FeatureAccessUncheckedUpdateInput>
+    /**
+     * Choose, which FeatureAccess to update.
+     */
+    where: FeatureAccessWhereUniqueInput
+  }
+
+  /**
+   * FeatureAccess updateMany
+   */
+  export type FeatureAccessUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FeatureAccesses.
+     */
+    data: XOR<FeatureAccessUpdateManyMutationInput, FeatureAccessUncheckedUpdateManyInput>
+    /**
+     * Filter which FeatureAccesses to update
+     */
+    where?: FeatureAccessWhereInput
+    /**
+     * Limit how many FeatureAccesses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FeatureAccess updateManyAndReturn
+   */
+  export type FeatureAccessUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * The data used to update FeatureAccesses.
+     */
+    data: XOR<FeatureAccessUpdateManyMutationInput, FeatureAccessUncheckedUpdateManyInput>
+    /**
+     * Filter which FeatureAccesses to update
+     */
+    where?: FeatureAccessWhereInput
+    /**
+     * Limit how many FeatureAccesses to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FeatureAccess upsert
+   */
+  export type FeatureAccessUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FeatureAccess to update in case it exists.
+     */
+    where: FeatureAccessWhereUniqueInput
+    /**
+     * In case the FeatureAccess found by the `where` argument doesn't exist, create a new FeatureAccess with this data.
+     */
+    create: XOR<FeatureAccessCreateInput, FeatureAccessUncheckedCreateInput>
+    /**
+     * In case the FeatureAccess was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FeatureAccessUpdateInput, FeatureAccessUncheckedUpdateInput>
+  }
+
+  /**
+   * FeatureAccess delete
+   */
+  export type FeatureAccessDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+    /**
+     * Filter which FeatureAccess to delete.
+     */
+    where: FeatureAccessWhereUniqueInput
+  }
+
+  /**
+   * FeatureAccess deleteMany
+   */
+  export type FeatureAccessDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FeatureAccesses to delete
+     */
+    where?: FeatureAccessWhereInput
+    /**
+     * Limit how many FeatureAccesses to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FeatureAccess without action
+   */
+  export type FeatureAccessDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeatureAccess
+     */
+    select?: FeatureAccessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeatureAccess
+     */
+    omit?: FeatureAccessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeatureAccessInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model GenerationLock
    */
 
@@ -10662,6 +11960,23 @@ export namespace Prisma {
   export type GitHubCacheScalarFieldEnum = (typeof GitHubCacheScalarFieldEnum)[keyof typeof GitHubCacheScalarFieldEnum]
 
 
+  export const FeatureAccessScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    featureKey: 'featureKey',
+    status: 'status',
+    stripeCheckoutSessionId: 'stripeCheckoutSessionId',
+    stripePaymentIntentId: 'stripePaymentIntentId',
+    amount: 'amount',
+    currency: 'currency',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    paidAt: 'paidAt'
+  };
+
+  export type FeatureAccessScalarFieldEnum = (typeof FeatureAccessScalarFieldEnum)[keyof typeof FeatureAccessScalarFieldEnum]
+
+
   export const GenerationLockScalarFieldEnum: {
     id: 'id',
     ownerId: 'ownerId',
@@ -10821,6 +12136,7 @@ export namespace Prisma {
     accounts?: AccountListRelationFilter
     portfolios?: PortfolioListRelationFilter
     generationLock?: XOR<GenerationLockNullableScalarRelationFilter, GenerationLockWhereInput> | null
+    featureAccess?: FeatureAccessListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -10835,6 +12151,7 @@ export namespace Prisma {
     accounts?: AccountOrderByRelationAggregateInput
     portfolios?: PortfolioOrderByRelationAggregateInput
     generationLock?: GenerationLockOrderByWithRelationInput
+    featureAccess?: FeatureAccessOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -10852,6 +12169,7 @@ export namespace Prisma {
     accounts?: AccountListRelationFilter
     portfolios?: PortfolioListRelationFilter
     generationLock?: XOR<GenerationLockNullableScalarRelationFilter, GenerationLockWhereInput> | null
+    featureAccess?: FeatureAccessListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -11390,6 +12708,94 @@ export namespace Prisma {
     fetchedAt?: DateTimeWithAggregatesFilter<"GitHubCache"> | Date | string
   }
 
+  export type FeatureAccessWhereInput = {
+    AND?: FeatureAccessWhereInput | FeatureAccessWhereInput[]
+    OR?: FeatureAccessWhereInput[]
+    NOT?: FeatureAccessWhereInput | FeatureAccessWhereInput[]
+    id?: StringFilter<"FeatureAccess"> | string
+    userId?: StringFilter<"FeatureAccess"> | string
+    featureKey?: StringFilter<"FeatureAccess"> | string
+    status?: StringFilter<"FeatureAccess"> | string
+    stripeCheckoutSessionId?: StringNullableFilter<"FeatureAccess"> | string | null
+    stripePaymentIntentId?: StringNullableFilter<"FeatureAccess"> | string | null
+    amount?: IntFilter<"FeatureAccess"> | number
+    currency?: StringFilter<"FeatureAccess"> | string
+    createdAt?: DateTimeFilter<"FeatureAccess"> | Date | string
+    updatedAt?: DateTimeFilter<"FeatureAccess"> | Date | string
+    paidAt?: DateTimeNullableFilter<"FeatureAccess"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type FeatureAccessOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    featureKey?: SortOrder
+    status?: SortOrder
+    stripeCheckoutSessionId?: SortOrderInput | SortOrder
+    stripePaymentIntentId?: SortOrderInput | SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    paidAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type FeatureAccessWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    stripeCheckoutSessionId?: string
+    stripePaymentIntentId?: string
+    userId_featureKey?: FeatureAccessUserIdFeatureKeyCompoundUniqueInput
+    AND?: FeatureAccessWhereInput | FeatureAccessWhereInput[]
+    OR?: FeatureAccessWhereInput[]
+    NOT?: FeatureAccessWhereInput | FeatureAccessWhereInput[]
+    userId?: StringFilter<"FeatureAccess"> | string
+    featureKey?: StringFilter<"FeatureAccess"> | string
+    status?: StringFilter<"FeatureAccess"> | string
+    amount?: IntFilter<"FeatureAccess"> | number
+    currency?: StringFilter<"FeatureAccess"> | string
+    createdAt?: DateTimeFilter<"FeatureAccess"> | Date | string
+    updatedAt?: DateTimeFilter<"FeatureAccess"> | Date | string
+    paidAt?: DateTimeNullableFilter<"FeatureAccess"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "stripeCheckoutSessionId" | "stripePaymentIntentId" | "userId_featureKey">
+
+  export type FeatureAccessOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    featureKey?: SortOrder
+    status?: SortOrder
+    stripeCheckoutSessionId?: SortOrderInput | SortOrder
+    stripePaymentIntentId?: SortOrderInput | SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    paidAt?: SortOrderInput | SortOrder
+    _count?: FeatureAccessCountOrderByAggregateInput
+    _avg?: FeatureAccessAvgOrderByAggregateInput
+    _max?: FeatureAccessMaxOrderByAggregateInput
+    _min?: FeatureAccessMinOrderByAggregateInput
+    _sum?: FeatureAccessSumOrderByAggregateInput
+  }
+
+  export type FeatureAccessScalarWhereWithAggregatesInput = {
+    AND?: FeatureAccessScalarWhereWithAggregatesInput | FeatureAccessScalarWhereWithAggregatesInput[]
+    OR?: FeatureAccessScalarWhereWithAggregatesInput[]
+    NOT?: FeatureAccessScalarWhereWithAggregatesInput | FeatureAccessScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"FeatureAccess"> | string
+    userId?: StringWithAggregatesFilter<"FeatureAccess"> | string
+    featureKey?: StringWithAggregatesFilter<"FeatureAccess"> | string
+    status?: StringWithAggregatesFilter<"FeatureAccess"> | string
+    stripeCheckoutSessionId?: StringNullableWithAggregatesFilter<"FeatureAccess"> | string | null
+    stripePaymentIntentId?: StringNullableWithAggregatesFilter<"FeatureAccess"> | string | null
+    amount?: IntWithAggregatesFilter<"FeatureAccess"> | number
+    currency?: StringWithAggregatesFilter<"FeatureAccess"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"FeatureAccess"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"FeatureAccess"> | Date | string
+    paidAt?: DateTimeNullableWithAggregatesFilter<"FeatureAccess"> | Date | string | null
+  }
+
   export type GenerationLockWhereInput = {
     AND?: GenerationLockWhereInput | GenerationLockWhereInput[]
     OR?: GenerationLockWhereInput[]
@@ -11457,6 +12863,7 @@ export namespace Prisma {
     accounts?: AccountCreateNestedManyWithoutUserInput
     portfolios?: PortfolioCreateNestedManyWithoutOwnerInput
     generationLock?: GenerationLockCreateNestedOneWithoutOwnerInput
+    featureAccess?: FeatureAccessCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -11471,6 +12878,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     portfolios?: PortfolioUncheckedCreateNestedManyWithoutOwnerInput
     generationLock?: GenerationLockUncheckedCreateNestedOneWithoutOwnerInput
+    featureAccess?: FeatureAccessUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -11485,6 +12893,7 @@ export namespace Prisma {
     accounts?: AccountUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUpdateManyWithoutOwnerNestedInput
     generationLock?: GenerationLockUpdateOneWithoutOwnerNestedInput
+    featureAccess?: FeatureAccessUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -11499,6 +12908,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUncheckedUpdateManyWithoutOwnerNestedInput
     generationLock?: GenerationLockUncheckedUpdateOneWithoutOwnerNestedInput
+    featureAccess?: FeatureAccessUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -12119,6 +13529,103 @@ export namespace Prisma {
     fetchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FeatureAccessCreateInput = {
+    id?: string
+    featureKey: string
+    status?: string
+    stripeCheckoutSessionId?: string | null
+    stripePaymentIntentId?: string | null
+    amount?: number
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paidAt?: Date | string | null
+    user: UserCreateNestedOneWithoutFeatureAccessInput
+  }
+
+  export type FeatureAccessUncheckedCreateInput = {
+    id?: string
+    userId: string
+    featureKey: string
+    status?: string
+    stripeCheckoutSessionId?: string | null
+    stripePaymentIntentId?: string | null
+    amount?: number
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paidAt?: Date | string | null
+  }
+
+  export type FeatureAccessUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    featureKey?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutFeatureAccessNestedInput
+  }
+
+  export type FeatureAccessUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    featureKey?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type FeatureAccessCreateManyInput = {
+    id?: string
+    userId: string
+    featureKey: string
+    status?: string
+    stripeCheckoutSessionId?: string | null
+    stripePaymentIntentId?: string | null
+    amount?: number
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paidAt?: Date | string | null
+  }
+
+  export type FeatureAccessUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    featureKey?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type FeatureAccessUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    featureKey?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type GenerationLockCreateInput = {
     id?: string
     githubUsername: string
@@ -12243,6 +13750,12 @@ export namespace Prisma {
     isNot?: GenerationLockWhereInput | null
   }
 
+  export type FeatureAccessListRelationFilter = {
+    every?: FeatureAccessWhereInput
+    some?: FeatureAccessWhereInput
+    none?: FeatureAccessWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -12257,6 +13770,10 @@ export namespace Prisma {
   }
 
   export type PortfolioOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type FeatureAccessOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -12777,6 +14294,61 @@ export namespace Prisma {
     fetchedAt?: SortOrder
   }
 
+  export type FeatureAccessUserIdFeatureKeyCompoundUniqueInput = {
+    userId: string
+    featureKey: string
+  }
+
+  export type FeatureAccessCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    featureKey?: SortOrder
+    status?: SortOrder
+    stripeCheckoutSessionId?: SortOrder
+    stripePaymentIntentId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    paidAt?: SortOrder
+  }
+
+  export type FeatureAccessAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type FeatureAccessMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    featureKey?: SortOrder
+    status?: SortOrder
+    stripeCheckoutSessionId?: SortOrder
+    stripePaymentIntentId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    paidAt?: SortOrder
+  }
+
+  export type FeatureAccessMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    featureKey?: SortOrder
+    status?: SortOrder
+    stripeCheckoutSessionId?: SortOrder
+    stripePaymentIntentId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    paidAt?: SortOrder
+  }
+
+  export type FeatureAccessSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
   export type GenerationLockCountOrderByAggregateInput = {
     id?: SortOrder
     ownerId?: SortOrder
@@ -12828,6 +14400,13 @@ export namespace Prisma {
     connect?: GenerationLockWhereUniqueInput
   }
 
+  export type FeatureAccessCreateNestedManyWithoutUserInput = {
+    create?: XOR<FeatureAccessCreateWithoutUserInput, FeatureAccessUncheckedCreateWithoutUserInput> | FeatureAccessCreateWithoutUserInput[] | FeatureAccessUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeatureAccessCreateOrConnectWithoutUserInput | FeatureAccessCreateOrConnectWithoutUserInput[]
+    createMany?: FeatureAccessCreateManyUserInputEnvelope
+    connect?: FeatureAccessWhereUniqueInput | FeatureAccessWhereUniqueInput[]
+  }
+
   export type SessionUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -12853,6 +14432,13 @@ export namespace Prisma {
     create?: XOR<GenerationLockCreateWithoutOwnerInput, GenerationLockUncheckedCreateWithoutOwnerInput>
     connectOrCreate?: GenerationLockCreateOrConnectWithoutOwnerInput
     connect?: GenerationLockWhereUniqueInput
+  }
+
+  export type FeatureAccessUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<FeatureAccessCreateWithoutUserInput, FeatureAccessUncheckedCreateWithoutUserInput> | FeatureAccessCreateWithoutUserInput[] | FeatureAccessUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeatureAccessCreateOrConnectWithoutUserInput | FeatureAccessCreateOrConnectWithoutUserInput[]
+    createMany?: FeatureAccessCreateManyUserInputEnvelope
+    connect?: FeatureAccessWhereUniqueInput | FeatureAccessWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -12923,6 +14509,20 @@ export namespace Prisma {
     update?: XOR<XOR<GenerationLockUpdateToOneWithWhereWithoutOwnerInput, GenerationLockUpdateWithoutOwnerInput>, GenerationLockUncheckedUpdateWithoutOwnerInput>
   }
 
+  export type FeatureAccessUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FeatureAccessCreateWithoutUserInput, FeatureAccessUncheckedCreateWithoutUserInput> | FeatureAccessCreateWithoutUserInput[] | FeatureAccessUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeatureAccessCreateOrConnectWithoutUserInput | FeatureAccessCreateOrConnectWithoutUserInput[]
+    upsert?: FeatureAccessUpsertWithWhereUniqueWithoutUserInput | FeatureAccessUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FeatureAccessCreateManyUserInputEnvelope
+    set?: FeatureAccessWhereUniqueInput | FeatureAccessWhereUniqueInput[]
+    disconnect?: FeatureAccessWhereUniqueInput | FeatureAccessWhereUniqueInput[]
+    delete?: FeatureAccessWhereUniqueInput | FeatureAccessWhereUniqueInput[]
+    connect?: FeatureAccessWhereUniqueInput | FeatureAccessWhereUniqueInput[]
+    update?: FeatureAccessUpdateWithWhereUniqueWithoutUserInput | FeatureAccessUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FeatureAccessUpdateManyWithWhereWithoutUserInput | FeatureAccessUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FeatureAccessScalarWhereInput | FeatureAccessScalarWhereInput[]
+  }
+
   export type SessionUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -12973,6 +14573,20 @@ export namespace Prisma {
     delete?: GenerationLockWhereInput | boolean
     connect?: GenerationLockWhereUniqueInput
     update?: XOR<XOR<GenerationLockUpdateToOneWithWhereWithoutOwnerInput, GenerationLockUpdateWithoutOwnerInput>, GenerationLockUncheckedUpdateWithoutOwnerInput>
+  }
+
+  export type FeatureAccessUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FeatureAccessCreateWithoutUserInput, FeatureAccessUncheckedCreateWithoutUserInput> | FeatureAccessCreateWithoutUserInput[] | FeatureAccessUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeatureAccessCreateOrConnectWithoutUserInput | FeatureAccessCreateOrConnectWithoutUserInput[]
+    upsert?: FeatureAccessUpsertWithWhereUniqueWithoutUserInput | FeatureAccessUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FeatureAccessCreateManyUserInputEnvelope
+    set?: FeatureAccessWhereUniqueInput | FeatureAccessWhereUniqueInput[]
+    disconnect?: FeatureAccessWhereUniqueInput | FeatureAccessWhereUniqueInput[]
+    delete?: FeatureAccessWhereUniqueInput | FeatureAccessWhereUniqueInput[]
+    connect?: FeatureAccessWhereUniqueInput | FeatureAccessWhereUniqueInput[]
+    update?: FeatureAccessUpdateWithWhereUniqueWithoutUserInput | FeatureAccessUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FeatureAccessUpdateManyWithWhereWithoutUserInput | FeatureAccessUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FeatureAccessScalarWhereInput | FeatureAccessScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutSessionsInput = {
@@ -13075,6 +14689,20 @@ export namespace Prisma {
     upsert?: PortfolioUpsertWithoutCustomDomainInput
     connect?: PortfolioWhereUniqueInput
     update?: XOR<XOR<PortfolioUpdateToOneWithWhereWithoutCustomDomainInput, PortfolioUpdateWithoutCustomDomainInput>, PortfolioUncheckedUpdateWithoutCustomDomainInput>
+  }
+
+  export type UserCreateNestedOneWithoutFeatureAccessInput = {
+    create?: XOR<UserCreateWithoutFeatureAccessInput, UserUncheckedCreateWithoutFeatureAccessInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeatureAccessInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutFeatureAccessNestedInput = {
+    create?: XOR<UserCreateWithoutFeatureAccessInput, UserUncheckedCreateWithoutFeatureAccessInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeatureAccessInput
+    upsert?: UserUpsertWithoutFeatureAccessInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFeatureAccessInput, UserUpdateWithoutFeatureAccessInput>, UserUncheckedUpdateWithoutFeatureAccessInput>
   }
 
   export type UserCreateNestedOneWithoutGenerationLockInput = {
@@ -13448,6 +15076,42 @@ export namespace Prisma {
     create: XOR<GenerationLockCreateWithoutOwnerInput, GenerationLockUncheckedCreateWithoutOwnerInput>
   }
 
+  export type FeatureAccessCreateWithoutUserInput = {
+    id?: string
+    featureKey: string
+    status?: string
+    stripeCheckoutSessionId?: string | null
+    stripePaymentIntentId?: string | null
+    amount?: number
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paidAt?: Date | string | null
+  }
+
+  export type FeatureAccessUncheckedCreateWithoutUserInput = {
+    id?: string
+    featureKey: string
+    status?: string
+    stripeCheckoutSessionId?: string | null
+    stripePaymentIntentId?: string | null
+    amount?: number
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paidAt?: Date | string | null
+  }
+
+  export type FeatureAccessCreateOrConnectWithoutUserInput = {
+    where: FeatureAccessWhereUniqueInput
+    create: XOR<FeatureAccessCreateWithoutUserInput, FeatureAccessUncheckedCreateWithoutUserInput>
+  }
+
+  export type FeatureAccessCreateManyUserInputEnvelope = {
+    data: FeatureAccessCreateManyUserInput | FeatureAccessCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SessionUpsertWithWhereUniqueWithoutUserInput = {
     where: SessionWhereUniqueInput
     update: XOR<SessionUpdateWithoutUserInput, SessionUncheckedUpdateWithoutUserInput>
@@ -13576,6 +15240,39 @@ export namespace Prisma {
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FeatureAccessUpsertWithWhereUniqueWithoutUserInput = {
+    where: FeatureAccessWhereUniqueInput
+    update: XOR<FeatureAccessUpdateWithoutUserInput, FeatureAccessUncheckedUpdateWithoutUserInput>
+    create: XOR<FeatureAccessCreateWithoutUserInput, FeatureAccessUncheckedCreateWithoutUserInput>
+  }
+
+  export type FeatureAccessUpdateWithWhereUniqueWithoutUserInput = {
+    where: FeatureAccessWhereUniqueInput
+    data: XOR<FeatureAccessUpdateWithoutUserInput, FeatureAccessUncheckedUpdateWithoutUserInput>
+  }
+
+  export type FeatureAccessUpdateManyWithWhereWithoutUserInput = {
+    where: FeatureAccessScalarWhereInput
+    data: XOR<FeatureAccessUpdateManyMutationInput, FeatureAccessUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type FeatureAccessScalarWhereInput = {
+    AND?: FeatureAccessScalarWhereInput | FeatureAccessScalarWhereInput[]
+    OR?: FeatureAccessScalarWhereInput[]
+    NOT?: FeatureAccessScalarWhereInput | FeatureAccessScalarWhereInput[]
+    id?: StringFilter<"FeatureAccess"> | string
+    userId?: StringFilter<"FeatureAccess"> | string
+    featureKey?: StringFilter<"FeatureAccess"> | string
+    status?: StringFilter<"FeatureAccess"> | string
+    stripeCheckoutSessionId?: StringNullableFilter<"FeatureAccess"> | string | null
+    stripePaymentIntentId?: StringNullableFilter<"FeatureAccess"> | string | null
+    amount?: IntFilter<"FeatureAccess"> | number
+    currency?: StringFilter<"FeatureAccess"> | string
+    createdAt?: DateTimeFilter<"FeatureAccess"> | Date | string
+    updatedAt?: DateTimeFilter<"FeatureAccess"> | Date | string
+    paidAt?: DateTimeNullableFilter<"FeatureAccess"> | Date | string | null
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id?: string
     name?: string | null
@@ -13587,6 +15284,7 @@ export namespace Prisma {
     accounts?: AccountCreateNestedManyWithoutUserInput
     portfolios?: PortfolioCreateNestedManyWithoutOwnerInput
     generationLock?: GenerationLockCreateNestedOneWithoutOwnerInput
+    featureAccess?: FeatureAccessCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -13600,6 +15298,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     portfolios?: PortfolioUncheckedCreateNestedManyWithoutOwnerInput
     generationLock?: GenerationLockUncheckedCreateNestedOneWithoutOwnerInput
+    featureAccess?: FeatureAccessUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -13629,6 +15328,7 @@ export namespace Prisma {
     accounts?: AccountUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUpdateManyWithoutOwnerNestedInput
     generationLock?: GenerationLockUpdateOneWithoutOwnerNestedInput
+    featureAccess?: FeatureAccessUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -13642,6 +15342,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUncheckedUpdateManyWithoutOwnerNestedInput
     generationLock?: GenerationLockUncheckedUpdateOneWithoutOwnerNestedInput
+    featureAccess?: FeatureAccessUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -13655,6 +15356,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     portfolios?: PortfolioCreateNestedManyWithoutOwnerInput
     generationLock?: GenerationLockCreateNestedOneWithoutOwnerInput
+    featureAccess?: FeatureAccessCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -13668,6 +15370,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     portfolios?: PortfolioUncheckedCreateNestedManyWithoutOwnerInput
     generationLock?: GenerationLockUncheckedCreateNestedOneWithoutOwnerInput
+    featureAccess?: FeatureAccessUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -13697,6 +15400,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUpdateManyWithoutOwnerNestedInput
     generationLock?: GenerationLockUpdateOneWithoutOwnerNestedInput
+    featureAccess?: FeatureAccessUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -13710,6 +15414,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUncheckedUpdateManyWithoutOwnerNestedInput
     generationLock?: GenerationLockUncheckedUpdateOneWithoutOwnerNestedInput
+    featureAccess?: FeatureAccessUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPortfoliosInput = {
@@ -13723,6 +15428,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     generationLock?: GenerationLockCreateNestedOneWithoutOwnerInput
+    featureAccess?: FeatureAccessCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPortfoliosInput = {
@@ -13736,6 +15442,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     generationLock?: GenerationLockUncheckedCreateNestedOneWithoutOwnerInput
+    featureAccess?: FeatureAccessUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPortfoliosInput = {
@@ -13814,6 +15521,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     generationLock?: GenerationLockUpdateOneWithoutOwnerNestedInput
+    featureAccess?: FeatureAccessUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPortfoliosInput = {
@@ -13827,6 +15535,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     generationLock?: GenerationLockUncheckedUpdateOneWithoutOwnerNestedInput
+    featureAccess?: FeatureAccessUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CustomDomainUpsertWithoutPortfolioInput = {
@@ -13976,6 +15685,78 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type UserCreateWithoutFeatureAccessInput = {
+    id?: string
+    name?: string | null
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    portfolios?: PortfolioCreateNestedManyWithoutOwnerInput
+    generationLock?: GenerationLockCreateNestedOneWithoutOwnerInput
+  }
+
+  export type UserUncheckedCreateWithoutFeatureAccessInput = {
+    id?: string
+    name?: string | null
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    portfolios?: PortfolioUncheckedCreateNestedManyWithoutOwnerInput
+    generationLock?: GenerationLockUncheckedCreateNestedOneWithoutOwnerInput
+  }
+
+  export type UserCreateOrConnectWithoutFeatureAccessInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutFeatureAccessInput, UserUncheckedCreateWithoutFeatureAccessInput>
+  }
+
+  export type UserUpsertWithoutFeatureAccessInput = {
+    update: XOR<UserUpdateWithoutFeatureAccessInput, UserUncheckedUpdateWithoutFeatureAccessInput>
+    create: XOR<UserCreateWithoutFeatureAccessInput, UserUncheckedCreateWithoutFeatureAccessInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutFeatureAccessInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutFeatureAccessInput, UserUncheckedUpdateWithoutFeatureAccessInput>
+  }
+
+  export type UserUpdateWithoutFeatureAccessInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    portfolios?: PortfolioUpdateManyWithoutOwnerNestedInput
+    generationLock?: GenerationLockUpdateOneWithoutOwnerNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutFeatureAccessInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    portfolios?: PortfolioUncheckedUpdateManyWithoutOwnerNestedInput
+    generationLock?: GenerationLockUncheckedUpdateOneWithoutOwnerNestedInput
+  }
+
   export type UserCreateWithoutGenerationLockInput = {
     id?: string
     name?: string | null
@@ -13987,6 +15768,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     portfolios?: PortfolioCreateNestedManyWithoutOwnerInput
+    featureAccess?: FeatureAccessCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGenerationLockInput = {
@@ -14000,6 +15782,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     portfolios?: PortfolioUncheckedCreateNestedManyWithoutOwnerInput
+    featureAccess?: FeatureAccessUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGenerationLockInput = {
@@ -14029,6 +15812,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUpdateManyWithoutOwnerNestedInput
+    featureAccess?: FeatureAccessUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGenerationLockInput = {
@@ -14042,6 +15826,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     portfolios?: PortfolioUncheckedUpdateManyWithoutOwnerNestedInput
+    featureAccess?: FeatureAccessUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -14085,6 +15870,19 @@ export namespace Prisma {
     claimNonce?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type FeatureAccessCreateManyUserInput = {
+    id?: string
+    featureKey: string
+    status?: string
+    stripeCheckoutSessionId?: string | null
+    stripePaymentIntentId?: string | null
+    amount?: number
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paidAt?: Date | string | null
   }
 
   export type SessionUpdateWithoutUserInput = {
@@ -14216,6 +16014,45 @@ export namespace Prisma {
     claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeatureAccessUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    featureKey?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type FeatureAccessUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    featureKey?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type FeatureAccessUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    featureKey?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCheckoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
 

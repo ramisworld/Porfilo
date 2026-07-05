@@ -57,3 +57,10 @@ yarn-error.log*
 
 # portfolio verification screenshots
 /.shots/
+
+# Playwright E2E artifacts + seeded auth state (may contain a session token)
+/e2e/.auth/
+/test-results/
+/playwright-report/
+/blob-report/
+/.playwright/
