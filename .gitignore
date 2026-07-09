@@ -64,3 +64,6 @@ yarn-error.log*
 /playwright-report/
 /blob-report/
 /.playwright/
+
+# ReactBits reference clone (read-only, not built)
+/vendor/react-bits

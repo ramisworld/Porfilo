@@ -7,9 +7,26 @@ import {
   useRef,
   useState,
 } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
+import { motion, useReducedMotion } from "motion/react";
 import { PorfiloWordmark } from "~/app/_components/porfilo-logo";
 import { Arrow, Spinner } from "~/app/_components/icons";
+import { AuroraBackground } from "~/app/_components/aurora-background";
+import BlurText from "~/components/reactbits/blur-text";
+import RotatingText from "~/components/reactbits/rotating-text";
+import ShinyText from "~/components/reactbits/shiny-text";
+
+// WebGL aurora — client-only so ogl never runs on the server / hurts FCP.
+const Aurora = dynamic(() => import("~/components/reactbits/aurora"), {
+  ssr: false,
+});
+
+// The nouns the hero cycles through — Porfilo turns a GitHub into any of these.
+const HERO_NOUNS = ["portfolio", "résumé", "story", "showcase"] as const;
+const HERO_SUBHEAD =
+  "Type your username. Get a living, interactive site built from your real work — in seconds.";
+const HERO_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 // Same regex as the server-side Zod check.
 const USERNAME_RE = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
@@ -125,66 +142,18 @@ export default function Landing() {
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const ctrlRef = useRef<AbortController | null>(null);
 
+  const reduce = useReducedMotion();
+
+  // Gate the per-character/word motion components (RotatingText, BlurText,
+  // ShinyText) so the server render and first client render are identical
+  // static text — motion swaps in after mount, avoiding hydration mismatches.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => () => ctrlRef.current?.abort(), []);
-
-  // Aurora field: three drifting radial gradients on a low-DPR canvas.
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
-
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let raf = 0;
-    let w = 0;
-    let h = 0;
-    let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-
-    const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      w = canvas.clientWidth;
-      h = canvas.clientHeight;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const blobs = [
-      { x: 0.22, y: 0.24, r: 0.55, hue: 245, drift: 0.00012 },
-      { x: 0.82, y: 0.56, r: 0.48, hue: 282, drift: 0.00009 },
-      { x: 0.5, y: 0.98, r: 0.45, hue: 215, drift: 0.0001 },
-    ];
-
-    const draw = (t: number) => {
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "#06060a";
-      ctx.fillRect(0, 0, w, h);
-      for (const b of blobs) {
-        const ox = reduced ? 0 : Math.sin(t * b.drift) * 0.08;
-        const oy = reduced ? 0 : Math.cos(t * b.drift * 1.3) * 0.06;
-        const cx = (b.x + ox) * w;
-        const cy = (b.y + oy) * h;
-        const r = b.r * Math.min(w, h);
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-        g.addColorStop(0, `hsla(${b.hue}, 78%, 60%, 0.26)`);
-        g.addColorStop(1, "hsla(0, 0%, 0%, 0)");
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, w, h);
-      }
-      raf = requestAnimationFrame(draw);
-    };
-    raf = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
 
   // Cursor-tracked light through the glass card.
   useEffect(() => {
@@ -258,53 +227,147 @@ export default function Landing() {
     setTouched(false);
   };
 
+  // `hidden` (the hydrated inline style) stays deterministic so it can't cause an
+  // SSR mismatch — the server can't know the user's motion preference. Reduced
+  // motion is honored purely through the transition (duration 0 → instant snap,
+  // no visible movement), which is never serialized into the HTML.
+  const container = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: reduce ? 0 : 0.09,
+        delayChildren: reduce ? 0 : 0.12,
+      },
+    },
+  };
+  const item = {
+    hidden: { opacity: 0, y: 16, filter: "blur(6px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduce ? 0 : 0.7, ease: HERO_EASE },
+    },
+  };
+
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden bg-bg text-fg antialiased [font-feature-settings:'ss01','cv11']">
-      <canvas
-        ref={canvasRef}
-        aria-hidden
-        className="pointer-events-none absolute inset-0 h-full w-full"
-      />
+      {/* ── Background layers (back → front) ──────────────────────────────── */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.035] mix-blend-overlay"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
-        }}
-      />
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        {/* WebGL aurora — top band, faded downward so the copy stays legible */}
+        <div className="absolute inset-x-0 top-0 h-[85vh] opacity-70 [-webkit-mask-image:linear-gradient(to_bottom,black_8%,transparent_92%)] [mask-image:linear-gradient(to_bottom,black_8%,transparent_92%)]">
+          <Aurora amplitude={1.1} blend={0.55} speed={0.7} />
+        </div>
+        {/* Shared soft radial glows + film grain (also used on auth surfaces) */}
+        <AuroraBackground variant="indigo" />
+        {/* Vignette to pull focus toward the center */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(125% 85% at 50% 0%, transparent 42%, rgba(0,0,0,0.55) 100%)",
+          }}
+        />
+      </div>
 
       {/* ── Nav ─────────────────────────────────────────────────────────── */}
-      <nav className="relative z-10 mx-auto flex w-full max-w-6xl flex-none items-center justify-between px-6 py-6">
-        <PorfiloWordmark />
+      <motion.nav
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduce ? 0 : 0.6, ease: HERO_EASE }}
+        className="relative z-10 mx-auto flex w-full max-w-6xl flex-none items-center justify-between px-6 py-6"
+      >
+        <PorfiloWordmark
+          size={32}
+          textClassName="bg-gradient-to-b from-white to-white/70 bg-clip-text text-[22px] font-semibold tracking-[-0.02em] text-transparent"
+        />
         <Link href="/sign-in" className="text-sm text-muted transition hover:text-fg">
           Sign in
         </Link>
-      </nav>
+      </motion.nav>
 
       {/* ── Hero (fills the viewport) ───────────────────────────────────── */}
-      <section className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-6 pb-10 text-center">
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-border bg-white/[0.025] px-3 py-1 text-[10.5px] font-medium tracking-[0.18em] text-muted uppercase backdrop-blur-md">
+      <motion.section
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-6 pb-10 text-center"
+      >
+        <motion.div
+          variants={item}
+          className="mb-8 inline-flex items-center gap-2 rounded-full border border-border bg-white/[0.025] px-3 py-1 text-[10.5px] font-medium tracking-[0.18em] text-muted uppercase backdrop-blur-md"
+        >
           <span className="h-1 w-1 rounded-full bg-success shadow-[0_0_8px_#34d399]" />
-          Beta
-        </div>
+          {mounted ? (
+            <ShinyText text="Beta" speed={4} className="tracking-[0.18em]" />
+          ) : (
+            "Beta"
+          )}
+        </motion.div>
 
-        <h1 className="text-balance text-center text-5xl font-medium leading-[1.02] tracking-tight sm:text-6xl md:text-[72px]">
-          Your GitHub,
-          <br />
-          <span className="bg-gradient-to-b from-white to-white/55 bg-clip-text text-transparent">
-            as a portfolio.
+        <motion.h1
+          variants={item}
+          className="text-balance text-center text-5xl font-medium leading-[1.02] tracking-tight sm:text-6xl md:text-[72px]"
+        >
+          <span className="block bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
+            Your GitHub,
           </span>
-        </h1>
-        <p className="mt-6 max-w-md text-pretty text-[15px] leading-relaxed text-muted">
-          Type your username. Get a living, interactive site built from your
-          real work — in seconds.
-        </p>
+          <span className="mt-1 flex items-center justify-center gap-[0.28em]">
+            <span className="text-white/80">as a</span>
+            {/* Fixed-width cell: invisible sizers reserve the widest word's width so
+                "as a" stays put — only the rotating word moves (vertically). */}
+            <span className="grid items-center">
+              {HERO_NOUNS.map((n) => (
+                <span
+                  key={n}
+                  aria-hidden
+                  className="invisible col-start-1 row-start-1 py-[0.08em] leading-[1.05] whitespace-nowrap"
+                >
+                  {n}
+                </span>
+              ))}
+              <span className="col-start-1 row-start-1 justify-self-start overflow-hidden py-[0.08em] leading-[1.05]">
+                {mounted ? (
+                  <RotatingText
+                    texts={[...HERO_NOUNS]}
+                    rotationInterval={2200}
+                    staggerDuration={0.018}
+                    splitBy="characters"
+                    layoutAnimation={false}
+                    mainClassName="justify-start"
+                    elementLevelClassName="bg-gradient-to-b from-white to-[#a78bfa] bg-clip-text text-transparent"
+                  />
+                ) : (
+                  <span className="bg-gradient-to-b from-white to-[#a78bfa] bg-clip-text text-transparent">
+                    {HERO_NOUNS[0]}
+                  </span>
+                )}
+              </span>
+            </span>
+          </span>
+        </motion.h1>
+
+        {mounted ? (
+          <BlurText
+            text={HERO_SUBHEAD}
+            animateBy="words"
+            delay={26}
+            className="mt-6 max-w-md justify-center text-pretty text-[15px] leading-relaxed text-muted"
+          />
+        ) : (
+          <p className="blur-text mt-6 flex max-w-md flex-wrap justify-center text-pretty text-[15px] leading-relaxed text-muted">
+            {HERO_SUBHEAD}
+          </p>
+        )}
 
         {/* Glass input card */}
-        <div
+        <motion.div
+          variants={item}
           ref={cardRef}
-          className="relative mt-12 w-full max-w-md"
+          className="porfilo-glow-card relative mt-12 w-full max-w-md rounded-2xl"
           style={{ "--mx": "50%", "--my": "0%" } as React.CSSProperties}
         >
           <div
@@ -315,6 +378,7 @@ export default function Landing() {
                 "radial-gradient(420px circle at var(--mx) var(--my), rgba(140,150,255,0.22), transparent 60%)",
             }}
           />
+          <span aria-hidden className="porfilo-glow-ring rounded-2xl" />
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -366,7 +430,9 @@ export default function Landing() {
                 ) : (
                   <>
                     Generate
-                    <Arrow />
+                    <span className="transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-active:translate-x-1">
+                      <Arrow />
+                    </span>
                   </>
                 )}
               </button>
@@ -382,16 +448,19 @@ export default function Landing() {
                 : "Free during beta · ~20 seconds · No account needed to start"}
             </p>
           </form>
-        </div>
+        </motion.div>
 
-        <div className="mt-10 flex items-center gap-5 text-[11px] tracking-wide text-white/30">
+        <motion.div
+          variants={item}
+          className="mt-10 flex items-center gap-5 text-[11px] tracking-wide text-white/30"
+        >
           <span>Real repos, curated</span>
           <span className="h-3 w-px bg-white/10" />
           <span>Interactive, not static</span>
           <span className="h-3 w-px bg-white/10" />
           <span>Your domain, later</span>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <footer className="relative z-10 mx-auto flex w-full max-w-6xl flex-none flex-col items-center justify-between gap-4 px-6 py-6 sm:flex-row">
@@ -455,15 +524,25 @@ function GenerationOverlay({
   }, [state.view, state.ownerless, state.slug, state.claimToken]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/85 px-6 backdrop-blur-md">
-      <div className="w-full max-w-md">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25, ease: HERO_EASE }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/85 px-6 backdrop-blur-md"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: HERO_EASE }}
+        className="w-full max-w-md"
+      >
         {state.view === "error" ? (
           <ErrorCard error={state.error} onReset={onReset} />
         ) : (
           <BuildLog state={state} username={username} onReset={onReset} />
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

@@ -4,9 +4,11 @@ import { ImageResponse } from "next/og";
 export const ICON_SIZE = { width: 32, height: 32 } as const;
 export const APPLE_ICON_SIZE = { width: 180, height: 180 } as const;
 
-/** Satori-safe mark for OG images (matches favicon look, div-based). */
+/**
+ * Satori-safe Porfilo mark (PNG favicon / apple-icon / OG). Mirrors the SVG in
+ * porfilo-mark-string.ts: a freestanding gradient "aperture P", no app-icon box.
+ */
 export function PorfiloIcon({ size = 32 }: { size?: number }) {
-  const r = size * 0.22;
   return (
     <div
       style={{
@@ -15,54 +17,50 @@ export function PorfiloIcon({ size = 32 }: { size?: number }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#08080c",
-        borderRadius: size * 0.28,
-        position: "relative",
-        overflow: "hidden",
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(circle at 30% 20%, rgba(108,123,255,0.62), transparent 55%), radial-gradient(circle at 80% 85%, rgba(154,108,255,0.5), transparent 50%)",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.14) 0%, transparent 45%)",
-        }}
-      />
-      <div
-        style={{
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: size * 0.62,
-          height: size * 0.62,
-          borderRadius: r,
-          border: `${Math.max(1, size * 0.06)}px solid rgba(255,255,255,0.88)`,
-          boxShadow: "0 0 14px rgba(108,123,255,0.55)",
-        }}
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        <div
-          style={{
-            fontSize: size * 0.38,
-            fontWeight: 700,
-            color: "white",
-            fontFamily: "sans-serif",
-            letterSpacing: -0.6,
-            marginTop: -size * 0.02,
-          }}
-        >
-          P
-        </div>
-      </div>
+        <defs>
+          <linearGradient
+            id="pf-stroke"
+            x1="7"
+            y1="4"
+            x2="25"
+            y2="28"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#9FB0FF" />
+            <stop offset="0.5" stopColor="#6C7BFF" />
+            <stop offset="1" stopColor="#A472FF" />
+          </linearGradient>
+          <radialGradient
+            id="pf-eye"
+            cx="0"
+            cy="0"
+            r="1"
+            gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(17.9 11.9) scale(3.2)"
+          >
+            <stop stopColor="#EAEDFF" />
+            <stop offset="1" stopColor="#9A6CFF" />
+          </radialGradient>
+        </defs>
+        <path
+          d="M11 27.4 V5.4 H17.9 A6.8 6.8 0 0 1 17.9 19 H11"
+          fill="none"
+          stroke="url(#pf-stroke)"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="17.9" cy="11.9" r="1.7" fill="url(#pf-eye)" />
+      </svg>
     </div>
   );
 }
