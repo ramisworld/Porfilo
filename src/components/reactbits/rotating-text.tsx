@@ -54,8 +54,6 @@ export interface RotatingTextProps
   staggerFrom?: "first" | "last" | "center" | "random" | number;
   loop?: boolean;
   auto?: boolean;
-  /** When false, disables width/layout animation so only the enter/exit (vertical) moves. */
-  layoutAnimation?: boolean;
   splitBy?: string;
   onNext?: (index: number) => void;
   mainClassName?: string;
@@ -77,7 +75,6 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>((props, ref)
     staggerFrom = "first",
     loop = true,
     auto = true,
-    layoutAnimation = true,
     splitBy = "characters",
     onNext,
     mainClassName,
@@ -198,7 +195,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>((props, ref)
     <motion.span
       className={cn("flex flex-wrap whitespace-pre-wrap relative", mainClassName)}
       {...rest}
-      layout={layoutAnimation}
+      layout
       transition={effTransition}
     >
       <span className="sr-only">{texts[currentTextIndex]}</span>
@@ -210,7 +207,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>((props, ref)
               ? "flex flex-col w-full"
               : "flex flex-wrap whitespace-pre-wrap relative",
           )}
-          layout={layoutAnimation}
+          layout
           aria-hidden="true"
         >
           {elements.map((wordObj, wordIndex, array) => {

@@ -48,4 +48,11 @@ describe("brand icons", () => {
     const expected = porfiloMarkSvgString(PORFILO_FAVICON_ID, 32);
     expect(onDisk).toBe(expected);
   });
+
+  it("keeps apple-icon.svg in sync with porfiloMarkSvgString", () => {
+    const iconPath = join(process.cwd(), "src/app/apple-icon.svg");
+    const onDisk = readFileSync(iconPath, "utf8");
+    const expected = porfiloMarkSvgString(PORFILO_FAVICON_ID, 180);
+    expect(onDisk).toBe(expected);
+  });
 });

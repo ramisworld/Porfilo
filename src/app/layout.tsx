@@ -7,8 +7,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { ToastProvider } from "~/app/_components/toast";
 import { appOrigin } from "~/lib/root-domain";
 
-const siteOrigin =
-  process.env.BETTER_AUTH_URL ?? appOrigin();
+const siteOrigin = process.env.BETTER_AUTH_URL ?? appOrigin();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
@@ -17,7 +16,7 @@ export const metadata: Metadata = {
     "Type your GitHub username and get a unique, interactive portfolio built from your real work — in seconds.",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-icon", type: "image/png", sizes: "180x180" }],
   },
   openGraph: {
     title: "Porfilo — your GitHub, as a portfolio",

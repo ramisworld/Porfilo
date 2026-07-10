@@ -1,7 +1,7 @@
 import { PorfiloMarkSvg } from "~/lib/porfilo-mark";
 
 export function PorfiloLogoMark({
-  size = 24,
+  size = 18,
   className = "",
   markId = "porfilo-mark",
 }: {
@@ -20,9 +20,9 @@ export function PorfiloLogoMark({
 }
 
 export function PorfiloWordmark({
-  size = 24,
+  size = 18,
   className = "",
-  textClassName = "bg-gradient-to-b from-white to-white/75 bg-clip-text text-[17px] font-semibold tracking-[-0.015em] text-transparent",
+  textClassName = "text-[11px] font-medium tracking-[0.18em] text-white/55 uppercase",
 }: {
   size?: number;
   className?: string;

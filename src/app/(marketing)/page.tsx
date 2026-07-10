@@ -280,10 +280,7 @@ export default function Landing() {
         transition={{ duration: reduce ? 0 : 0.6, ease: HERO_EASE }}
         className="relative z-10 mx-auto flex w-full max-w-6xl flex-none items-center justify-between px-6 py-6"
       >
-        <PorfiloWordmark
-          size={32}
-          textClassName="bg-gradient-to-b from-white to-white/70 bg-clip-text text-[22px] font-semibold tracking-[-0.02em] text-transparent"
-        />
+        <PorfiloWordmark />
         <Link href="/sign-in" className="text-sm text-muted transition hover:text-fg">
           Sign in
         </Link>
@@ -317,35 +314,21 @@ export default function Landing() {
           </span>
           <span className="mt-1 flex items-center justify-center gap-[0.28em]">
             <span className="text-white/80">as a</span>
-            {/* Fixed-width cell: invisible sizers reserve the widest word's width so
-                "as a" stays put — only the rotating word moves (vertically). */}
-            <span className="grid items-center">
-              {HERO_NOUNS.map((n) => (
-                <span
-                  key={n}
-                  aria-hidden
-                  className="invisible col-start-1 row-start-1 py-[0.08em] leading-[1.05] whitespace-nowrap"
-                >
-                  {n}
+            <span className="inline-flex overflow-hidden py-[0.06em] leading-[1.05]">
+              {mounted ? (
+                <RotatingText
+                  texts={[...HERO_NOUNS]}
+                  rotationInterval={2200}
+                  staggerDuration={0.018}
+                  splitBy="characters"
+                  mainClassName="justify-center"
+                  elementLevelClassName="bg-gradient-to-b from-white to-[#a78bfa] bg-clip-text text-transparent"
+                />
+              ) : (
+                <span className="bg-gradient-to-b from-white to-[#a78bfa] bg-clip-text text-transparent">
+                  {HERO_NOUNS[0]}
                 </span>
-              ))}
-              <span className="col-start-1 row-start-1 justify-self-start overflow-hidden py-[0.08em] leading-[1.05]">
-                {mounted ? (
-                  <RotatingText
-                    texts={[...HERO_NOUNS]}
-                    rotationInterval={2200}
-                    staggerDuration={0.018}
-                    splitBy="characters"
-                    layoutAnimation={false}
-                    mainClassName="justify-start"
-                    elementLevelClassName="bg-gradient-to-b from-white to-[#a78bfa] bg-clip-text text-transparent"
-                  />
-                ) : (
-                  <span className="bg-gradient-to-b from-white to-[#a78bfa] bg-clip-text text-transparent">
-                    {HERO_NOUNS[0]}
-                  </span>
-                )}
-              </span>
+              )}
             </span>
           </span>
         </motion.h1>
