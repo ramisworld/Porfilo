@@ -28,7 +28,7 @@ const config = {
               "form-action 'self'",
               "object-src 'none'",
               `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${assetOrigin}`,
-              "style-src 'self' 'unsafe-inline'",
+              `style-src 'self' 'unsafe-inline' ${assetOrigin}`,
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",
               "connect-src 'self' https:",
