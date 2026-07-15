@@ -17,7 +17,6 @@ export function CheckEmailInner() {
             strokeWidth="1.4"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-white/70"
           />
         </svg>
       </div>

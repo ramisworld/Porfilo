@@ -90,8 +90,27 @@ async function captureLandingStates(name, viewport) {
   await page.getByRole("button", { name: /continue/i }).click();
   await page.getByLabel("Portfolio vibe").waitFor();
   await page.getByRole("button", { name: "Cybernetic" }).click();
+  await page.waitForFunction(() => {
+    const button = [...document.querySelectorAll("button")].find((candidate) =>
+      /build my portfolio/i.test(candidate.textContent ?? ""),
+    );
+    return button instanceof HTMLButtonElement && !button.disabled;
+  });
+  await page.waitForTimeout(220);
+  const buildButton = page.getByRole("button", { name: /build my portfolio/i });
+  const buildButtonVisual = await buildButton.evaluate((button) => ({
+    background: getComputedStyle(button).backgroundColor,
+    color: getComputedStyle(button).color,
+    opacity: getComputedStyle(button).opacity,
+  }));
+  assert(
+    buildButtonVisual.background === "rgb(244, 243, 238)" &&
+      buildButtonVisual.color === "rgb(13, 13, 12)" &&
+      buildButtonVisual.opacity === "1",
+    `${name} landing states: enabled build button lacks contrast (${JSON.stringify(buildButtonVisual)})`,
+  );
   await save(page, `proof-vibe-${name}`);
-  await page.getByRole("button", { name: /build my portfolio/i }).click();
+  await buildButton.click();
   await page.locator("[data-proof-build-screen]").waitFor();
   await page.waitForTimeout(1100);
   await save(page, `proof-build-${name}`);

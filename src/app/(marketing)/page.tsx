@@ -336,13 +336,14 @@ export default function Landing() {
         className={styles.nav}
       >
         <PorfiloWordmark
-          size={22}
-          textClassName="text-[0.95rem] font-semibold tracking-[-0.01em] text-white"
+          size={25}
+          className={styles.navBrand}
+          textClassName={styles.navBrandText}
         />
         <div className={styles.navLinks}>
-          <a href="#examples">Examples</a>
-          <a href="#price">Pricing</a>
-          <Link href="/sign-in">Sign in</Link>
+          <Link href="/sign-in" className={styles.signIn}>
+            Sign in <span aria-hidden>→</span>
+          </Link>
         </div>
       </motion.nav>
 
@@ -370,7 +371,7 @@ export default function Landing() {
             your work deserves a
           </span>
           <span data-proof-headline-swap className={styles.headlineSwapLine}>
-            <span className={styles.flip}>
+            <span data-proof-headline-flip className={styles.flip}>
               {mounted ? (
                 <RotatingText
                   texts={[...HERO_NOUNS]}
@@ -390,7 +391,7 @@ export default function Landing() {
 
         <p className={styles.subhead}>{HERO_SUBHEAD}</p>
 
-        <div className={styles.panel} id="price">
+        <div className={styles.panel} id="get-started">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -413,24 +414,30 @@ export default function Landing() {
                   exit={{ opacity: 0, x: -8 }}
                   className={styles.githubStep}
                 >
-                  <span className={styles.at}>@</span>
-                  <input
-                    value={username}
-                    onChange={(e) => {
-                      setUsername(e.target.value);
-                      if (formError) setFormError(null);
-                    }}
-                    placeholder="your-github"
-                    spellCheck={false}
-                    autoCapitalize="off"
-                    autoCorrect="off"
-                    autoComplete="off"
-                    aria-label="GitHub username"
-                    aria-invalid={!!formError}
-                  />
-                  <button type="submit" disabled={!canContinue} className={styles.generate}>
-                    {submitting ? <><Spinner /> Checking</> : <>Continue <Arrow /></>}
-                  </button>
+                  <label className={styles.githubLabel} htmlFor="landing-github-username">
+                    <span>01</span> GitHub profile
+                  </label>
+                  <div className={styles.githubControl}>
+                    <span className={styles.at}>@</span>
+                    <input
+                      id="landing-github-username"
+                      value={username}
+                      onChange={(e) => {
+                        setUsername(e.target.value);
+                        if (formError) setFormError(null);
+                      }}
+                      placeholder="your-github"
+                      spellCheck={false}
+                      autoCapitalize="off"
+                      autoCorrect="off"
+                      autoComplete="off"
+                      aria-label="GitHub username"
+                      aria-invalid={!!formError}
+                    />
+                    <button type="submit" disabled={!canContinue} className={styles.generate}>
+                      {submitting ? <><Spinner /> Checking</> : <>Continue <Arrow /></>}
+                    </button>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.div
@@ -531,7 +538,7 @@ const WALL_ITEMS_PER_COLUMN = 5;
 
 function PortfolioWall() {
   return (
-    <div className={styles.wall} id="examples" aria-label="Real generated portfolio examples">
+    <div className={styles.wall} aria-label="Generated portfolio worlds">
       {WALL_DURATIONS.map((duration, columnIndex) => {
         const items = Array.from({ length: WALL_ITEMS_PER_COLUMN }, (_, itemIndex) =>
           EXAMPLES[(columnIndex * WALL_COLUMN_STRIDE + itemIndex) % EXAMPLES.length]!,

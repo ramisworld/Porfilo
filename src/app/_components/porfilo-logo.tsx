@@ -22,16 +22,16 @@ export function PorfiloLogoMark({
 export function PorfiloWordmark({
   size = 18,
   className = "",
-  textClassName = "text-[11px] font-medium tracking-[0.18em] text-white/55 uppercase",
+  textClassName = "text-[12px] font-black tracking-[-0.05em] text-white uppercase",
 }: {
   size?: number;
   className?: string;
   textClassName?: string;
 }) {
   return (
-    <span className={`inline-flex items-center gap-2 ${className}`.trim()}>
+    <span className={`inline-flex items-center gap-2.5 ${className}`.trim()}>
       <PorfiloLogoMark size={size} />
-      <span className={textClassName}>Porfilo</span>
+      <span className={textClassName}>PORFILO</span>
     </span>
   );
 }

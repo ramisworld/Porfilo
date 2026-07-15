@@ -4,19 +4,17 @@ import { ImageResponse } from "next/og";
 export const ICON_SIZE = { width: 32, height: 32 } as const;
 export const APPLE_ICON_SIZE = { width: 180, height: 180 } as const;
 
-/** Satori-safe mark for OG images (matches favicon look, div-based). */
+/** Satori-safe brutalist mark for OG images and PNG app icons. */
 export function PorfiloIcon({ size = 32 }: { size?: number }) {
-  const r = size * 0.22;
+  const border = Math.max(2, size * 0.065);
   return (
     <div
       style={{
         width: size,
         height: size,
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#08080c",
-        borderRadius: size * 0.28,
+        background: "#f4f3ee",
+        border: `${border}px solid #0d0d0c`,
         position: "relative",
         overflow: "hidden",
       }}
@@ -24,45 +22,53 @@ export function PorfiloIcon({ size = 32 }: { size?: number }) {
       <div
         style={{
           position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(circle at 30% 20%, rgba(108,123,255,0.62), transparent 55%), radial-gradient(circle at 80% 85%, rgba(154,108,255,0.5), transparent 50%)",
+          left: size * 0.19,
+          top: size * 0.17,
+          width: size * 0.19,
+          height: size * 0.66,
+          background: "#0d0d0c",
         }}
       />
       <div
         style={{
           position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.14) 0%, transparent 45%)",
+          left: size * 0.19,
+          top: size * 0.17,
+          width: size * 0.51,
+          height: size * 0.18,
+          background: "#0d0d0c",
         }}
       />
       <div
         style={{
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: size * 0.62,
-          height: size * 0.62,
-          borderRadius: r,
-          border: `${Math.max(1, size * 0.06)}px solid rgba(255,255,255,0.88)`,
-          boxShadow: "0 0 14px rgba(108,123,255,0.55)",
+          position: "absolute",
+          left: size * 0.56,
+          top: size * 0.17,
+          width: size * 0.16,
+          height: size * 0.39,
+          background: "#0d0d0c",
         }}
-      >
-        <div
-          style={{
-            fontSize: size * 0.38,
-            fontWeight: 700,
-            color: "white",
-            fontFamily: "sans-serif",
-            letterSpacing: -0.6,
-            marginTop: -size * 0.02,
-          }}
-        >
-          P
-        </div>
-      </div>
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: size * 0.19,
+          top: size * 0.44,
+          width: size * 0.51,
+          height: size * 0.17,
+          background: "#0d0d0c",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          right: size * 0.1,
+          top: size * 0.1,
+          width: size * 0.16,
+          height: size * 0.16,
+          background: "#e8380d",
+        }}
+      />
     </div>
   );
 }

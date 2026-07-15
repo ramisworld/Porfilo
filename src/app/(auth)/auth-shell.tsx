@@ -15,8 +15,9 @@ export function AuthShell({
       <nav>
         <Link href="/" aria-label="Porfilo home">
           <PorfiloWordmark
-            size={22}
-            textClassName="text-[0.95rem] font-semibold tracking-[-0.01em] text-white"
+            size={25}
+            className={styles.navBrand}
+            textClassName={styles.navBrandText}
           />
         </Link>
         <span>{label}</span>

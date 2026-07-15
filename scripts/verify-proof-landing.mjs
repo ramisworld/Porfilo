@@ -91,13 +91,56 @@ async function capture(name, viewport) {
   const copy = await page.locator("main").innerText();
   assert(!copy.includes("Free during beta"), `${name}: removed beta line is still rendered`);
   assert(!copy.includes("Illustrative examples"), `${name}: removed disclosure is still rendered`);
+  assert(
+    (await page.getByRole("link", { name: "Examples", exact: true }).count()) === 0,
+    `${name}: removed Examples navigation link is still rendered`,
+  );
+  assert(
+    (await page.getByRole("link", { name: "Pricing", exact: true }).count()) === 0,
+    `${name}: removed Pricing navigation link is still rendered`,
+  );
+
+  const signIn = page.getByRole("link", { name: "Sign in", exact: false });
+  assert(await signIn.isVisible(), `${name}: Sign in action is not visible`);
+  const signInRest = await signIn.evaluate((element) => ({
+    background: getComputedStyle(element).backgroundColor,
+    color: getComputedStyle(element).color,
+  }));
+  assert(
+    signInRest.background === "rgb(244, 243, 238)" && signInRest.color === "rgb(13, 13, 12)",
+    `${name}: Sign in action does not have the intended high-contrast rest state`,
+  );
+  await signIn.hover();
+  await page.waitForTimeout(220);
+  const signInHover = await signIn.evaluate((element) => ({
+    background: getComputedStyle(element).backgroundColor,
+    color: getComputedStyle(element).color,
+  }));
+  assert(
+    signInHover.background === "rgb(232, 56, 13)" && signInHover.color === "rgb(244, 243, 238)",
+    `${name}: Sign in action does not preserve contrast on hover`,
+  );
+  await page.mouse.move(1, 1);
 
   const headlineBefore = await page.evaluate(() => {
     const lead = document.querySelector("[data-proof-headline-lead]")?.getBoundingClientRect();
     const swap = document.querySelector("[data-proof-headline-swap]")?.getBoundingClientRect();
     const fixed = document.querySelector("[data-proof-fixed-copy]")?.getBoundingClientRect();
-    return lead && swap && fixed
-      ? { leadBottom: lead.bottom, swapTop: swap.top, fixedX: fixed.x }
+    const flip = document.querySelector("[data-proof-headline-flip]");
+    return lead && swap && fixed && flip
+      ? {
+          leadBottom: lead.bottom,
+          leadLeft: lead.left,
+          leadRight: lead.right,
+          swapTop: swap.top,
+          swapLeft: swap.left,
+          swapRight: swap.right,
+          fixedX: fixed.x,
+          flipOverflow: flip.scrollWidth - flip.clientWidth,
+          currentText: flip.querySelector(".sr-only")?.textContent ?? "",
+          safetyGutter: Number.parseFloat(getComputedStyle(flip).paddingRight),
+          viewportWidth: innerWidth,
+        }
       : null;
   });
   assert(headlineBefore, `${name}: headline geometry is unavailable`);
@@ -105,13 +148,73 @@ async function capture(name, viewport) {
     headlineBefore.swapTop >= headlineBefore.leadBottom - 2,
     `${name}: headline is not locked to two rows`,
   );
+  assert(
+    headlineBefore.leadLeft >= -0.5 &&
+      headlineBefore.leadRight <= headlineBefore.viewportWidth + 0.5 &&
+      headlineBefore.swapLeft >= -0.5 &&
+      headlineBefore.swapRight <= headlineBefore.viewportWidth + 0.5 &&
+      headlineBefore.flipOverflow <= 1 &&
+      headlineBefore.safetyGutter > 0,
+    `${name}: headline copy is clipped`,
+  );
   await page.waitForTimeout(2600);
-  const fixedXAfter = await page.locator("[data-proof-fixed-copy]").evaluate(
-    (element) => element.getBoundingClientRect().x,
+  const headlineAfter = await page.evaluate(() => {
+    const swap = document.querySelector("[data-proof-headline-swap]")?.getBoundingClientRect();
+    const fixed = document.querySelector("[data-proof-fixed-copy]")?.getBoundingClientRect();
+    const flip = document.querySelector("[data-proof-headline-flip]");
+    return swap && fixed && flip
+      ? {
+          fixedX: fixed.x,
+          swapLeft: swap.left,
+          swapRight: swap.right,
+          flipOverflow: flip.scrollWidth - flip.clientWidth,
+          currentText: flip.querySelector(".sr-only")?.textContent ?? "",
+          viewportWidth: innerWidth,
+        }
+      : null;
+  });
+  assert(headlineAfter, `${name}: rotated headline geometry is unavailable`);
+  assert(
+    Math.abs(headlineAfter.fixedX - headlineBefore.fixedX) < 0.5,
+    `${name}: “this good” shifted when the rotating word changed`,
   );
   assert(
-    Math.abs(fixedXAfter - headlineBefore.fixedX) < 0.5,
-    `${name}: “this good” shifted when the rotating word changed`,
+    headlineAfter.swapLeft >= -0.5 &&
+      headlineAfter.swapRight <= headlineAfter.viewportWidth + 0.5 &&
+      headlineAfter.flipOverflow <= 1,
+    `${name}: rotated headline copy is clipped`,
+  );
+  const seenHeadlineWords = new Set([headlineBefore.currentText, headlineAfter.currentText]);
+  for (let cycle = 0; cycle < 2; cycle += 1) {
+    await page.waitForTimeout(2600);
+    const nextHeadline = await page.evaluate(() => {
+      const swap = document.querySelector("[data-proof-headline-swap]")?.getBoundingClientRect();
+      const fixed = document.querySelector("[data-proof-fixed-copy]")?.getBoundingClientRect();
+      const flip = document.querySelector("[data-proof-headline-flip]");
+      return swap && fixed && flip
+        ? {
+            fixedX: fixed.x,
+            swapLeft: swap.left,
+            swapRight: swap.right,
+            flipOverflow: flip.scrollWidth - flip.clientWidth,
+            currentText: flip.querySelector(".sr-only")?.textContent ?? "",
+            viewportWidth: innerWidth,
+          }
+        : null;
+    });
+    assert(nextHeadline, `${name}: headline cycle geometry is unavailable`);
+    seenHeadlineWords.add(nextHeadline.currentText);
+    assert(
+      Math.abs(nextHeadline.fixedX - headlineBefore.fixedX) < 0.5 &&
+        nextHeadline.swapLeft >= -0.5 &&
+        nextHeadline.swapRight <= nextHeadline.viewportWidth + 0.5 &&
+        nextHeadline.flipOverflow <= 1,
+      `${name}: “${nextHeadline.currentText}” is clipped or shifts fixed copy`,
+    );
+  }
+  assert(
+    seenHeadlineWords.size === 4,
+    `${name}: did not verify all four rotating headline words`,
   );
 
   await page.locator("[data-proof-track]").evaluateAll((tracks) => {
