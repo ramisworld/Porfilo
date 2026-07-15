@@ -1,0 +1,150 @@
+<!-- Proof landing example. Public GitHub data snapshot: 2026-07-15. -->
+<title>Cyber Terminal — Porfilo world</title>
+<style>
+  :root{--bg:#020504;--panel:rgba(3,10,7,.88);--green:#9dff75;--bright:#d9ffc9;--dim:#4c8a5b;--faint:#173522;--line:rgba(157,255,117,.2);--danger:#ff7f6e;--mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace}
+  *{box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden}body{margin:0;background:var(--bg);color:var(--green);font-family:var(--mono);font-size:13px;line-height:1.55;text-shadow:0 0 8px rgba(157,255,117,.2);-webkit-font-smoothing:antialiased}
+  #rain{position:fixed;inset:0;width:100%;height:100%;opacity:.23}.scan{position:fixed;inset:0;z-index:10;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.28) 3px,transparent 4px),radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.66) 100%)}
+  .topline{position:fixed;z-index:20;inset:0 0 auto;height:38px;background:rgba(1,5,3,.83);border-bottom:1px solid var(--line);backdrop-filter:blur(8px);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 15px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}.topline b{color:var(--bright)}.brand{color:var(--green);font-weight:800}.brand::before{content:"▣";margin-right:9px}.top-mid{display:flex;gap:18px}.top-right{text-align:right}.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);margin-right:7px;animation:blink 1.2s steps(1) infinite}@keyframes blink{50%{opacity:.18}}
+  .shell{position:fixed;z-index:5;inset:54px 22px 20px;border:1px solid var(--line);background:var(--panel);box-shadow:0 0 0 1px rgba(157,255,117,.04),0 35px 100px rgba(0,0,0,.5),inset 0 0 90px rgba(157,255,117,.025);display:grid;grid-template-rows:34px 1fr auto;border-radius:3px;overflow:hidden;backdrop-filter:blur(4px)}
+  .shellbar{display:flex;justify-content:space-between;align-items:center;padding:0 12px;border-bottom:1px solid var(--line);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}.shellbar .lights{display:flex;gap:6px}.shellbar .lights i{width:7px;height:7px;border:1px solid var(--dim)}.shellbar .lights i:first-child{background:var(--green);border-color:var(--green);box-shadow:0 0 8px var(--green)}
+  .console{min-height:0;display:grid;grid-template-columns:1fr 230px}.output{overflow:auto;padding:22px 25px 30px;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}.output::-webkit-scrollbar{width:6px}.output::-webkit-scrollbar-thumb{background:var(--faint)}.sidecar{border-left:1px solid var(--line);padding:18px 15px;background:rgba(5,15,10,.5);overflow:auto}.side-block{margin-bottom:22px}.side-label{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);padding-bottom:7px;border-bottom:1px solid var(--line)}.side-val{padding-top:9px;color:var(--bright);font-size:11px}.meter{height:3px;margin-top:9px;background:var(--faint)}.meter i{display:block;height:100%;background:var(--green);box-shadow:0 0 7px var(--green)}.side-list{list-style:none;margin:7px 0 0;padding:0}.side-list li{border-bottom:1px dashed rgba(157,255,117,.1);font-size:9px}.side-list a{display:block;padding:6px 2px;color:var(--dim);text-decoration:none}.side-list a:hover,.side-list a:focus-visible{color:var(--bright);background:rgba(157,255,117,.06);outline:none}.side-list b{color:var(--green);font-weight:400}
+  .line{min-height:1.55em;white-space:pre-wrap;overflow-wrap:anywhere}.sys{color:var(--dim)}.ok{color:var(--bright)}.err{color:var(--danger)}.promptc{color:var(--bright)}.path{color:var(--dim)}.link{color:var(--green);text-decoration:underline;text-underline-offset:3px}.kv{display:grid;grid-template-columns:115px 1fr;gap:9px}.kv .k{color:var(--dim)}.kv .v{color:var(--bright)}
+  .banner{margin:7px 0 12px;font-weight:900;font-size:clamp(2.8rem,8vw,8.5rem);line-height:.8;letter-spacing:-.075em;color:var(--bright);text-transform:uppercase;text-shadow:2px 0 rgba(157,255,117,.25),0 0 28px rgba(157,255,117,.18)}.banner::after{content:"_";color:var(--green);animation:blink 1s steps(1) infinite}.intro-rule{height:1px;background:linear-gradient(90deg,var(--green),transparent 72%);margin:12px 0}.build-head{display:flex;align-items:center;gap:10px;margin-top:12px;color:var(--bright);font-size:9px;letter-spacing:.15em;text-transform:uppercase}.build-head::before{content:"";width:20px;height:1px;background:var(--green);box-shadow:0 0 7px var(--green)}.snapshot{display:flex;flex-wrap:wrap;gap:7px 18px;padding:9px 0;color:var(--dim);font-size:9px;text-transform:uppercase;letter-spacing:.08em}.snapshot b{color:var(--bright);font-weight:400}.project-line{display:grid;grid-template-columns:30px minmax(100px,180px) 1fr auto;gap:10px;padding:7px 8px 7px 5px;border-bottom:1px dashed rgba(157,255,117,.13);border-left:2px solid transparent;color:inherit;text-decoration:none;cursor:pointer;transition:background .14s,border-color .14s,padding-left .14s}.project-line:hover,.project-line:focus-visible{background:rgba(157,255,117,.07);border-left-color:var(--green);padding-left:10px;outline:none}.project-line .n{color:var(--dim)}.project-line b{color:var(--bright)}.project-line .desc{color:var(--dim)}.project-line .yr{color:var(--green)}.project-line .yr::after{content:" \2197"}
+  .prompt-wrap{border-top:1px solid var(--line);background:rgba(2,8,5,.9)}.quickbar{display:flex;gap:7px;padding:8px 12px;border-bottom:1px solid rgba(157,255,117,.1);overflow-x:auto;scrollbar-width:none}.quickbar::-webkit-scrollbar{display:none}.quickbar button{flex:0 0 auto;border:1px solid var(--line);background:rgba(157,255,117,.04);color:var(--dim);padding:5px 8px;font:8px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer}.quickbar button:hover,.quickbar button:focus-visible{color:var(--bright);border-color:var(--green);outline:none}.prompt-row{display:flex;align-items:center;gap:9px;padding:11px 14px}.ps{white-space:nowrap;color:var(--bright)}.ps b{color:var(--green)}.ps i{font-style:normal;color:var(--dim)}#cmd{min-width:0;flex:1;border:0;outline:none;background:transparent;color:var(--bright);font:inherit;text-shadow:inherit;caret-color:var(--green)}#cmd:disabled{opacity:.35}.hint{font-size:8px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+  .boot-cover{position:fixed;z-index:30;inset:38px 0 0;background:#010302;display:grid;place-items:center;transition:opacity .35s}.boot-cover.done{opacity:0;pointer-events:none}.bootbox{width:min(620px,86vw)}.bootmark{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--bright);margin-bottom:16px}.boottrack{height:2px;background:var(--faint);overflow:hidden}.boottrack i{display:block;width:0;height:100%;background:var(--green);box-shadow:0 0 9px var(--green);transition:width .12s}.bootmsg{margin-top:10px;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.13em}
+  @media(max-width:800px){.shell{inset:44px 6px 6px}.topline{height:34px;padding:0 8px;grid-template-columns:1fr auto}.top-mid{display:none}.top-right{font-size:8px}.console{grid-template-columns:1fr}.sidecar{display:none}.output{padding:13px 12px 20px;font-size:11px}.shellbar{padding:0 8px}.hint{display:none}.prompt-row{padding:10px 9px;gap:6px;font-size:11px}.quickbar{padding:7px 8px}.banner{font-size:clamp(3rem,18vw,5rem);margin-top:4px}.project-line{grid-template-columns:22px minmax(80px,1fr) auto;min-height:36px;align-items:center}.project-line .desc{display:none}.kv{grid-template-columns:80px 1fr}.topline .location{display:none}}
+  @media(prefers-reduced-motion:reduce){.pulse,.banner::after{animation:none}.boot-cover{display:none}.boottrack i{transition:none}}
+</style>
+
+<canvas id="rain"></canvas><div class="scan"></div>
+<header class="topline"><div class="brand" id="brand"></div><div class="top-mid"><span>KERNEL <b>6.8.0-PORFILO</b></span><span>LINK <b>ENCRYPTED</b></span><span>MODE <b>INTERACTIVE</b></span></div><div class="top-right" id="top-right"></div></header>
+<div class="shell" id="shell"><div class="shellbar"><span class="lights"><i></i><i></i><i></i></span><span id="shell-title"></span><span>TTY_01 · UTF-8</span></div><div class="console"><div class="output" id="output" role="log" aria-live="polite"></div><aside class="sidecar"><div class="side-block"><div class="side-label">Identity node</div><div class="side-val" id="side-id"></div></div><div class="side-block"><div class="side-label">Availability</div><div class="side-val" id="side-status"></div><div class="meter"><i style="width:88%"></i></div></div><div class="side-block"><div class="side-label">Build index</div><ul class="side-list" id="side-projects"></ul></div><div class="side-block"><div class="side-label">Capability spectrum</div><div class="side-val" id="side-stack"></div></div></aside></div><div class="prompt-wrap"><div class="quickbar" id="quickbar"></div><div class="prompt-row"><span class="ps" id="ps"></span><input id="cmd" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" aria-label="Terminal command" disabled><span class="hint">TAB completes · ↑ history</span></div></div></div>
+<div class="boot-cover" id="boot"><div class="bootbox"><div class="bootmark">PORFILO BIOS // secure boot</div><div class="boottrack"><i id="bootbar"></i></div><div class="bootmsg" id="bootmsg">initializing</div></div></div>
+
+<script>
+/* ============================================================================
+   FILL CONTRACT — the portfolio renderer replaces ONLY the DATA object below.
+   The shape is identical across every world (see world-prompts/FILL_CONTRACT.md).
+   Everything after "END DATA" is template logic and must not change per user.
+   ============================================================================ */
+const DATA = {
+  "identity": {
+    "name": "Linus Torvalds",
+    "handle": "torvalds",
+    "role": "Linux kernel maintainer",
+    "headline": "Creator of Linux and Git.",
+    "location": "Portland, OR",
+    "available": false
+  },
+  "tagline": "Maintaining the kernel at the center of modern computing.",
+  "email": "",
+  "links": {
+    "github": "https://github.com/torvalds"
+  },
+  "stats": {
+    "contributionsPastYear": 3218,
+    "publicRepos": 9,
+    "featuredBuilds": 4,
+    "buildingSince": 2011
+  },
+  "stack": [
+    "C",
+    "OpenSCAD"
+  ],
+  "primaryStack": "C",
+  "disciplines": [
+    [
+      "Operating systems",
+      "Kernel engineering"
+    ],
+    [
+      "Version control",
+      "Git"
+    ],
+    [
+      "Hardware",
+      "Audio and circuits"
+    ]
+  ],
+  "projects": [
+    {
+      "name": "linux",
+      "year": 2026,
+      "tech": [
+        "C"
+      ],
+      "stars": 239424,
+      "repoUrl": "https://github.com/torvalds/linux",
+      "blurb": "Linux kernel source tree."
+    },
+    {
+      "name": "AudioNoise",
+      "year": 2026,
+      "tech": [
+        "C"
+      ],
+      "stars": 4431,
+      "repoUrl": "https://github.com/torvalds/AudioNoise",
+      "blurb": "Random digital audio effects."
+    },
+    {
+      "name": "uemacs",
+      "year": 2026,
+      "tech": [
+        "C"
+      ],
+      "stars": 2085,
+      "repoUrl": "https://github.com/torvalds/uemacs",
+      "blurb": "A personal version of MicroEMACS with private modifications."
+    },
+    {
+      "name": "GuitarPedal",
+      "year": 2026,
+      "tech": [
+        "C"
+      ],
+      "stars": 2083,
+      "repoUrl": "https://github.com/torvalds/GuitarPedal",
+      "blurb": "An exploration of analog circuits through guitar-pedal design."
+    }
+  ],
+  "experience": [],
+  "credentials": []
+};
+/* ===== END DATA — template logic below (world-specific, not per-user) ======= */
+
+const R=matchMedia('(prefers-reduced-motion: reduce)').matches,STAR_MIN=50;
+const esc=(s)=>String(s??'').replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=(id)=>document.getElementById(id),id=DATA.identity||{},P=Array.isArray(DATA.projects)?DATA.projects:[],L=DATA.links||{},user=String(id.handle||id.name||'guest').toLowerCase();
+const out=$('output'),input=$('cmd');let history=[],histAt=0,matrixBoost=1;
+$('brand').textContent=(id.handle||id.name||'PORFILO').toUpperCase();$('shell-title').textContent=`${user}@porfilo: ~/portfolio`;$('ps').innerHTML=`<b>${esc(user)}</b>@porfilo:<i>~</i>$`;$('side-id').innerHTML=`${esc(id.name||'')}<br><span style="color:var(--dim)">${esc(id.role||'')}</span>`;$('side-status').textContent=id.available?'● ACCEPTING SIGNAL':'○ HEADS DOWN';$('side-stack').textContent=(DATA.disciplines||[]).map((d)=>d[0]).join(' / ');$('side-projects').innerHTML=P.map((p,i)=>`<li><a href="${esc(p.repoUrl||p.demoUrl||'#')}" target="_blank" rel="noreferrer" aria-label="Open ${esc(p.name)} on GitHub"><b>${String(i+1).padStart(2,'0')}</b> ${esc(p.name)}</a></li>`).join('');
+function clock(){let t='';try{t=new Date().toLocaleTimeString('en-GB',{hour12:false,timeZone:id.timezone||undefined});}catch(e){}$('top-right').innerHTML=`${id.available?'<i class="pulse"></i>ONLINE · ':''}<span class="location">${esc(id.location||'')} · </span><b>${esc(t)}${id.tzLabel?' '+esc(id.tzLabel):''}</b>`;}clock();setInterval(clock,1000);
+function print(html,cls=''){const d=document.createElement('div');d.className='line '+cls;d.innerHTML=html;out.appendChild(d);out.scrollTop=out.scrollHeight;return d}function blank(){print('&nbsp;')}
+function whoami(){print(`<div class="banner">${esc(id.name||id.handle||'GUEST')}</div>`);print(`<div class="kv"><span class="k">ROLE</span><span class="v">${esc(id.role||'')}</span><span class="k">LOCATION</span><span class="v">${esc(id.location||'')}</span><span class="k">MISSION</span><span class="v">${esc(id.headline||'')}</span><span class="k">FOCUS</span><span class="v">${esc((DATA.disciplines||[]).map((d)=>d[0]).join(' · '))}</span></div>`);print('<div class="intro-rule"></div>');print(esc(String(DATA.tagline||'').replace(/\*/g,'')),'ok')}
+function projects(boot=false){if(!P.length){print('projects: index empty','sys');return}P.forEach((p,i)=>{const star=p.stars>=STAR_MIN?` ★${esc(p.stars)}`:'',href=p.repoUrl||p.demoUrl||'';const inner=`<span class="n">${String(i+1).padStart(2,'0')}</span><b>${esc(p.name)}${star}</b><span class="desc">${esc(p.blurb)}</span><span class="yr">${esc(p.year)}</span>`;print(href?`<a class="project-line" href="${esc(href)}" target="_blank" rel="noreferrer" aria-label="Open ${esc(p.name)} on GitHub">${inner}</a>`:`<div class="project-line">${inner}</div>`)});if(!boot)print('select a project row or use: open &lt;number|name&gt;','sys')}
+function contact(){print(`<div class="kv"><span class="k">EMAIL</span><span class="v"><a class="link" href="mailto:${esc(DATA.email)}">${esc(DATA.email)}</a></span>${L.github?`<span class="k">GITHUB</span><span class="v"><a class="link" href="${esc(L.github)}" target="_blank" rel="noreferrer">${esc(L.github.replace(/^https?:\/\//,''))}</a></span>`:''}${L.site?`<span class="k">WEB</span><span class="v"><a class="link" href="${esc(L.site)}" target="_blank" rel="noreferrer">${esc(L.site.replace(/^https?:\/\//,''))}</a></span>`:''}</div>`)}
+const commands={
+  help:()=>{const names=['whoami','projects','open <n>','stack','status','contact','clear','matrix','date'];if(Array.isArray(DATA.credentials)&&DATA.credentials.length)names.splice(6,0,'certs');print('<span class="sys">available commands:</span> '+names.map((x)=>`<span class="ok">${esc(x)}</span>`).join(' · '))},
+  whoami,about:whoami,projects,ls:projects,
+  stack:()=>print((DATA.stack||[]).map((s)=>`<span class="ok">${esc(s)}</span>`).join(' · ')),
+  status:()=>print(`<div class="kv"><span class="k">UPLINK</span><span class="v">SECURE</span><span class="k">AVAILABILITY</span><span class="v">${id.available?'OPEN':'CLOSED'}</span><span class="k">CONTRIBUTIONS/YR</span><span class="v">${esc(DATA.stats.contributionsPastYear)}</span><span class="k">PUBLIC REPOS</span><span class="v">${esc(DATA.stats.publicRepos)}</span><span class="k">BUILDING SINCE</span><span class="v">${esc(DATA.stats.buildingSince)}</span></div>`),
+  contact,
+  open:(arg)=>{const n=parseInt(arg,10),p=P[n-1]||P.find((x)=>String(x.name).toLowerCase()===String(arg).toLowerCase());if(!p){print(`open: target '${esc(arg||'')}' not found — run projects`,'err');return}print(`opening <span class="ok">${esc(p.name)}</span> → ${esc(p.repoUrl||p.demoUrl||'')}`,'sys');if(p.repoUrl||p.demoUrl)window.open(p.demoUrl||p.repoUrl,'_blank','noopener')},
+  clear:()=>{out.innerHTML=''},
+  matrix:()=>{matrixBoost=matrixBoost===1?2.8:1;print(`matrix density: <span class="ok">${matrixBoost>1?'OVERCLOCKED':'NORMAL'}</span>`)},
+  date:()=>print(esc(new Date().toString()),'sys'),
+  sudo:()=>print(`${esc(user)} is not in the sudoers file. this incident has been designed.`,'err'),
+  coffee:()=>print('<span class="ok">brewing compile-time confidence...</span> [██████████] 100%'),
+};
+if(Array.isArray(DATA.credentials)&&DATA.credentials.length)commands.certs=()=>DATA.credentials.forEach((c,i)=>print(`${String(i+1).padStart(2,'0')} <span class="ok">${esc(c.title)}</span> · ${esc(c.issuer)} · ${esc(c.year)}`));
+function run(raw,echo=true){const line=String(raw||'').trim();if(!line)return;if(echo)print(`<span class="promptc">${esc(user)}@porfilo</span><span class="path">:~$</span> ${esc(line)}`);const [cmd,...rest]=line.split(/\s+/),key=cmd.toLowerCase();if(commands[key])commands[key](rest.join(' '));else print(`bash: ${esc(cmd)}: command not found · type <span class="ok">help</span>`,'err');}
+input.addEventListener('keydown',(e)=>{if(e.key==='Enter'){const v=input.value;input.value='';if(v.trim()){history.push(v);histAt=history.length}run(v)}else if(e.key==='ArrowUp'){e.preventDefault();if(history.length)input.value=history[Math.max(0,--histAt)]||''}else if(e.key==='ArrowDown'){e.preventDefault();histAt=Math.min(history.length,++histAt);input.value=history[histAt]||''}else if(e.key==='Tab'){e.preventDefault();const q=input.value.toLowerCase(),matches=Object.keys(commands).filter((x)=>x.startsWith(q));if(matches.length===1)input.value=matches[0]}});
+$('shell').addEventListener('click',(e)=>{if(!e.target.closest('a,button'))input.focus()});
+const quick=['help','whoami','projects','stack','contact','clear'];$('quickbar').innerHTML=quick.map((c)=>`<button data-cmd="${c}">${c}</button>`).join('');$('quickbar').addEventListener('click',(e)=>{const b=e.target.closest('[data-cmd]');if(b)run(b.dataset.cmd)});
+const bootSteps=[['verifying data contract',16],['indexing project graph',34],['mapping capability spectrum',55],['negotiating secure uplink',77],['building interactive shell',100]];
+function intro(){print('[ <span class="ok">OK</span> ] PORFILO CYBER SHELL / session established','sys');print(`authenticated as <span class="ok">${esc(user)}</span> · ${esc(id.location||'')}`,'sys');blank();whoami();print('<div class="build-head">Build index mounted</div>');print(`<div class="snapshot"><span><b>${esc(DATA.stats.featuredBuilds)}</b> featured builds</span><span><b>${esc(DATA.stats.contributionsPastYear)}</b> contributions / yr</span><span><b>${esc(DATA.stats.publicRepos)}</b> public repos</span><span>shipping since <b>${esc(DATA.stats.buildingSince)}</b></span></div>`);projects(true);print('<div class="build-head">Capability graph online</div>');print(`<span class="sys">${esc((DATA.disciplines||[]).map(([k,v])=>k+' ['+v+']').join(' · '))}</span>`);print((DATA.stack||[]).map((s)=>`<span class="ok">${esc(s)}</span>`).join(' · '));blank();print('Shell ready — type <span class="ok">help</span>, run <span class="ok">open &lt;n&gt;</span>, or use the command keys.','sys');input.disabled=false;input.focus();out.scrollTop=0}
+if(R){$('boot').classList.add('done');intro()}else{let i=0;const step=()=>{const [msg,pct]=bootSteps[i];$('bootmsg').textContent=msg;$('bootbar').style.width=pct+'%';i++;if(i<bootSteps.length)setTimeout(step,90);else setTimeout(()=>{$('boot').classList.add('done');intro()},160)};setTimeout(step,80)}
+
+// matrix field — original Canvas2D implementation, capped and visibility-aware
+(function(){const c=$('rain'),x=c.getContext('2d');let w,h,dpr,cols,drops,last=0;const glyph='01アイウエカキクケコ<>/{}[]#$%';function resize(){dpr=Math.min(devicePixelRatio||1,1.5);w=innerWidth;h=innerHeight;c.width=w*dpr;c.height=h*dpr;x.setTransform(dpr,0,0,dpr,0,0);cols=Math.ceil(w/18);drops=Array.from({length:cols},(_,i)=>Math.random()*-50-(i%9)*3)}resize();addEventListener('resize',resize);function draw(t){if(document.hidden){requestAnimationFrame(draw);return}if(t-last<70/matrixBoost){requestAnimationFrame(draw);return}last=t;x.fillStyle=`rgba(2,5,4,${.18/matrixBoost})`;x.fillRect(0,0,w,h);x.font='11px '+getComputedStyle(document.body).fontFamily;x.fillStyle='rgba(157,255,117,.62)';for(let i=0;i<cols;i++){const ch=glyph[(Math.random()*glyph.length)|0];x.fillText(ch,i*18,drops[i]*16);drops[i]+=matrixBoost;if(drops[i]*16>h&&Math.random()>.975)drops[i]=Math.random()*-20}requestAnimationFrame(draw)}if(R){x.fillStyle='#06110a';x.fillRect(0,0,w,h);for(let i=0;i<cols;i++){x.fillStyle='rgba(157,255,117,.18)';x.fillText(glyph[i%glyph.length],i*18,(i*47)%h)}}else requestAnimationFrame(draw)})();
+</script>

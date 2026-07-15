@@ -3,15 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ProfileData } from "~/server/profile/model";
-import { PorfiloButton, PorfiloButtonLink } from "~/app/_components/porfilo-button";
-import { Arrow, ExternalArrow, Spinner } from "~/app/_components/icons";
 import { EditModal } from "./edit-modal";
 import { DomainTile } from "./domain-tile";
+import styles from "./dashboard.module.css";
 
 export function DashboardView(props: {
   id: string;
   slug: string;
   githubUsername: string;
+  vibe: string;
   isPublic: boolean;
   views: number;
   createdAt: string;
@@ -25,7 +25,9 @@ export function DashboardView(props: {
   const [previewLoaded, setPreviewLoaded] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [profileData, setProfileData] = useState<ProfileData>(props.profileData);
+  const [profileData, setProfileData] = useState<ProfileData>(
+    props.profileData,
+  );
 
   useEffect(() => {
     if (!editorOpen) setProfileData(props.profileData);
@@ -34,8 +36,18 @@ export function DashboardView(props: {
   const created = (() => {
     const d = new Date(props.createdAt);
     const months = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
     return `${d.getDate()} ${months[d.getMonth()]}`;
   })();
@@ -54,59 +66,148 @@ export function DashboardView(props: {
     refreshPreview();
   };
 
+  const updated = new Date(props.updatedAt).toLocaleDateString("en-NZ", {
+    day: "numeric",
+    month: "short",
+  });
+  const experienceCount = profileData.experience?.length ?? 0;
+  const credentialCount = profileData.credentials?.length ?? 0;
+  const buildId = props.id.slice(-6).toUpperCase();
+
   return (
-    <div className="flex h-full w-full flex-col gap-4 py-3 md:gap-5 md:py-4">
-      {/* ── Header ────────────────────────────────────────────────────── */}
-      <header className="flex flex-none flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-white/[0.025] px-2.5 py-0.5 text-[9.5px] font-medium tracking-[0.18em] text-muted uppercase backdrop-blur-md">
-            <span className="h-1 w-1 rounded-full bg-warn shadow-[0_0_8px_#fbbf24]" />
-            Beta · 1 per account
-          </div>
-          <h1 className="text-balance text-2xl font-medium leading-[1.05] tracking-tight md:text-3xl">
-            <span className="text-fg">Your portfolio,</span>{" "}
-            <span className="bg-gradient-to-b from-white to-white/55 bg-clip-text text-transparent">
-              live.
-            </span>
-          </h1>
-          <p className="mt-1 text-[11.5px] text-muted-3">
-            <span className="font-mono text-muted-2">
-              @{props.githubUsername}
-            </span>
-            {" · "}
-            {created}
-            {" · "}
-            {props.views} view{props.views === 1 ? "" : "s"}
+    <div className={styles.dashboard}>
+      <header className={styles.header}>
+        <div className={styles.headerIndex} aria-hidden>
+          <span>Control room</span>
+          <strong>DB/01</strong>
+        </div>
+        <div className={styles.heading}>
+          <span className={styles.kicker}>
+            <i /> Portfolio online
+          </span>
+          <h1>Your work, live.</h1>
+          <p className={styles.meta}>
+            <b>@{props.githubUsername}</b> / created {created} / updated{" "}
+            {updated}
           </p>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <DomainTile />
-          <PorfiloButtonLink
-            href={props.publicUrl}
-            target="_blank"
-            rel="noreferrer"
-            variant="secondary"
-          >
-            Preview
-            <ExternalArrow />
-          </PorfiloButtonLink>
-          <PorfiloButton type="button" onClick={() => setEditorOpen(true)}>
-            Edit
-            <Arrow />
-          </PorfiloButton>
+        <div className={styles.headerStatus}>
+          <span>System status</span>
+          <strong>
+            <i /> Operational
+          </strong>
+          <small>BUILD {buildId}</small>
         </div>
       </header>
 
-      {/* ── Preview ───────────────────────────────────────────────────── */}
-      <PreviewFrame
-        src={iframeSrc}
-        loaded={previewLoaded}
-        onLoad={() => setPreviewLoaded(true)}
-        onReload={refreshPreview}
-        publicUrl={previewLabel}
-        openUrl={props.publicUrl}
-      />
+      <div className={styles.workspace}>
+        <aside className={styles.rail}>
+          <div className={styles.railIntro}>
+            <span className={styles.railLabel}>01 / Current portfolio</span>
+            <strong>{props.slug}</strong>
+            <p>@{props.githubUsername}</p>
+            <span
+              className={styles.status}
+              data-public={props.isPublic ? "true" : "false"}
+            >
+              <i /> {props.isPublic ? "Public / live" : "Private / draft"}
+            </span>
+          </div>
+          <div className={styles.stats}>
+            <div className={styles.stat}>
+              <span>Views</span>
+              <b>{props.views.toLocaleString("en-NZ")}</b>
+              <small>All time</small>
+            </div>
+            <div className={styles.stat}>
+              <span>Projects</span>
+              <b>{String(profileData.projects.length).padStart(2, "0")}</b>
+              <small>09 max</small>
+            </div>
+            <div className={styles.stat}>
+              <span>Experience</span>
+              <b>{String(experienceCount).padStart(2, "0")}</b>
+              <small>Entries</small>
+            </div>
+            <div className={styles.stat}>
+              <span>Credentials</span>
+              <b>{String(credentialCount).padStart(2, "0")}</b>
+              <small>Verified proof</small>
+            </div>
+          </div>
+          <div className={styles.direction}>
+            <span>02 / Creative direction</span>
+            <p>{props.vibe}</p>
+          </div>
+          <div className={styles.domain}>
+            <span className={styles.railLabel}>03 / Published at</span>
+            <a href={props.publicUrl} target="_blank" rel="noreferrer">
+              {previewLabel} <span>↗</span>
+            </a>
+          </div>
+        </aside>
+
+        <PreviewFrame
+          src={iframeSrc}
+          loaded={previewLoaded}
+          onLoad={() => setPreviewLoaded(true)}
+          onReload={refreshPreview}
+          publicUrl={previewLabel}
+          openUrl={props.publicUrl}
+        />
+
+        <aside className={styles.operations}>
+          <div className={styles.operationsHead}>
+            <span>Operations / 03</span>
+            <strong>Make it move.</strong>
+            <p>Update the proof, inspect the live build, or claim your URL.</p>
+          </div>
+
+          <div className={styles.operationList}>
+            <button
+              type="button"
+              className={`${styles.operation} ${styles.operationPrimary}`}
+              onClick={() => setEditorOpen(true)}
+            >
+              <span className={styles.operationNumber}>01</span>
+              <span>
+                <b>Edit portfolio</b>
+                <small>Content, projects, experience</small>
+              </span>
+              <i aria-hidden>→</i>
+            </button>
+
+            <a
+              href={props.publicUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={styles.operation}
+            >
+              <span className={styles.operationNumber}>02</span>
+              <span>
+                <b>Open live site</b>
+                <small>View the public build</small>
+              </span>
+              <i aria-hidden>↗</i>
+            </a>
+
+            <div className={styles.domainOperation}>
+              <span className={styles.operationNumber}>03</span>
+              <div>
+                <b>Publishing URL</b>
+                <small>Free subdomain or your own</small>
+              </div>
+              <DomainTile />
+            </div>
+          </div>
+
+          <div className={styles.releaseNote}>
+            <span>Release channel</span>
+            <strong>LIVE / PRODUCTION</strong>
+            <p>Saved edits publish directly to the portfolio above.</p>
+          </div>
+        </aside>
+      </div>
 
       {editorOpen && (
         <EditModal
@@ -136,50 +237,33 @@ function PreviewFrame({
   openUrl: string;
 }) {
   return (
-    <div
-      className="relative flex w-full flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-black/40 backdrop-blur-xl shadow-glass"
-      style={{ minHeight: "280px" }}
-    >
-      {/* Browser chrome */}
-      <div className="relative flex flex-none items-center gap-3 border-b border-border-subtle bg-black/40 px-4 py-2.5">
-        <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
-          <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
-          <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
-        </span>
-        <span className="flex-1 truncate text-center font-mono text-[11px] text-white/45">
-          {publicUrl}
-        </span>
-        <div className="flex items-center gap-1">
-          <PorfiloButton
-            type="button"
-            variant="ghost"
-            aria-label="Reload preview"
-            onClick={onReload}
-            className="!h-7 !w-7 !p-0 !text-[12px]"
-          >
+    <div className={styles.preview}>
+      <div className={styles.browserBar}>
+        <span className={styles.previewTag}>Live viewport / 01</span>
+        <span className={styles.browserUrl}>{publicUrl}</span>
+        <div className={styles.browserActions}>
+          <button type="button" aria-label="Reload preview" onClick={onReload}>
             ↻
-          </PorfiloButton>
-          <PorfiloButtonLink
+          </button>
+          <a
             href={openUrl}
             target="_blank"
             rel="noreferrer"
-            variant="ghost"
             aria-label="Open in new tab"
-            className="!h-7 !w-7 !p-0 !text-[12px]"
           >
             ↗
-          </PorfiloButtonLink>
+          </a>
         </div>
       </div>
 
-      {/* Viewport */}
-      <div className="relative min-h-0 flex-1 overflow-hidden">
+      <div className={styles.viewport}>
         {!loaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-bg-elevated">
-            <div className="flex items-center gap-2 text-[12px] text-muted-2">
-              <Spinner tone="onDark" />
-              Rendering preview…
+          <div className={styles.previewLoading}>
+            <div>
+              <b>LIVE</b>
+              <p>Rendering your proof.</p>
+              <i />
+              <span>Compiling portfolio viewport</span>
             </div>
           </div>
         )}
@@ -198,9 +282,7 @@ function PreviewFrame({
             }
             onLoad();
           }}
-          className={`absolute inset-0 h-full w-full bg-bg-elevated transition-opacity duration-500 ${
-            loaded ? "opacity-100" : "opacity-0"
-          }`}
+          data-loaded={loaded ? "true" : "false"}
         />
       </div>
     </div>

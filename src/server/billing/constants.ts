@@ -22,7 +22,7 @@ export const CUSTOM_DOMAIN_PRODUCT_NAME = "Porfilo Custom Domains";
  * `stripe` SDK targets (see node_modules/stripe/apiVersion.js) so we never
  * silently inherit the account-default version.
  */
-export const STRIPE_API_VERSION = "2026-06-24.dahlia";
+export const STRIPE_API_VERSION = "2026-05-27.dahlia";
 
 /** Entitlement row status values. */
 export type FeatureAccessStatus = "pending" | "paid" | "failed";

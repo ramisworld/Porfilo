@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { api } from "~/trpc/react";
 import type { DomainWithInstructions } from "~/server/api/routers/domain";
 import type { DomainDisplayStatus } from "~/server/domains/types";
-import {
-  displayStatusLabel,
-} from "~/server/domains/types";
+import { displayStatusLabel } from "~/server/domains/types";
 import {
   customDomainCnameTarget,
   freeSubdomainFqdn,
@@ -16,6 +15,7 @@ import {
 } from "~/lib/root-domain";
 import { PorfiloButton } from "~/app/_components/porfilo-button";
 import { useToast } from "~/app/_components/toast";
+import styles from "./domain-modal.module.css";
 
 type FlowStep = "choose" | "free" | "custom" | "manage";
 
@@ -116,52 +116,44 @@ export function DomainModal({
           ? "Free Porfilo subdomain"
           : "Use your own domain";
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="domain-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-3 py-4 sm:px-6 sm:py-8"
+      className={styles.overlay}
     >
       <button
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="absolute inset-0 bg-black/65 backdrop-blur-md"
+        className={styles.scrim}
       />
 
-      <div
-        className="relative flex w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-white/[0.10] bg-white/[0.04] backdrop-blur-2xl"
-        style={{
-          boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.14), 0 50px 80px -25px rgba(0,0,0,0.75)",
-        }}
-      >
-        <ModalGlow />
-
-        <header className="relative flex flex-none items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
-          <div className="min-w-0">
-            <p className="text-[10px] font-medium tracking-[0.18em] text-indigo-200/70 uppercase">
-              {eyebrow}
-            </p>
-            <h2
-              id="domain-modal-title"
-              className="text-[15px] font-medium tracking-tight text-white"
-            >
+      <div className={styles.panel}>
+        <header className={styles.header}>
+          <div className={styles.index} aria-hidden>
+            URL/01
+          </div>
+          <div className={styles.headCopy}>
+            <p className={styles.eyebrow}>{eyebrow}</p>
+            <h2 id="domain-modal-title" className={styles.title}>
               {title}
             </h2>
           </div>
-          <PorfiloButton
-            variant="ghost"
+          <button
+            type="button"
             onClick={onClose}
             aria-label="Close"
-            className="!h-8 !w-8 !p-0"
+            className={styles.close}
           >
             <CloseIcon />
-          </PorfiloButton>
+          </button>
         </header>
 
-        <div className="relative px-5 py-5">
+        <div className={styles.content}>
           {mine.isLoading || access.isLoading ? (
             <LoadingRow />
           ) : !unlocked ? (
@@ -222,7 +214,8 @@ export function DomainModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -276,13 +269,13 @@ function ChooseStep({
         onClick={onCustom}
         className="w-full rounded-xl border border-white/[0.08] bg-black/25 p-4 text-left backdrop-blur-md transition hover:border-white/[0.14] hover:bg-black/35"
       >
-        <p className="text-[14px] font-medium text-white">Use your own domain</p>
+        <p className="text-[14px] font-medium text-white">
+          Use your own domain
+        </p>
         <p className="mt-1 text-[12.5px] text-white/50">
           Connect a domain you already own, like max.com or portfolio.max.com.
         </p>
-        <p className="mt-2 font-mono text-[12px] text-indigo-200/80">
-          max.com
-        </p>
+        <p className="mt-2 font-mono text-[12px] text-indigo-200/80">max.com</p>
       </button>
     </div>
   );
@@ -407,7 +400,12 @@ function CustomStep({
         </p>
       )}
       <div className="flex justify-end gap-2 pt-2">
-        <PorfiloButton type="button" variant="ghost" onClick={onBack} disabled={pending}>
+        <PorfiloButton
+          type="button"
+          variant="ghost"
+          onClick={onBack}
+          disabled={pending}
+        >
           Back
         </PorfiloButton>
         <PorfiloButton type="submit" disabled={pending}>
@@ -756,80 +754,89 @@ function UpgradePanel({ onClose }: { onClose: () => void }) {
     ? "Redirecting to Stripe…"
     : checkout.isPending
       ? "Creating secure checkout…"
-      : "Unlock custom domains";
+      : "Unlock custom domains — $9";
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h3 className="text-[17px] font-medium tracking-tight text-white">
-          Unlock custom domains
-        </h3>
-        <p className="mt-1 text-[13px] leading-relaxed text-white/60">
-          Connect your own domain to your Porfilo site.
-        </p>
-      </div>
-
-      <ul className="space-y-2">
-        <FeatureRow>
-          Bring a domain you own — like max.com or portfolio.max.com
-        </FeatureRow>
-        <FeatureRow>Free porfilo.com subdomain included</FeatureRow>
-        <FeatureRow>Automatic SSL, issued and renewed for you</FeatureRow>
-      </ul>
-
-      <div
-        className="relative flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-indigo-400/20 bg-gradient-to-b from-indigo-500/[0.10] to-indigo-950/[0.30] px-4 py-3.5"
-        style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.10)" }}
-      >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-70"
-          style={{
-            background:
-              "radial-gradient(120px 80px at 15% 0%, rgba(129,140,248,0.18), transparent 70%)",
-          }}
-        />
-        <div className="relative min-w-0">
-          <p className="text-[10.5px] font-medium tracking-[0.16em] text-indigo-200/70 uppercase">
-            One-time payment
-          </p>
-          <p className="mt-0.5 text-[30px] font-semibold leading-none tracking-tight text-white">
-            $9
+    <div className={styles.upgrade}>
+      <div className={styles.upgradeHero}>
+        <div>
+          <p className={styles.upgradeKicker}>One-time portfolio upgrade</p>
+          <h3 className={styles.upgradeTitle}>Own the URL people remember.</h3>
+          <p className={styles.upgradeLead}>
+            Put your work on your own domain, keep the portfolio you already
+            built, and make every shared link feel unmistakably yours.
           </p>
         </div>
-        <PorfiloButton
+        <div className={styles.price} aria-label="Nine US dollars, paid once">
+          <strong>$9</strong>
+          <span>
+            Paid once
+            <br />
+            No subscription
+          </span>
+        </div>
+      </div>
+
+      <div className={styles.urlProof} aria-label="Example URL upgrade">
+        <div className={styles.urlCell}>
+          <small>Before</small>
+          <code>yourname.porfilo.com</code>
+        </div>
+        <div className={styles.urlArrow} aria-hidden>
+          →
+        </div>
+        <div className={styles.urlCell}>
+          <small>After</small>
+          <code>yourname.com</code>
+        </div>
+      </div>
+
+      <ul className={styles.valueGrid}>
+        <FeatureRow index="01" title="Your own domain">
+          Connect a root domain or subdomain you already own.
+        </FeatureRow>
+        <FeatureRow index="02" title="SSL handled">
+          Secure HTTPS is issued and renewed automatically.
+        </FeatureRow>
+        <FeatureRow index="03" title="Free URL included">
+          Your Porfilo subdomain remains available whenever you need it.
+        </FeatureRow>
+      </ul>
+
+      {error && (
+        <p role="alert" className={styles.error}>
+          {error} Please try again.
+        </p>
+      )}
+
+      <div className={styles.checkout}>
+        <p className={styles.checkoutNote}>
+          Stripe-hosted secure checkout
+          <br />
+          Instant access after payment
+        </p>
+        <button
           type="button"
           onClick={() => {
             setError(null);
             checkout.mutate();
           }}
           disabled={busy}
-          className="relative shrink-0"
+          className={styles.cta}
         >
           {busy && <Spinner />}
           {cta}
-        </PorfiloButton>
+        </button>
       </div>
 
-      {error && (
-        <p role="alert" className="text-[12.5px] text-red-300/90">
-          {error} Please try again.
-        </p>
-      )}
-
-      <div className="flex items-center justify-between gap-3 pt-0.5">
-        <p className="text-[11px] text-white/35">
-          Secure checkout by Stripe · One-time, not a subscription
-        </p>
-        <PorfiloButton
-          type="button"
-          variant="ghost"
-          onClick={onClose}
-          disabled={busy}
-        >
-          Maybe later
-        </PorfiloButton>
-      </div>
+      <button
+        type="button"
+        onClick={onClose}
+        disabled={busy}
+        className={styles.later}
+      >
+        Keep my current URL
+      </button>
     </div>
   );
 }
@@ -837,38 +844,32 @@ function UpgradePanel({ onClose }: { onClose: () => void }) {
 /** Post-checkout state: payment captured, waiting for the webhook to unlock. */
 function UnlockingState() {
   return (
-    <div className="flex flex-col items-center gap-3.5 py-7 text-center">
-      <span className="relative flex h-10 w-10 items-center justify-center">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400/25" />
-        <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-indigo-400/30 bg-indigo-500/15 text-indigo-100">
+    <div className={styles.unlocking}>
+      <div>
+        <span className={styles.unlockMark}>
           <UnlockIcon />
         </span>
-      </span>
-      <div>
-        <p className="text-[14px] font-medium text-white">Payment received</p>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-white/55">
-          Unlocking your custom domain access…
-        </p>
+        <strong>Payment received.</strong>
+        <p>Unlocking your custom domain access…</p>
       </div>
     </div>
   );
 }
 
-function FeatureRow({ children }: { children: ReactNode }) {
+function FeatureRow({
+  index,
+  title,
+  children,
+}: {
+  index: string;
+  title: string;
+  children: ReactNode;
+}) {
   return (
-    <li className="flex items-start gap-2.5 text-[13px] text-white/70">
-      <span className="mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-indigo-400/30 bg-indigo-400/10 text-indigo-200">
-        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden>
-          <path
-            d="M2 5.2 4 7.2 8 3"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
-      <span className="leading-relaxed">{children}</span>
+    <li className={styles.feature}>
+      <span className={styles.featureIndex}>{index} / INCLUDED</span>
+      <strong>{title}</strong>
+      <p>{children}</p>
     </li>
   );
 }
@@ -892,25 +893,6 @@ function UnlockIcon() {
         strokeLinecap="round"
       />
     </svg>
-  );
-}
-
-function ModalGlow() {
-  return (
-    <>
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -inset-x-10 -top-10 h-40 opacity-70"
-        style={{
-          background:
-            "radial-gradient(60% 70% at 50% 0%, rgba(140,150,255,0.18), transparent 70%)",
-        }}
-      />
-    </>
   );
 }
 

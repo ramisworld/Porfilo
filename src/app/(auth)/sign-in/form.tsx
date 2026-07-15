@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "~/lib/auth-client";
 import { Arrow, Spinner } from "~/app/_components/icons";
+import styles from "../auth.module.css";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -36,23 +37,6 @@ export function SignInForm({ providers }: { providers: Providers }) {
     null,
   );
   const [isPending, startTransition] = useTransition();
-
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  // Cursor-tracked sheen, same effect as the landing page so it feels continuous.
-  useEffect(() => {
-    const el = cardRef.current;
-    if (!el) return;
-    const onMove = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect();
-      const x = ((e.clientX - r.left) / r.width) * 100;
-      const y = ((e.clientY - r.top) / r.height) * 100;
-      el.style.setProperty("--mx", `${x}%`);
-      el.style.setProperty("--my", `${y}%`);
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onMove);
-  }, []);
 
   const sendMagicLink = (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,38 +104,9 @@ export function SignInForm({ providers }: { providers: Providers }) {
   const anyOauth = providers.google || providers.github;
 
   return (
-    <div
-      ref={cardRef}
-      className="relative mt-10 w-full"
-      style={{ "--mx": "50%", "--my": "0%" } as React.CSSProperties}
-    >
-      {/* Cursor-following aura */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -inset-6 rounded-[28px] opacity-80 blur-2xl"
-        style={{
-          background:
-            "radial-gradient(420px circle at var(--mx) var(--my), rgba(140,150,255,0.22), transparent 60%)",
-        }}
-      />
-
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-6 backdrop-blur-xl shadow-glass sm:p-7">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-2xl"
-          style={{
-            background:
-              "radial-gradient(280px circle at var(--mx) var(--my), rgba(255,255,255,0.07), transparent 60%)",
-          }}
-        />
-
-        {/* OAuth providers */}
+    <div className={styles.authForm}>
         {anyOauth && (
-          <div className="relative space-y-2.5">
+          <div className={styles.providerStack}>
             {providers.github && (
               <OAuthButton
                 provider="github"
@@ -174,22 +129,14 @@ export function SignInForm({ providers }: { providers: Providers }) {
         )}
 
         {anyOauth && (
-          <div className="relative my-5 flex items-center gap-3 text-[10px] tracking-[0.18em] text-white/30 uppercase">
-            <div className="h-px flex-1 bg-white/10" />
-            or with email
-            <div className="h-px flex-1 bg-white/10" />
-          </div>
+          <div className={styles.divider}>or with email</div>
         )}
 
-        {/* Email magic link */}
-        <form onSubmit={sendMagicLink} noValidate className="relative">
-          <label
-            htmlFor="email"
-            className="mb-2 block text-[12px] text-muted-2"
-          >
+        <form onSubmit={sendMagicLink} noValidate>
+          <label htmlFor="email" className={styles.fieldLabel}>
             Email
           </label>
-          <div className="flex items-center gap-1 rounded-xl bg-well p-1 ring-1 ring-border-faint transition focus-within:ring-white/20">
+          <div className={styles.emailField}>
             <input
               id="email"
               type="email"
@@ -206,13 +153,12 @@ export function SignInForm({ providers }: { providers: Providers }) {
               autoCorrect="off"
               aria-invalid={!!error}
               disabled={isPending || oauthPending !== null}
-              className="h-10 flex-1 bg-transparent px-3 text-[15px] tracking-tight outline-none placeholder:text-white/25 disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={isPending || oauthPending !== null}
               aria-busy={isPending}
-              className="porfilo-btn porfilo-btn-primary group disabled:cursor-not-allowed"
+              className={styles.submitButton}
             >
               {isPending ? (
                 <>
@@ -229,14 +175,12 @@ export function SignInForm({ providers }: { providers: Providers }) {
           </div>
           <p
             role={error ? "alert" : undefined}
-            className={`mt-2.5 px-1 text-[11.5px] transition-colors ${
-              error ? "text-red-300/80" : "text-faint"
-            }`}
+            className={styles.formHint}
+            data-error={error ? "true" : "false"}
           >
             {error ?? "We'll email you a one-tap sign-in link. No password."}
           </p>
         </form>
-      </div>
     </div>
   );
 }
@@ -260,7 +204,7 @@ function OAuthButton({
       onClick={onClick}
       disabled={disabled}
       aria-busy={pending}
-      className="group relative flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-white/[0.10] bg-white/[0.04] text-[14px] font-medium text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition hover:border-white/[0.18] hover:bg-white/[0.07] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+      className={styles.oauthButton}
     >
       {pending ? <Spinner tone="onDark" /> : <ProviderIcon provider={provider} />}
       {label}

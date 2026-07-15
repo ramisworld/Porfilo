@@ -447,6 +447,7 @@ export async function buildFacts(
       `A ${r.primaryLanguage?.name ?? "software"} project.`,
     tech: repoTech(r),
     stars: r.stargazerCount > 0 ? r.stargazerCount : undefined,
+    year: r.pushedAt ? new Date(r.pushedAt).getUTCFullYear() : undefined,
     demoUrl: safeUrl(r.homepageUrl),
     repoUrl: r.url,
   }));
@@ -468,9 +469,16 @@ export async function buildFacts(
     abilities,
     stats,
     projects,
+    experience: [],
     // User-curated; never populated by the generator. The dashboard's
     // Credentials tab is the only entry point.
     credentials: [],
+    github: {
+      contributionsPastYear: profile.contributions.total,
+      // Cached profiles from before this field was introduced remain valid.
+      publicRepos: profile.user.publicRepositories ?? profile.repos.length,
+      memberSinceYear: new Date(profile.user.createdAt).getUTCFullYear(),
+    },
   };
 
   return { data: profileDataSchema.parse(data), usage };

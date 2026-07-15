@@ -25,7 +25,11 @@ export const env = createEnv({
     // newer snapshot in prod) without code changes. Pricing in
     // src/server/llm/cost.ts must include any model you switch to.
     ANTHROPIC_MODEL_FACTS: z.string().default("claude-haiku-4-5"),
-    ANTHROPIC_MODEL_DESIGN: z.string().default("claude-opus-4-8"),
+    // Both semantic jobs use Haiku. Portfolio layout is selected from our
+    // approved catalog; the model never authors arbitrary HTML.
+    ANTHROPIC_MODEL_CHOOSER: z.string().default("claude-haiku-4-5"),
+    // Kept for backwards-compatible deployments; no new generation path uses it.
+    ANTHROPIC_MODEL_DESIGN: z.string().default("claude-haiku-4-5"),
 
     // ── BetterAuth ────────────────────────────────────────────────────────
     // 32+ char random string. Generate with: `openssl rand -base64 32`
@@ -106,6 +110,7 @@ export const env = createEnv({
     MOCK_LLM: process.env.MOCK_LLM,
     DAILY_LLM_BUDGET_USD: process.env.DAILY_LLM_BUDGET_USD,
     ANTHROPIC_MODEL_FACTS: process.env.ANTHROPIC_MODEL_FACTS,
+    ANTHROPIC_MODEL_CHOOSER: process.env.ANTHROPIC_MODEL_CHOOSER,
     ANTHROPIC_MODEL_DESIGN: process.env.ANTHROPIC_MODEL_DESIGN,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,

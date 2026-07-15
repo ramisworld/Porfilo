@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { ZodIssue } from "zod";
 import {
   profileDataSchema,
   type Ability,
   type Credential,
+  type Experience,
   type ProfileData,
   type Project,
   type Stat,
@@ -18,6 +20,7 @@ import {
   type IssuerMeta,
 } from "~/lib/issuers";
 import { api } from "~/trpc/react";
+import styles from "./edit-modal.module.css";
 
 /**
  * Edit modal — a liquid-glass overlay that lives on top of the dashboard.
@@ -118,11 +121,24 @@ export function EditModal({
           email: blankToUndef(data.identity.links.email),
         },
       },
-      projects: data.projects.map((p) => ({
+      projects: data.projects.slice(0, 9).map((p) => ({
         ...p,
         tech: p.tech.map((t) => t.trim()).filter(Boolean),
         demoUrl: optionalUrl(p.demoUrl),
         repoUrl: optionalUrl(p.repoUrl) ?? "",
+      })),
+      experience: (data.experience ?? []).map((item) => ({
+        ...item,
+        role: item.role.trim(),
+        company: item.company.trim(),
+        startDate: item.startDate.trim(),
+        endDate: blankToUndef(item.endDate),
+        location: blankToUndef(item.location),
+        summary: blankToUndef(item.summary),
+        highlights: item.highlights?.length
+          ? item.highlights.map((entry) => entry.trim()).filter(Boolean)
+          : undefined,
+        url: optionalUrl(item.url),
       })),
       credentials: (data.credentials ?? []).map((c) => {
         const issuerKey = blankToUndef(c.issuerKey);
@@ -182,66 +198,46 @@ export function EditModal({
     };
   }, []);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="edit-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center px-3 py-4 sm:px-6 sm:py-8"
+      className={styles.overlay}
     >
       {/* Scrim — clicking it follows the same dirty-prompt path as ✕. */}
       <button
         type="button"
         aria-label="Close editor"
         onClick={requestClose}
-        className="absolute inset-0 bg-black/65 backdrop-blur-md"
+        className={styles.scrim}
       />
 
       {/* The card */}
-      <div
-        className="relative flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-white/[0.10] bg-white/[0.04] backdrop-blur-2xl sm:h-[min(720px,90vh)]"
-        style={{
-          boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.14), 0 50px 80px -25px rgba(0,0,0,0.75)",
-        }}
-      >
-        {/* Top hairline highlight */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
-        />
-        {/* Soft inner glow */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -inset-x-10 -top-10 h-40 opacity-70"
-          style={{
-            background:
-              "radial-gradient(60% 70% at 50% 0%, rgba(140,150,255,0.18), transparent 70%)",
-          }}
-        />
-
+      <div className={styles.panel}>
         {/* Header --------------------------------------------------------- */}
-        <header className="relative flex flex-none items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
-          <div className="min-w-0">
-            <p className="text-[10px] font-medium tracking-[0.18em] text-indigo-200/70 uppercase">
-              Editor
-            </p>
-            <h2
-              id="edit-modal-title"
-              className="text-[15px] font-medium tracking-tight text-white"
-            >
-              {confirmClose ? "Unsaved changes" : "Edit your portfolio"}
+        <header className={styles.header}>
+          <div className={styles.headerIndex} aria-hidden>
+            <span>Control surface</span>
+            <strong>ED/01</strong>
+          </div>
+          <div className={styles.headerTitle}>
+            <p className={styles.eyebrow}>Portfolio editor · Live content</p>
+            <h2 id="edit-modal-title" className={styles.title}>
+              {confirmClose ? "Hold your changes." : "Shape the proof."}
             </h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className={styles.headerActions}>
             {dirty && !confirmClose && (
-              <span className="text-[11px] text-amber-300/80">● Unsaved</span>
+              <span className={styles.dirty}>● Unsaved changes</span>
             )}
             <button
               type="button"
               onClick={requestClose}
               aria-label="Close"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-white/55 transition hover:bg-white/[0.06] hover:text-white"
+              className={styles.close}
             >
               <CloseIcon />
             </button>
@@ -249,27 +245,27 @@ export function EditModal({
         </header>
 
         {/* Body ----------------------------------------------------------- */}
-        <div className="relative grid min-h-0 flex-1 grid-cols-1 sm:grid-cols-[160px_1fr]">
+        <div className={styles.body}>
           {/* Section nav */}
-          <nav className="flex flex-none gap-1 overflow-x-auto border-b border-white/[0.06] px-3 py-3 sm:flex-col sm:gap-0.5 sm:overflow-visible sm:border-r sm:border-b-0 sm:py-4">
-            {TABS.map((t) => (
+          <nav className={styles.nav} aria-label="Portfolio sections">
+            <p className={styles.navLabel}>Sections / 06</p>
+            {TABS.map((t, index) => (
               <button
                 key={t.id}
                 type="button"
                 onClick={() => setTab(t.id)}
-                className={`shrink-0 rounded-lg px-3 py-1.5 text-left text-[12.5px] transition sm:py-2 ${
-                  tab === t.id
-                    ? "bg-white/[0.08] text-white"
-                    : "text-white/55 hover:bg-white/[0.04] hover:text-white"
-                }`}
+                className={`${styles.tab} ${tab === t.id ? styles.tabActive : ""}`}
               >
-                {t.label}
+                <span className={styles.tabNumber} aria-hidden>
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className={styles.tabText}>{t.label}</span>
               </button>
             ))}
           </nav>
 
           {/* Section content */}
-          <div className="min-h-0 overflow-y-auto px-5 py-4">
+          <div className={styles.content}>
             {tab === "identity" && (
               <IdentitySection
                 data={data.identity}
@@ -303,6 +299,12 @@ export function EditModal({
                 onChange={(projects) => setData({ ...data, projects })}
               />
             )}
+            {tab === "experience" && (
+              <ExperienceSection
+                items={data.experience ?? []}
+                onChange={(experience) => setData({ ...data, experience })}
+              />
+            )}
             {tab === "credentials" && (
               <CredentialsSection
                 items={data.credentials ?? []}
@@ -313,23 +315,21 @@ export function EditModal({
         </div>
 
         {/* Footer --------------------------------------------------------- */}
-        <footer className="relative flex flex-none items-center justify-between gap-3 border-t border-white/[0.06] bg-black/20 px-5 py-3 backdrop-blur-xl">
+        <footer className={styles.footer}>
           {confirmClose ? (
             <>
               <p
                 role={error ? "alert" : undefined}
-                className={`text-[12.5px] ${
-                  error ? "text-red-300/90" : "text-amber-200/85"
-                }`}
+                className={`${styles.footerStatus} ${error ? styles.error : styles.warning}`}
               >
                 {error ?? "Save your changes before closing?"}
               </p>
-              <div className="flex items-center gap-2">
+              <div className={styles.footerActions}>
                 <button
                   type="button"
                   onClick={() => setConfirmClose(false)}
                   disabled={update.isPending}
-                  className="inline-flex h-9 items-center rounded-lg px-3 text-[12.5px] text-white/65 transition hover:text-white disabled:opacity-50"
+                  className={styles.cancel}
                 >
                   Cancel
                 </button>
@@ -341,7 +341,7 @@ export function EditModal({
                     onClose();
                   }}
                   disabled={update.isPending}
-                  className="inline-flex h-9 items-center rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[12.5px] text-white/80 transition hover:bg-white/[0.08] disabled:opacity-50"
+                  className={styles.discard}
                 >
                   Discard
                 </button>
@@ -349,7 +349,7 @@ export function EditModal({
                   type="button"
                   onClick={save}
                   disabled={update.isPending}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-white px-3 text-[12.5px] font-medium text-black transition hover:bg-white/90 disabled:opacity-50"
+                  className={styles.save}
                 >
                   {update.isPending ? (
                     <>
@@ -364,29 +364,29 @@ export function EditModal({
             </>
           ) : (
             <>
-              <div className="min-w-0 text-[12px]">
+              <div className={styles.footerStatus}>
                 {error ? (
-                  <span role="alert" className="text-red-300/90">
+                  <span role="alert" className={styles.error}>
                     {error}
                   </span>
                 ) : saved ? (
-                  <span className="text-emerald-300/90">
+                  <span className={styles.success}>
                     Saved · your live site is updated.
                   </span>
                 ) : dirty ? (
-                  <span className="text-white/55">Changes ready to save.</span>
+                  <span>Changes ready to save.</span>
                 ) : (
-                  <span className="text-white/35">
+                  <span>
                     Tweak anything — saves are instant, no regeneration.
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className={styles.footerActions}>
                 <button
                   type="button"
                   onClick={() => setData(structuredClone(baseline))}
                   disabled={!dirty || update.isPending}
-                  className="inline-flex h-9 items-center rounded-lg px-3 text-[12.5px] text-white/65 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                  className={styles.reset}
                 >
                   Reset
                 </button>
@@ -394,7 +394,7 @@ export function EditModal({
                   type="button"
                   onClick={save}
                   disabled={!dirty || update.isPending}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-white px-3.5 text-[12.5px] font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  className={styles.save}
                 >
                   {update.isPending ? (
                     <>
@@ -410,7 +410,8 @@ export function EditModal({
           )}
         </footer>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -418,12 +419,19 @@ export function EditModal({
 // Tabs
 // ───────────────────────────────────────────────────────────────────────────
 
-type TabId = "identity" | "focusStack" | "stats" | "projects" | "credentials";
+type TabId =
+  | "identity"
+  | "focusStack"
+  | "stats"
+  | "projects"
+  | "experience"
+  | "credentials";
 const TABS: Array<{ id: TabId; label: string }> = [
   { id: "identity", label: "Identity" },
   { id: "focusStack", label: "Focus & Stack" },
   { id: "stats", label: "Stats" },
   { id: "projects", label: "Projects" },
+  { id: "experience", label: "Experience" },
   { id: "credentials", label: "Credentials" },
 ];
 
@@ -436,6 +444,7 @@ function hydrateEditableProfileData(input: ProfileData): ProfileData {
     ...next,
     focus,
     stack,
+    experience: next.experience ?? [],
     abilities: next.abilities.length
       ? next.abilities
       : abilitiesFromStack(stack),
@@ -744,16 +753,33 @@ function ProjectsSection({
               />
             </Field>
 
+            <Field label="Tech" hint="Comma separated">
+              <CommaListInput
+                value={p.tech}
+                onChange={(tech) => {
+                  const next = [...items];
+                  next[i] = { ...p, tech };
+                  onChange(next);
+                }}
+                placeholder="TypeScript, Next.js"
+              />
+            </Field>
+
             <Row>
-              <Field label="Tech" hint="Comma separated">
-                <CommaListInput
-                  value={p.tech}
-                  onChange={(tech) => {
+              <Field label="Year" hint="Optional">
+                <TextInput
+                  value={p.year ? String(p.year) : ""}
+                  onChange={(value) => {
+                    const parsed = Number.parseInt(value, 10);
                     const next = [...items];
-                    next[i] = { ...p, tech };
+                    next[i] = {
+                      ...p,
+                      year: Number.isFinite(parsed) ? parsed : undefined,
+                    };
                     onChange(next);
                   }}
-                  placeholder="TypeScript, Next.js"
+                  maxLength={4}
+                  placeholder="2026"
                 />
               </Field>
               <Field label="Demo URL" hint="Optional">
@@ -782,6 +808,192 @@ function ProjectsSection({
         disabled={items.length >= 9}
       >
         + Add project ({items.length}/9)
+      </AddButton>
+    </SectionShell>
+  );
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Experience
+// ───────────────────────────────────────────────────────────────────────────
+
+function ExperienceSection({
+  items,
+  onChange,
+}: {
+  items: Experience[];
+  onChange: (next: Experience[]) => void;
+}) {
+  return (
+    <SectionShell
+      title="Experience"
+      subtitle="Optional work history — hidden completely when empty"
+    >
+      {items.length === 0 && (
+        <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] px-4 py-6 text-center">
+          <p className="text-[13px] text-white/65">
+            No experience section yet.
+          </p>
+          <p className="mt-1 text-[11.5px] text-white/40">
+            Add a role when you want work history to appear in your portfolio.
+          </p>
+        </div>
+      )}
+
+      <ul className="space-y-3">
+        {items.map((item, i) => (
+          <li
+            key={i}
+            className="space-y-3 rounded-xl bg-black/20 p-3 ring-1 ring-white/[0.04]"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-mono text-[11px] tracking-[0.14em] text-white/40 uppercase">
+                Experience {i + 1}
+              </p>
+              <div className="flex items-center gap-1">
+                <ReorderControls
+                  index={i}
+                  total={items.length}
+                  onMove={(dir) => onChange(move(items, i, dir))}
+                />
+                <RemoveButton
+                  onClick={() => onChange(items.filter((_, j) => j !== i))}
+                />
+              </div>
+            </div>
+
+            <Row>
+              <Field label="Role">
+                <TextInput
+                  value={item.role}
+                  onChange={(role) => {
+                    const next = [...items];
+                    next[i] = { ...item, role };
+                    onChange(next);
+                  }}
+                  maxLength={120}
+                  placeholder="Senior Software Engineer"
+                />
+              </Field>
+              <Field label="Company">
+                <TextInput
+                  value={item.company}
+                  onChange={(company) => {
+                    const next = [...items];
+                    next[i] = { ...item, company };
+                    onChange(next);
+                  }}
+                  maxLength={120}
+                  placeholder="Company"
+                />
+              </Field>
+            </Row>
+
+            <Row>
+              <Field label="Started" hint="Free-form">
+                <TextInput
+                  value={item.startDate}
+                  onChange={(startDate) => {
+                    const next = [...items];
+                    next[i] = { ...item, startDate };
+                    onChange(next);
+                  }}
+                  maxLength={32}
+                  placeholder="Jan 2024"
+                />
+              </Field>
+              <Field label="Ended" hint="Leave blank for present">
+                <TextInput
+                  value={item.endDate ?? ""}
+                  onChange={(endDate) => {
+                    const next = [...items];
+                    next[i] = { ...item, endDate };
+                    onChange(next);
+                  }}
+                  maxLength={32}
+                  placeholder="Present"
+                />
+              </Field>
+            </Row>
+
+            <Row>
+              <Field label="Location" hint="Optional">
+                <TextInput
+                  value={item.location ?? ""}
+                  onChange={(location) => {
+                    const next = [...items];
+                    next[i] = { ...item, location };
+                    onChange(next);
+                  }}
+                  maxLength={100}
+                  placeholder="Auckland, New Zealand"
+                />
+              </Field>
+              <Field label="Company URL" hint="Optional">
+                <TextInput
+                  value={item.url ?? ""}
+                  onChange={(url) => {
+                    const next = [...items];
+                    next[i] = { ...item, url };
+                    onChange(next);
+                  }}
+                  inputType="url"
+                  placeholder="https://company.com"
+                />
+              </Field>
+            </Row>
+
+            <Field label="Summary" hint="Optional">
+              <TextArea
+                value={item.summary ?? ""}
+                onChange={(summary) => {
+                  const next = [...items];
+                  next[i] = { ...item, summary };
+                  onChange(next);
+                }}
+                maxLength={600}
+                rows={3}
+              />
+            </Field>
+
+            <Field label="Highlights" hint="Comma separated, max 6">
+              <CommaListInput
+                value={item.highlights ?? []}
+                onChange={(highlights) => {
+                  const next = [...items];
+                  next[i] = {
+                    ...item,
+                    highlights: highlights.length ? highlights : undefined,
+                  };
+                  onChange(next);
+                }}
+                maxItems={6}
+                placeholder="Shipped agent platform, Reduced latency, Led migration"
+              />
+            </Field>
+          </li>
+        ))}
+      </ul>
+
+      <AddButton
+        onClick={() =>
+          onChange([
+            ...items,
+            {
+              role: "",
+              company: "",
+              startDate: "",
+              endDate: undefined,
+              location: undefined,
+              summary: undefined,
+              highlights: undefined,
+              url: undefined,
+            },
+          ])
+        }
+        disabled={items.length >= 12}
+      >
+        + Add experience ({items.length}/12)
       </AddButton>
     </SectionShell>
   );
@@ -987,15 +1199,30 @@ function CredentialCardEditor({
             placeholder="FA88A4F6EA27B4CD"
           />
         </Field>
-        <Field label="Verify URL" hint="Optional">
+        <Field label="Year" hint="Optional">
           <TextInput
-            value={value.url ?? ""}
-            onChange={(v) => onChange({ ...value, url: v })}
-            inputType="url"
-            placeholder="https://learn.microsoft.com/…"
+            value={value.year ? String(value.year) : ""}
+            onChange={(nextYear) => {
+              const parsed = Number.parseInt(nextYear, 10);
+              onChange({
+                ...value,
+                year: Number.isFinite(parsed) ? parsed : undefined,
+              });
+            }}
+            maxLength={4}
+            placeholder="2026"
           />
         </Field>
       </Row>
+
+      <Field label="Verify URL" hint="Optional">
+        <TextInput
+          value={value.url ?? ""}
+          onChange={(v) => onChange({ ...value, url: v })}
+          inputType="url"
+          placeholder="https://learn.microsoft.com/…"
+        />
+      </Field>
 
       <Field label="Skills" hint="Comma separated, max 15">
         <CommaListInput
@@ -1268,22 +1495,19 @@ function SectionShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="text-[14px] font-medium tracking-tight text-white">
-          {title}
-        </h3>
-        {subtitle && (
-          <p className="mt-0.5 text-[11.5px] text-white/40">{subtitle}</p>
-        )}
+    <div className={styles.section}>
+      <div className={styles.sectionHead}>
+        <p className={styles.sectionEyebrow}>Editing / Portfolio content</p>
+        <h3 className={styles.sectionTitle}>{title}</h3>
+        {subtitle && <p className={styles.sectionSubtitle}>{subtitle}</p>}
       </div>
-      <div className="space-y-3">{children}</div>
+      <div className={styles.sectionFields}>{children}</div>
     </div>
   );
 }
 
 function Row({ children }: { children: React.ReactNode }) {
-  return <div className="grid gap-3 sm:grid-cols-2">{children}</div>;
+  return <div className={styles.row}>{children}</div>;
 }
 
 function Field({
@@ -1296,10 +1520,10 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block">
-      <span className="mb-1 flex items-center justify-between text-[11px] tracking-wide text-white/55">
+    <label className={styles.field}>
+      <span className={styles.fieldLabel}>
         <span>{label}</span>
-        {hint && <span className="text-white/30">{hint}</span>}
+        {hint && <span className={styles.fieldHint}>{hint}</span>}
       </span>
       {children}
     </label>
@@ -1401,6 +1625,7 @@ function friendlyPath(path: Array<string | number>): string {
       name: "name",
       blurb: "blurb",
       tech: "tech",
+      year: "year",
       demoUrl: "demo URL",
       repoUrl: "repo URL",
     }[String(path[2])];
@@ -1422,9 +1647,24 @@ function friendlyPath(path: Array<string | number>): string {
       title: "title",
       issuer: "issuer",
       url: "verify URL",
+      year: "year",
       skills: "skills",
     }[String(path[2])];
     return `Credential ${path[1] + 1}${field ? ` ${field}` : ""}`;
+  }
+
+  if (path[0] === "experience" && typeof path[1] === "number") {
+    const field = {
+      role: "role",
+      company: "company",
+      startDate: "start date",
+      endDate: "end date",
+      location: "location",
+      summary: "summary",
+      highlights: "highlights",
+      url: "company URL",
+    }[String(path[2])];
+    return `Experience ${path[1] + 1}${field ? ` ${field}` : ""}`;
   }
 
   return "";
@@ -1512,7 +1752,7 @@ function AddButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="mt-3 inline-flex h-8 items-center rounded-lg border border-white/10 bg-white/[0.03] px-3 text-[12px] text-white/70 transition hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+      className={styles.add}
     >
       {children}
     </button>

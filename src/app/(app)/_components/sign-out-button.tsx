@@ -20,7 +20,7 @@ export function SignOutButton() {
         router.refresh();
       }}
       disabled={pending}
-      className="text-[12px] text-white/45 transition hover:text-white disabled:opacity-50"
+      className="border-0 bg-transparent font-mono text-[10px] tracking-[0.08em] text-white/38 uppercase transition hover:text-white disabled:opacity-50"
     >
       {pending ? "Signing out…" : "Sign out"}
     </button>

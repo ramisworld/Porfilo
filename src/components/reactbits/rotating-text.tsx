@@ -141,7 +141,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>((props, ref)
         const randomIndex = Math.floor(Math.random() * total);
         return Math.abs(randomIndex - index) * effStagger;
       }
-      return Math.abs((staggerFrom as number) - index) * effStagger;
+      return Math.abs(staggerFrom - index) * effStagger;
     },
     [staggerFrom, effStagger],
   );

@@ -1,0 +1,172 @@
+<title>Porfilo — Proof</title>
+<style>
+  :root {
+    --bg: #050507; --fg: #fff;
+    --muted: rgba(255,255,255,0.58); --faint: rgba(255,255,255,0.36);
+    --border: rgba(255,255,255,0.09); --well: rgba(0,0,0,0.4); --success: #34d399;
+    --accent: #6c7bff; --accent2: #9a6cff; --ease: cubic-bezier(0.22,1,0.36,1);
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; min-height: 100vh; }
+  .stage { position: relative; min-height: 100vh; }
+
+  /* ── gallery wall ── */
+  .wall { position: fixed; inset: -8% -4%; z-index: 0; display: flex; gap: 20px; justify-content: center;
+    transform: perspective(1600px) rotateX(7deg) scale(1.02);
+    -webkit-mask-image: radial-gradient(120% 100% at 50% 45%, #000 42%, transparent 92%);
+    mask-image: radial-gradient(120% 100% at 50% 45%, #000 42%, transparent 92%); }
+  .col { width: 258px; flex: none; }
+  .col:nth-child(1) { margin-top: -60px; filter: saturate(0.92) brightness(0.82); }
+  .col:nth-child(5) { margin-top: -60px; filter: saturate(0.92) brightness(0.82); }
+  .col:nth-child(2), .col:nth-child(4) { filter: brightness(0.94); }
+  .track { display: flex; flex-direction: column; gap: 20px; will-change: transform; animation: up var(--dur) linear infinite; }
+  @keyframes up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+
+  .card { pointer-events: auto; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);
+    background: #0b0b11; box-shadow: 0 18px 40px -18px rgba(0,0,0,0.7); padding: 14px; transition: transform .35s var(--ease), border-color .35s, box-shadow .35s;
+    --a: var(--accent); --a2: var(--accent2); }
+  .card:hover { transform: scale(1.035); border-color: color-mix(in srgb, var(--a) 60%, transparent); box-shadow: 0 24px 50px -16px color-mix(in srgb, var(--a) 30%, black); }
+  .c-top { display: flex; align-items: center; gap: 10px; }
+  .c-av { width: 34px; height: 34px; border-radius: 10px; flex: none; background: linear-gradient(140deg, var(--a), var(--a2)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.3); }
+  .c-name { font-size: 13.5px; font-weight: 640; letter-spacing: -0.01em; }
+  .c-tag { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+  .c-bar { display: flex; height: 6px; border-radius: 999px; overflow: hidden; margin: 12px 0 0; background: rgba(255,255,255,0.06); }
+  .c-bar i { height: 100%; }
+  .c-rows { margin-top: 11px; display: grid; gap: 7px; }
+  .c-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 8px; }
+  .c-row b { color: rgba(255,255,255,0.82); font-weight: 550; } .c-row b::before { content: "◆ "; color: var(--a); }
+  .c-star { font-size: 10px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  /* hero-cover variant */
+  .c-cover { height: 78px; border-radius: 10px; margin: -2px 0 12px; position: relative; overflow: hidden;
+    background: radial-gradient(120% 130% at 20% 10%, color-mix(in srgb, var(--a) 85%, transparent), transparent 60%), linear-gradient(150deg, var(--a2), #0b0b11); }
+  .c-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, rgba(0,0,0,0.35)); }
+  .c-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 11px; }
+  .c-chips span { font-size: 9.5px; font-family: var(--mono); color: var(--muted); padding: 2px 6px; border-radius: 5px; background: rgba(255,255,255,0.05); }
+  /* grid variant */
+  .c-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
+  .c-tile { height: 40px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); position: relative; overflow: hidden; }
+  .c-tile::before { content: ""; position: absolute; left: 8px; top: 8px; width: 40%; height: 5px; border-radius: 3px; background: var(--a); opacity: 0.8; }
+  .c-tile::after { content: ""; position: absolute; left: 8px; top: 19px; right: 8px; height: 4px; border-radius: 3px; background: rgba(255,255,255,0.1); }
+
+  /* ── centered hero ── */
+  .scrim { position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(52% 50% at 50% 48%, rgba(5,5,7,0.98) 38%, rgba(5,5,7,0.86) 55%, rgba(5,5,7,0.35) 74%, transparent 88%); }
+  .grain { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.03; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  nav { position: relative; z-index: 3; max-width: 76rem; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 1.4rem 1.75rem; }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; }
+  .mark { width: 26px; height: 26px; border-radius: 8px; position: relative; overflow: hidden; background: #08080c; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); display: grid; place-items: center; }
+  .mark::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(108,123,255,0.62), transparent 55%), radial-gradient(circle at 80% 85%, rgba(154,108,255,0.5), transparent 50%); }
+  .mark span { position: relative; width: 62%; height: 62%; border-radius: 5px; border: 1.6px solid rgba(255,255,255,0.88); display: grid; place-items: center; font-weight: 700; font-size: 11px; }
+  .wordmark { font-weight: 600; font-size: 0.95rem; }
+  .nav-r { display: flex; gap: 1.5rem; font-size: 0.875rem; } .nav-r a { color: var(--muted); text-decoration: none; } .nav-r a:hover { color: #fff; }
+
+  .hero { position: relative; z-index: 2; min-height: calc(100vh - 68px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1rem 1.5rem 3rem; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border: 1px solid var(--border); border-radius: 999px; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); font-size: 10.5px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.6rem; }
+  .eyebrow .dot { width: 5px; height: 5px; border-radius: 999px; background: var(--success); box-shadow: 0 0 8px var(--success); }
+  h1 { margin: 0; font-size: clamp(2.5rem, 6vw, 4.1rem); font-weight: 570; line-height: 1.02; letter-spacing: -0.03em; text-wrap: balance; max-width: 15ch; }
+  h1 .g { background: linear-gradient(180deg, #fff, rgba(255,255,255,0.62)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .flip { display: inline-grid; overflow: hidden; height: 1.02em; vertical-align: bottom; }
+  .flip b { font-weight: 570; background: linear-gradient(180deg, #fff, var(--accent2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .sub { margin: 1.4rem auto 0; max-width: 30rem; font-size: 15.5px; line-height: 1.6; color: var(--muted); text-wrap: pretty; }
+  .panel { margin-top: 2rem; width: 100%; max-width: 27rem; }
+  .field { display: flex; align-items: center; gap: 0.25rem; border-radius: 0.85rem; background: rgba(10,10,16,0.75); backdrop-filter: blur(14px); padding: 0.35rem; border: 1px solid var(--border); box-shadow: 0 20px 50px -20px rgba(0,0,0,0.8); }
+  .at { width: 2.1rem; height: 2.6rem; display: grid; place-items: center; color: var(--faint); }
+  .field input { flex: 1; height: 2.6rem; background: transparent; border: 0; outline: none; color: #fff; font-size: 15px; font-family: var(--sans); }
+  .field input::placeholder { color: rgba(255,255,255,0.28); }
+  .gen { display: inline-flex; align-items: center; gap: 0.4rem; height: 2.6rem; padding: 0 1.1rem; border-radius: 0.65rem; border: 1px solid rgba(255,255,255,0.35); font-weight: 560; font-size: 0.82rem; color: #05060a; cursor: pointer; white-space: nowrap; background: linear-gradient(180deg, #fff, #e6e8f0); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5); transition: transform .12s; }
+  .gen:hover { transform: translateY(-1px); }
+  .price { margin-top: 1.15rem; font-size: 12.5px; color: var(--faint); } .price b { color: rgba(255,255,255,0.82); font-weight: 600; }
+  .price .dot2 { display: inline-block; width: 3px; height: 3px; border-radius: 999px; background: currentColor; margin: 0 0.5rem; vertical-align: middle; opacity: 0.6; }
+
+  @media (max-width: 720px) { .col:nth-child(1), .col:nth-child(5) { display: none; } .scrim { background: radial-gradient(70% 55% at 50% 46%, rgba(5,5,7,0.94) 40%, rgba(5,5,7,0.7) 60%, transparent 85%); } }
+  @media (prefers-reduced-motion: reduce) { .track { animation: none; } }
+</style>
+
+<div class="stage">
+  <div class="wall" id="wall"></div>
+  <div class="scrim"></div>
+  <div class="grain"></div>
+
+  <nav>
+    <div class="brand"><span class="mark"><span>P</span></span><span class="wordmark">Porfilo</span></div>
+    <div class="nav-r"><a href="#">Examples</a><a href="#">Pricing</a><a href="#">Sign in</a></div>
+  </nav>
+
+  <div class="hero">
+    <span class="eyebrow"><span class="dot"></span>1,900+ shipped this month</span>
+    <h1><span class="g">Your work deserves a</span> <span class="flip"><b id="flip">portfolio</b></span> <span class="g">this good.</span></h1>
+    <p class="sub">Every site below was generated from a real GitHub in seconds. Type your username and get yours.</p>
+    <div class="panel">
+      <div class="field">
+        <span class="at">@</span>
+        <input placeholder="your-github" spellcheck="false" aria-label="GitHub username" />
+        <button class="gen" type="button">Generate <span>&#8594;</span></button>
+      </div>
+      <div class="price"><b>$15</b> one site<span class="dot2"></span>custom domain ready<span class="dot2"></span>yours forever</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  (function () {
+    const el = document.getElementById("flip"); const words = ["portfolio","résumé","story","showcase"];
+    if (REDUCE) return; let i = 0;
+    setInterval(() => {
+      el.style.transition = "transform .26s var(--ease), opacity .26s"; el.style.transform = "translateY(-108%)"; el.style.opacity = "0";
+      setTimeout(() => { i=(i+1)%words.length; el.textContent=words[i]; el.style.transition="none"; el.style.transform="translateY(92%)"; el.style.opacity="0";
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.style.transition="transform .34s var(--ease), opacity .34s"; el.style.transform="translateY(0)"; el.style.opacity="1"; })); }, 260);
+    }, 2400);
+  })();
+
+  // ── build the gallery wall ──
+  // NOTE: these `people` are FAKE placeholders drawn as CSS mockups.
+  // The build task replaces this entire wall with real, pre-rendered portfolio
+  // thumbnails of real developers. See landing-prompts/BUILD_PROMPT.md.
+  (function () {
+    const people = [
+      { n:"Rami Chahine", h:"ramiw", t:"Systems · Berlin", a:"#6c7bff", b:"#9a6cff", v:0, l:[["#6c7bff",60],["#f0883e",25],["#38bdf8",15]], r:[["portfolio-engine","1.2k"],["edge-router","340"]] },
+      { n:"Aiko Tanaka", h:"aiko", t:"ML & tooling · Kyoto", a:"#34d399", b:"#6ee7d9", v:1, tags:["Go","Python","Rust"] },
+      { n:"Marco Rossi", h:"mrossi", t:"Graphics · Milan", a:"#fb7185", b:"#f59e0b", v:2 },
+      { n:"Lena Berg", h:"lberg", t:"Design eng · Oslo", a:"#22d3ee", b:"#818cf8", v:0, l:[["#22d3ee",52],["#818cf8",30],["#f472b6",18]], r:[["motion-lab","2.1k"],["ui-forge","560"]] },
+      { n:"Diego Santos", h:"dsantos", t:"Backend · São Paulo", a:"#a3e635", b:"#34d399", v:2 },
+      { n:"Priya Nair", h:"pnair", t:"Data · Bangalore", a:"#f59e0b", b:"#fb7185", v:1, tags:["Scala","Spark","SQL"] },
+      { n:"Noah Kim", h:"nkim", t:"Infra · Seoul", a:"#38bdf8", b:"#6c7bff", v:0, l:[["#38bdf8",44],["#6c7bff",34],["#a3e635",22]], r:[["k8s-shift","4.0k"],["logstream","910"]] },
+      { n:"Emma Clarke", h:"eclarke", t:"Fullstack · London", a:"#e879f9", b:"#818cf8", v:2 },
+      { n:"Yuki Sato", h:"ysato", t:"Games · Osaka", a:"#f472b6", b:"#a78bfa", v:1, tags:["C++","GLSL","Zig"] },
+    ];
+    function card(p) {
+      let inner;
+      if (p.v === 1) { // hero-cover
+        inner = `<div class="c-cover"></div><div class="c-name">${p.n}</div><div class="c-tag">${p.t}</div>`
+          + `<div class="c-chips">${(p.tags||["TS","Rust","Go"]).map(x=>`<span>${x}</span>`).join("")}</div>`;
+      } else if (p.v === 2) { // grid
+        inner = `<div class="c-top"><div class="c-av"></div><div><div class="c-name">${p.n}</div><div class="c-tag">${p.t}</div></div></div>`
+          + `<div class="c-grid"><div class="c-tile"></div><div class="c-tile"></div><div class="c-tile"></div><div class="c-tile"></div></div>`;
+      } else { // profile
+        const bar = (p.l||[["#6c7bff",60],["#9a6cff",25],["#38bdf8",15]]).map(s=>`<i style="width:${s[1]}%;background:${s[0]}"></i>`).join("");
+        const rows = (p.r||[["repo-one","820"],["repo-two","210"]]).map(x=>`<div class="c-row"><b>${x[0]}</b><span class="c-star">★ ${x[1]}</span></div>`).join("");
+        inner = `<div class="c-top"><div class="c-av"></div><div><div class="c-name">${p.n}</div><div class="c-tag">@${p.h}</div></div></div><div class="c-bar">${bar}</div><div class="c-rows">${rows}</div>`;
+      }
+      return `<div class="card" style="--a:${p.a};--a2:${p.b}">${inner}</div>`;
+    }
+    const wall = document.getElementById("wall");
+    const durations = ["58s","72s","64s","78s","60s"];
+    for (let c = 0; c < 5; c++) {
+      const col = document.createElement("div"); col.className = "col";
+      const track = document.createElement("div"); track.className = "track"; track.style.setProperty("--dur", durations[c]);
+      // pick a rotated subset per column for variety, duplicate for seamless loop
+      const items = [];
+      for (let k = 0; k < 5; k++) items.push(people[(c * 2 + k) % people.length]);
+      const html = items.map(card).join("");
+      track.innerHTML = html + html; // duplicate → seamless -50% loop
+      col.appendChild(track); wall.appendChild(col);
+    }
+  })();
+</script>

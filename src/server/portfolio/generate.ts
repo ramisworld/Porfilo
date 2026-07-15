@@ -4,7 +4,8 @@ import { Prisma } from "../../../generated/prisma";
 import { db } from "~/server/db";
 import { fetchRawProfile } from "~/server/github/fetch";
 import { buildFacts } from "~/server/llm/facts";
-import { buildDesignSpec } from "~/server/llm/design";
+import { chooseWorld } from "~/server/worlds/choose";
+import { renderWorld } from "~/server/worlds/render";
 import { logRunTotal, type UsageRecord } from "~/server/llm/cost";
 import { ENGINE_VERSION } from "~/engine/version";
 
@@ -66,9 +67,9 @@ export interface RunGenerationOptions {
 }
 
 /**
- * The pipeline: fetch → curate (in fetch) → facts → apply template →
- * persist. Yields progress events for the live build-log. Honors MOCK_LLM via
- * the facts module. The only LLM call lives inside `buildFacts`.
+ * The pipeline: fetch → curate → facts (Haiku) → world choice (Haiku) →
+ * deterministic template fill → persist. The model selects from approved IDs;
+ * it never writes executable portfolio code.
  */
 export async function* runGeneration(
   username: string,
@@ -102,8 +103,9 @@ export async function* runGeneration(
     if (factsUsage) usages.push(factsUsage);
 
     yield { stage: "designing", message: "Designing your site…" };
-    const { spec, usage: designUsage } = await buildDesignSpec(data, vibe);
-    if (designUsage) usages.push(designUsage);
+    const { choice, usage: chooserUsage } = await chooseWorld(vibe, data);
+    if (chooserUsage) usages.push(chooserUsage);
+    const code = renderWorld(choice.worldId, data, profile.user.login);
 
     yield { stage: "saving", message: "Publishing preview URL…" };
     const slug = newSlug();
@@ -129,10 +131,14 @@ export async function* runGeneration(
             slug,
             publicSubdomainSlug,
             vibe,
-            profileData: JSON.parse(JSON.stringify(data)) as Prisma.InputJsonValue,
-            designSpec: JSON.parse(JSON.stringify(spec)) as Prisma.InputJsonValue,
+            profileData: JSON.parse(
+              JSON.stringify(data),
+            ) as Prisma.InputJsonValue,
+            // `code` is a deterministic snapshot for portability. Serve-time
+            // rendering uses template + profileData so edits cannot go stale.
+            code,
             engineVersion: ENGINE_VERSION,
-            template: "terminalNexus",
+            template: choice.worldId,
             isPublic: true,
             // Only anonymous rows carry a claim hash; owned rows are already claimed.
             claimNonce: opts.ownerId ? null : (opts.claimNonceHash ?? null),
@@ -142,7 +148,10 @@ export async function* runGeneration(
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
 
-    logRunTotal({ username: profile.user.login, slug: publicSubdomainSlug }, usages);
+    logRunTotal(
+      { username: profile.user.login, slug: publicSubdomainSlug },
+      usages,
+    );
     yield {
       stage: "done",
       slug: publicSubdomainSlug,

@@ -37,6 +37,7 @@ export interface RawProfile {
     email: string | null;
     url: string;
     followers: number;
+    publicRepositories: number;
     createdAt: string;
   };
   contributions: {
@@ -44,6 +45,6 @@ export interface RawProfile {
     prs: number;
     total: number;
   };
-  /** Selected ≤8 repos, enriched. */
+  /** Selected ≤9 repos, enriched. */
   repos: RawRepo[];
 }

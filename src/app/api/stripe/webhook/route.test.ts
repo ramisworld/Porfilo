@@ -21,14 +21,14 @@ vi.mock("~/server/billing/fulfillment", () => ({
 vi.mock("~/server/billing/stripe", async () => {
   const actual = await vi.importActual<typeof StripeModule>("stripe");
   const stripe = new actual.default("sk_test_dummy", {
-    apiVersion: "2026-06-24.dahlia",
+    apiVersion: "2026-05-27.dahlia",
   });
   return { isStripeConfigured: () => true, getStripe: () => stripe };
 });
 
 import { POST } from "./route";
 
-const signer = new Stripe("sk_test_dummy", { apiVersion: "2026-06-24.dahlia" });
+const signer = new Stripe("sk_test_dummy", { apiVersion: "2026-05-27.dahlia" });
 
 function eventPayload(type: string, sessionId: string): string {
   return JSON.stringify({

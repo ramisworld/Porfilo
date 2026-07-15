@@ -2,7 +2,7 @@ import "server-only";
 
 /**
  * Token + cost accounting for LLM calls. Every live generation logs exact tokens
- * and computed cost per layer (Haiku facts, Opus design) plus a run total, so we
+ * and computed cost per layer (Haiku facts, Haiku world chooser) plus a run total, so we
  * can analyse spend per run. Grep server logs for `[cost]`.
  */
 

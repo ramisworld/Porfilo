@@ -52,7 +52,7 @@ interface ProfileQuery {
     followers: { totalCount: number };
     createdAt: string;
     pinnedItems: { nodes: ({ name?: string })[] };
-    repositories: { nodes: RepoQueryNode[] };
+    repositories: { totalCount: number; nodes: RepoQueryNode[] };
     contributionsCollection: {
       totalCommitContributions: number;
       totalPullRequestContributions: number;
@@ -86,6 +86,7 @@ const PROFILE_QUERY = /* GraphQL */ `
         isFork: false
         orderBy: { field: STARGAZERS, direction: DESC }
       ) {
+        totalCount
         nodes {
           name
           description
@@ -299,6 +300,7 @@ export async function fetchRawProfile(username: string): Promise<RawProfile> {
       email: u.email,
       url: u.url,
       followers: u.followers.totalCount,
+      publicRepositories: u.repositories.totalCount,
       createdAt: u.createdAt,
     },
     contributions: {

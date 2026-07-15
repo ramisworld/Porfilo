@@ -49,7 +49,7 @@ Scaffolded with **`create-t3-app`**, with BetterAuth for auth.
 | DB                     | **PostgreSQL** — Docker (local) / Railway (prod) + **Prisma**               | Reproducible local DB; managed prod                          |
 | Auth                   | **BetterAuth** (GitHub + Google OAuth + email magic link)                   | Self-hosted sessions in our own Postgres                     |
 | Facts model (Layer 1)  | **`claude-haiku-4-5`** + deterministic code                                 | Cheap repo→blurb condensing                                  |
-| Design model (Layer 2) | **`claude-opus-4-8`** (A/B `claude-sonnet-4-6`)                             | Strong design instincts, low AI-slop                         |
+| World chooser (Layer 2)| **`claude-haiku-4-5`** + deterministic fallback                             | Selects only approved world IDs from the vibe                |
 | Portfolio runtime      | **Shared engine bundle** (`public/engine/v*.js/.css`)                       | Rich hand-built interactions, cached once, cheap generations |
 | Rendering              | **Sandboxed `<iframe srcdoc>`** (`allow-scripts`, NOT `allow-same-origin`)  | Untrusted generated JS can't touch the app                   |
 | GitHub                 | **`@octokit/graphql`**, server-side token                                   | One query, 5,000 req/hr                                      |
@@ -168,20 +168,21 @@ porthub/
 ```
 username + vibe
   └─▶ [GitHub GraphQL fetch]      server/github/fetch.ts     (cache by username)
-       └─▶ [select + compact]     server/github/select.ts    (≤8 repos, README-or-not)
+       └─▶ [select + compact]     server/github/select.ts    (≤9 repos, README-or-not)
             └─▶ [Haiku → ProfileData]  server/llm/facts.ts    (cheap, structured FACTS)
-                 └─▶ [Art director → DesignSpec] server/llm/design.ts
-                      └─▶ persist Portfolio{profileData, designSpec, engineVersion, slug}
-                           └─▶ /sites/<slug> renders the shared engine in a sandboxed iframe
+                 └─▶ [Haiku → approved world ID] server/worlds/choose.ts
+                      └─▶ [deterministic DATA adapter + renderer] server/worlds/{data,render}.ts
+                           └─▶ persist Portfolio{profileData, template, code, slug}
+                                └─▶ /sites/<slug> renders code in a sandboxed iframe
 ```
 
 ### Layer 1 — Facts (`ProfileData`): what "compaction" means
 
-Deterministic selection + a cheap Haiku condense. Never feeds raw GitHub to Opus.
+Deterministic selection + a cheap Haiku condense. Raw GitHub data never reaches the world chooser.
 
 - **Repo selection:** score every repo (stars + recency + pinned + topics + has-demo +
-  description quality − fork/archived/tutorial). Take the **top 8**; if the user has fewer than
-  8 real repos, **include them all.**
+  description quality − fork/archived/tutorial). Take the **top 9**; if the user has fewer than
+  9 real repos, **include them all.**
 - **Signal per repo:** description, topics, language breakdown, stars, demo URL, and the README
   **intro section only** (strip badges/TOC/install/license, cap ~400 tokens).
 - **No-README repos still qualify:** use description + topics + languages + top-level file tree

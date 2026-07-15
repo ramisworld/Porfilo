@@ -178,16 +178,17 @@ export default function Aurora({
         return [c.r, c.g, c.b];
       });
 
+    const uniforms = {
+      uTime: { value: 0 },
+      uAmplitude: { value: amplitude },
+      uColorStops: { value: toStops(colorStops) },
+      uResolution: { value: [ctn.offsetWidth, ctn.offsetHeight] },
+      uBlend: { value: blend },
+    };
     const program = new Program(gl, {
       vertex: VERT,
       fragment: FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uAmplitude: { value: amplitude },
-        uColorStops: { value: toStops(colorStops) },
-        uResolution: { value: [ctn.offsetWidth, ctn.offsetHeight] },
-        uBlend: { value: blend },
-      },
+      uniforms,
     });
 
     const mesh = new Mesh(gl, { geometry, program });
@@ -195,7 +196,7 @@ export default function Aurora({
 
     const resize = () => {
       renderer.setSize(ctn.offsetWidth, ctn.offsetHeight);
-      program.uniforms.uResolution.value = [ctn.offsetWidth, ctn.offsetHeight];
+      uniforms.uResolution.value = [ctn.offsetWidth, ctn.offsetHeight];
     };
     window.addEventListener("resize", resize);
     resize();
@@ -206,16 +207,16 @@ export default function Aurora({
       animateId = requestAnimationFrame(update);
       if (hidden) return;
       const p = propsRef.current;
-      program.uniforms.uTime.value = t * 0.01 * p.speed * 0.1;
-      program.uniforms.uAmplitude.value = p.amplitude;
-      program.uniforms.uBlend.value = p.blend;
-      program.uniforms.uColorStops.value = toStops(p.colorStops);
+      uniforms.uTime.value = t * 0.01 * p.speed * 0.1;
+      uniforms.uAmplitude.value = p.amplitude;
+      uniforms.uBlend.value = p.blend;
+      uniforms.uColorStops.value = toStops(p.colorStops);
       renderer.render({ scene: mesh });
     };
 
     if (reduce) {
       // Static frame — render once, never loop.
-      program.uniforms.uTime.value = 1.2;
+      uniforms.uTime.value = 1.2;
       renderer.render({ scene: mesh });
     } else {
       animateId = requestAnimationFrame(update);

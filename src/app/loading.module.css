@@ -1,0 +1,109 @@
+.screen {
+  position: relative;
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  grid-template-rows: auto 1fr;
+  background: #050507;
+  color: #fff;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.36;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(circle at 50% 50%, #000 10%, transparent 72%);
+}
+
+.screen header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.35rem 1.7rem;
+}
+
+.screen header > span {
+  color: rgba(255,255,255,.38);
+  font: 10px/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.screen section {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(760px, calc(100% - 2rem));
+  grid-template-columns: .7fr 1.3fr;
+  align-items: end;
+  margin: auto;
+  padding: 1.5rem;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 1rem;
+  background: rgba(7,7,10,.84);
+  box-shadow: 0 40px 100px -45px #000;
+}
+
+.index {
+  color: rgba(255,255,255,.12);
+  font-size: clamp(5rem, 14vw, 9rem);
+  font-weight: 650;
+  line-height: .72;
+  letter-spacing: -.1em;
+}
+
+.screen section p {
+  max-width: 12ch;
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.7rem, 4vw, 2.7rem);
+  font-weight: 560;
+  line-height: .98;
+  letter-spacing: -.055em;
+}
+
+.screen section i {
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  background: rgba(255,255,255,.09);
+}
+
+.screen section b {
+  display: block;
+  width: 36%;
+  height: 100%;
+  background: linear-gradient(90deg,#34d399,#fff);
+  animation: load 1.8s cubic-bezier(.22,1,.36,1) infinite;
+}
+
+.screen section small {
+  display: block;
+  margin-top: .75rem;
+  color: rgba(255,255,255,.4);
+  font: 10px/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+@keyframes load {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(310%); }
+}
+
+@media (max-width: 580px) {
+  .screen header { padding: 1.1rem; }
+  .screen header > span { display: none; }
+  .screen section { display: block; padding: 1.25rem; }
+  .index { display: block; margin-bottom: 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen section b { animation: none; width: 58%; }
+}

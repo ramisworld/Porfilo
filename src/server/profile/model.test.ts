@@ -28,6 +28,7 @@ describe("profile data schema", () => {
 
     expect(parsed.focus).toEqual([]);
     expect(parsed.stack).toEqual([]);
+    expect(parsed.experience).toEqual([]);
   });
 
   it("persists editable focus and stack labels", () => {
@@ -39,5 +40,43 @@ describe("profile data schema", () => {
 
     expect(parsed.focus).toEqual(["LLMs", "agents"]);
     expect(parsed.stack).toEqual(["TypeScript", "Next.js"]);
+  });
+
+  it("enforces the fixed nine-project product limit", () => {
+    const projects = Array.from({ length: 10 }, (_, index) => ({
+      name: `Project ${index + 1}`,
+      blurb: "A grounded project description.",
+      tech: ["TypeScript"],
+      repoUrl: `https://github.com/rami/project-${index + 1}`,
+    }));
+
+    expect(
+      profileDataSchema.safeParse({ ...legacyProfile, projects }).success,
+    ).toBe(false);
+    expect(
+      profileDataSchema.safeParse({
+        ...legacyProfile,
+        projects: projects.slice(0, 9),
+      }).success,
+    ).toBe(true);
+  });
+
+  it("accepts optional experience and credential dates", () => {
+    const parsed = profileDataSchema.parse({
+      ...legacyProfile,
+      experience: [
+        {
+          role: "AI engineer",
+          company: "Example Labs",
+          startDate: "2024",
+          endDate: "Present",
+          summary: "Built grounded agent systems.",
+        },
+      ],
+      credentials: [{ title: "Cloud Engineer", issuer: "Example", year: 2025 }],
+    });
+
+    expect(parsed.experience[0]?.company).toBe("Example Labs");
+    expect(parsed.credentials[0]?.year).toBe(2025);
   });
 });

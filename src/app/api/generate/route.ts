@@ -33,16 +33,16 @@ export const fetchCache = "force-no-store";
 // (or move it to a per-plan policy) when payments / plans land.
 const PORTFOLIO_QUOTA_PER_USER = 1;
 
-// The generated design is a single hand-crafted world (GHOST_PROTOCOL) that
-// ignores the vibe. We store a sentinel so the non-nullable DB column stays
-// meaningful without pretending the user's prose influenced the output.
-const DESIGN_SENTINEL = "ghost-protocol";
+// Default vibe when the caller doesn't supply one. Haiku maps this prose to one
+// approved world; templates remain deterministic and independently tested.
+const DEFAULT_VIBE = "clean, modern, premium — let the work speak";
 
 const bodySchema = z.object({
   username: z
     .string()
     .trim()
     .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i, "Invalid GitHub username"),
+  vibe: z.string().trim().min(10).max(100).optional(),
 });
 
 function json(data: unknown, status: number, headers?: HeadersInit) {
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     const msg = e instanceof z.ZodError ? e.issues[0]?.message : "Invalid request";
     return json({ error: msg ?? "Invalid request" }, 400);
   }
-  const { username } = parsed;
+  const { username, vibe } = parsed;
 
   // ── Beta cap: one portfolio per *signed-in* account ─────────────────────
   // Anonymous callers have no account yet — the cap is enforced at claim
@@ -249,7 +249,7 @@ export async function POST(req: NextRequest) {
       // its "connecting" state on this, before any backend work runs.
       await safeWrite(encoder.encode(sseFrame({ stage: "open" })));
 
-      for await (const event of runGeneration(username, DESIGN_SENTINEL, {
+      for await (const event of runGeneration(username, vibe ?? DEFAULT_VIBE, {
         ownerId,
         claimNonceHash,
       })) {

@@ -1,0 +1,357 @@
+<!-- Proof landing example. Public GitHub data snapshot: 2026-07-15. -->
+<title>Magazine — Porfilo world</title>
+<style>
+  :root{
+    --paper:#eee8da;--paper-hi:#f7f3e9;--ink:#171715;--muted:#6f6b61;--blue:#2848d8;--rule:rgba(23,23,21,.28);
+    --serif:Georgia,"Times New Roman",Times,serif;--sans:"Helvetica Neue","Arial Nova",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--gutter:clamp(18px,3.2vw,48px);
+  }
+  *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.28;background-image:radial-gradient(rgba(20,20,18,.12) .55px,transparent .7px);background-size:4px 4px;mix-blend-mode:multiply}
+  ::selection{background:var(--blue);color:var(--paper-hi)}a{color:inherit}.shell{width:min(1380px,100%);margin:0 auto;padding-inline:var(--gutter)}
+  .reading-progress{position:fixed;inset:0 auto auto 0;width:0;height:3px;background:var(--blue);z-index:120}
+  .issuebar{position:sticky;top:0;z-index:100;background:rgba(238,232,218,.94);border-bottom:1px solid var(--ink);backdrop-filter:blur(12px)}
+  .issuebar-inner{min-height:49px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;font:10px/1.2 var(--mono);letter-spacing:.13em;text-transform:uppercase}
+  .pubmark{font-weight:800;white-space:nowrap}.pubmark i{display:inline-block;width:8px;height:8px;margin-right:9px;background:var(--blue);border-radius:50%;vertical-align:0}
+  .issue-nav{display:flex;gap:24px}.issue-nav a{text-decoration:none;position:relative}.issue-nav a::after{content:"";position:absolute;left:0;right:100%;bottom:-6px;height:2px;background:var(--blue);transition:right .25s}.issue-nav a:hover::after,.issue-nav a:focus-visible::after,.issue-nav a.active::after{right:0}
+  .live-meta{display:flex;justify-content:flex-end;align-items:center;gap:14px;color:var(--muted);white-space:nowrap}.live-meta b{color:var(--ink);font-weight:500}.live-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px rgba(40,72,216,.12);animation:pulse 1.8s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.35;transform:scale(.72)}}
+
+  .reader-rail{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:80;display:flex;flex-direction:column;gap:14px;align-items:flex-end}
+  .reader-rail a{display:flex;align-items:center;gap:9px;text-decoration:none;font:9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .reader-rail span{opacity:0;transform:translateX(5px);transition:.22s}.reader-rail i{width:18px;height:1px;background:var(--rule);transition:.22s}
+  .reader-rail a:hover span,.reader-rail a.active span,.reader-rail a:focus-visible span{opacity:1;transform:none}.reader-rail a.active{color:var(--blue)}.reader-rail a.active i{width:34px;background:var(--blue)}
+
+  .cover{min-height:calc(100vh - 49px);padding:24px 0 34px;border-bottom:1px solid var(--ink);display:flex;flex-direction:column;justify-content:space-between}
+  .cover-furniture{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;padding-bottom:11px;border-bottom:1px solid var(--ink);font:10px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .cover-furniture span:nth-child(2){color:var(--ink)}.cover-furniture span:last-child{text-align:right}
+  .masthead{max-width:100%;overflow:hidden;margin:8px 0 0;border-bottom:4px double var(--ink);padding:4px 0 8px;font:700 clamp(2.8rem,8.8vw,8rem)/.82 var(--serif);letter-spacing:-.07em;text-align:center;white-space:nowrap}
+  .masthead .slash{color:var(--blue);font-style:italic;font-weight:400;margin:0 .06em}
+  .cover-grid{display:grid;grid-template-columns:1.2fr 6.1fr 2.2fr;gap:clamp(18px,2.7vw,42px);padding:clamp(22px,4vh,46px) 0 26px;align-items:start}
+  .cover-side{border-top:5px solid var(--ink);padding-top:9px}.cover-side .label,.section-label{font:10px/1.2 var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--blue)}
+  .cover-side p{margin:22px 0 0;font:12px/1.45 var(--mono);color:var(--muted)}.cover-side strong{display:block;margin-top:5px;color:var(--ink);font-weight:500}
+  .cover-feature{position:relative}.cover-kicker{display:flex;align-items:center;gap:10px;margin:0 0 14px;font:700 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}.cover-kicker::before{content:"";width:28px;height:2px;background:var(--blue)}
+  .cover h1{margin:0;max-width:10ch;font:400 clamp(3.5rem,8.2vw,8.25rem)/.83 var(--serif);letter-spacing:-.068em;text-wrap:balance;cursor:default}
+  .cover h1 .letter{display:inline-block;transform-origin:50% 100%;transition:transform .15s ease,font-style .15s ease;color .15s ease}.cover h1 .space{width:.21em}.cover h1 .period{color:var(--blue);font-style:italic}
+  .standfirst{max-width:54ch;margin:25px 0 0;padding-top:13px;border-top:1px solid var(--ink);font:500 clamp(1rem,1.55vw,1.35rem)/1.36 var(--sans)}.standfirst em{font-family:var(--serif);font-weight:400;color:var(--blue)}
+  .byline{margin-top:14px;font:10px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.byline b{color:var(--ink)}
+  .toc-preview{border-top:5px solid var(--blue)}.toc-preview h2{margin:9px 0 18px;font:700 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase}
+  .toc-mini{list-style:none;margin:0;padding:0}.toc-mini li{display:grid;grid-template-columns:26px 1fr;gap:9px;padding:9px 0;border-top:1px solid var(--rule)}.toc-mini b{font:10px/1 var(--mono);color:var(--blue)}.toc-mini span{font:600 13px/1.15 var(--sans)}
+  .cover-folio{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+  .cover-stat{padding:13px 16px 12px 0;border-right:1px solid var(--rule)}.cover-stat:not(:first-child){padding-left:16px}.cover-stat:last-child{border-right:0}.cover-stat b{display:block;font:400 clamp(1.8rem,3.3vw,3.4rem)/.9 var(--serif);letter-spacing:-.04em}.cover-stat span{display:block;margin-top:7px;font:9px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+  .section{padding:clamp(70px,10vw,142px) 0;border-bottom:1px solid var(--ink);position:relative}.section-head{display:grid;grid-template-columns:120px 1fr auto;gap:24px;align-items:end;margin-bottom:42px;padding-bottom:10px;border-bottom:1px solid var(--ink)}
+  .section-head .folio{font:10px/1 var(--mono);letter-spacing:.14em;color:var(--blue)}.section-head h2{margin:0;font:400 clamp(2.3rem,5.4vw,5.7rem)/.88 var(--serif);letter-spacing:-.052em}.section-head .descriptor{font:10px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:right}
+  .reveal{opacity:0;transform:translateY(28px);filter:blur(5px);transition:opacity .7s ease,transform .7s cubic-bezier(.16,1,.3,1),filter .7s}.reveal.in{opacity:1;transform:none;filter:none}
+
+  .letter-grid{display:grid;grid-template-columns:1.1fr 2.5fr 1.05fr;gap:clamp(24px,4vw,62px);align-items:start}.dropcap{font:400 clamp(1.08rem,1.55vw,1.38rem)/1.55 var(--serif)}.dropcap::first-letter{float:left;font-size:5.7em;line-height:.68;padding:.08em .08em 0 0;color:var(--blue)}
+  .editor-meta{font:10px/1.7 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.editor-meta b{color:var(--ink)}
+  .pullquote{margin:0;padding-left:22px;border-left:6px solid var(--blue);font:italic 400 clamp(2rem,4.2vw,4.7rem)/.93 var(--serif);letter-spacing:-.045em}.pullquote em{color:var(--blue)}
+  .discipline-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}.discipline-list li{padding:13px 0;border-bottom:1px solid var(--rule)}.discipline-list b{display:block;font:700 12px/1.15 var(--sans)}.discipline-list span{display:block;margin-top:5px;font:10px/1.4 var(--mono);color:var(--muted)}
+  .credential-box{margin-top:34px;border:1px solid var(--ink);padding:16px}.credential-box h3{margin:0 0 12px;font:10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}.credential-box a,.credential-box div{display:block;padding:10px 0;border-top:1px solid var(--rule);text-decoration:none}.credential-box strong{display:block;font:600 12px/1.3 var(--sans)}.credential-box span{font:9px/1.4 var(--mono);color:var(--muted)}
+
+  .feature-layout{display:grid;grid-template-columns:minmax(220px,.85fr) minmax(0,2.6fr);gap:clamp(24px,4vw,58px);align-items:start}.project-index{border-top:1px solid var(--ink)}
+  .project-tab{appearance:none;width:100%;display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:14px 2px;border:0;border-bottom:1px solid var(--rule);background:none;color:inherit;text-align:left;cursor:pointer}.project-tab .n{font:9px/1 var(--mono);color:var(--blue)}.project-tab .nm{font:600 13px/1.15 var(--sans)}.project-tab .yr{font:9px/1 var(--mono);color:var(--muted)}
+  .project-tab:hover .nm,.project-tab:focus-visible .nm,.project-tab[aria-selected="true"] .nm{color:var(--blue)}.project-tab[aria-selected="true"]{padding-left:12px;background:rgba(40,72,216,.07)}.project-tab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .feature-stage{min-width:0;border-top:5px solid var(--ink);outline:none}.feature-stage:focus-visible{outline:2px solid var(--blue);outline-offset:4px}.feature-art{height:clamp(250px,39vw,510px);position:relative;overflow:hidden;background:var(--blue);color:var(--paper-hi);isolation:isolate;touch-action:pan-y;cursor:grab}.feature-art:active{cursor:grabbing}
+  .feature-art::before{content:"";position:absolute;inset:-15%;background:repeating-linear-gradient(var(--angle,24deg),transparent 0 18px,rgba(247,243,233,.14) 18px 20px);transform:translateX(var(--shift,0)) rotate(var(--rotate,0deg));transition:transform .7s cubic-bezier(.16,1,.3,1)}
+  .feature-art::after{content:"";position:absolute;width:48%;aspect-ratio:1;border:clamp(18px,4vw,54px) solid var(--paper-hi);border-radius:50%;right:-6%;top:50%;transform:translateY(-50%) scale(var(--ring,1));mix-blend-mode:screen;opacity:.9;transition:.7s cubic-bezier(.16,1,.3,1)}
+  .feature-no{position:absolute;z-index:2;left:22px;top:17px;font:10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase}.feature-glyph{position:absolute;z-index:1;left:4%;bottom:-.2em;font:700 clamp(12rem,31vw,31rem)/.7 var(--serif);letter-spacing:-.12em;color:var(--paper-hi);mix-blend-mode:screen;opacity:.93;transition:transform .65s cubic-bezier(.16,1,.3,1)}.feature-stage.changing .feature-glyph{transform:translateY(12%) rotate(2deg)}
+  .feature-caption{display:grid;grid-template-columns:1.4fr 2fr;gap:28px;padding:18px 0;border-bottom:1px solid var(--ink)}.feature-title h3{margin:0;font:400 clamp(2.2rem,5.2vw,5.5rem)/.88 var(--serif);letter-spacing:-.055em}.feature-title .meta{margin-top:10px;font:9px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+  .feature-copy p{margin:0;font:500 clamp(.98rem,1.3vw,1.18rem)/1.45 var(--sans)}.feature-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.feature-tags span{padding:5px 8px;border:1px solid var(--rule);font:9px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}.feature-links{display:flex;gap:18px;margin-top:18px}.feature-links a{font:700 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border-bottom:2px solid var(--blue);padding-bottom:4px}.feature-links a:hover,.feature-links a:focus-visible{color:var(--blue)}
+  .swipe-note{margin-top:9px;font:9px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .story-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:70px;background:var(--ink);border:1px solid var(--ink)}.story{min-height:260px;padding:22px;background:var(--paper);display:flex;flex-direction:column;transition:background .2s,color .2s}.story:hover,.story:focus-within{background:var(--ink);color:var(--paper-hi)}.story .top{display:flex;justify-content:space-between;font:9px/1 var(--mono);letter-spacing:.12em;color:var(--blue)}.story h3{margin:45px 0 10px;font:400 2rem/.95 var(--serif);letter-spacing:-.04em}.story p{margin:0;font:12px/1.48 var(--sans);color:var(--muted)}.story:hover p,.story:focus-within p{color:#bbb7ac}.story .bottom{margin-top:auto;padding-top:22px;display:flex;justify-content:space-between;gap:12px;align-items:end}.story .tech{font:9px/1.4 var(--mono);text-transform:uppercase}.story a{font:700 10px/1 var(--mono);text-decoration:none;color:var(--blue)}
+
+  .index-grid{display:grid;grid-template-columns:1fr 2fr;gap:clamp(30px,6vw,88px)}.numbers-index{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--ink)}.index-number{min-height:150px;padding:18px 12px 18px 0;border-bottom:1px solid var(--ink)}.index-number:nth-child(odd){border-right:1px solid var(--rule)}.index-number:nth-child(even){padding-left:18px}.index-number b{display:block;font:400 clamp(3.3rem,7vw,7.5rem)/.8 var(--serif);letter-spacing:-.07em}.index-number i{color:var(--blue);font-style:italic}.index-number span{display:block;margin-top:15px;max-width:18ch;font:9px/1.35 var(--mono);letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+  .stack-index{border-top:5px solid var(--blue)}.stack-lead{display:flex;justify-content:space-between;gap:20px;padding:10px 0 18px;border-bottom:1px solid var(--ink);font:10px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase}.stack-lead b{color:var(--blue)}
+  .stack-words{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;padding:22px 0;border-bottom:1px solid var(--ink)}.stack-word{font:400 clamp(1.8rem,4vw,4.7rem)/1 var(--serif);letter-spacing:-.045em;cursor:default;transition:color .18s,font-style .18s}.stack-word::after{content:"·";margin-left:18px;color:var(--rule)}.stack-word:last-child::after{display:none}.stack-word:hover,.stack-word.primary{color:var(--blue);font-style:italic}
+
+  .back-cover{min-height:82vh;padding:clamp(70px,10vw,130px) 0 34px;background:var(--ink);color:var(--paper-hi);display:flex;flex-direction:column;justify-content:space-between}.back-cover .section-label{color:#8fa1ff}.back-grid{display:grid;grid-template-columns:1fr 2.5fr;gap:clamp(28px,5vw,76px);align-items:end}.back-cover h2{margin:22px 0 0;font:400 clamp(4rem,11vw,11rem)/.78 var(--serif);letter-spacing:-.073em}.back-cover h2 em{color:#8fa1ff;font-weight:400}.back-intro{font:10px/1.7 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#a5a196}.copy-mail{appearance:none;width:100%;margin-top:25px;padding:18px 0;border:0;border-top:1px solid #8d8a80;border-bottom:1px solid #8d8a80;background:none;color:inherit;text-align:left;display:flex;justify-content:space-between;gap:20px;cursor:pointer;font:400 clamp(1.15rem,2.3vw,2.4rem)/1.1 var(--serif)}.copy-mail span:last-child{font:9px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#8fa1ff}.copy-mail:hover,.copy-mail:focus-visible{color:#8fa1ff;outline:none}.back-links{display:flex;flex-wrap:wrap;gap:22px;margin-top:22px}.back-links a{font:10px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid #8fa1ff;padding-bottom:4px}.back-links a:hover,.back-links a:focus-visible{color:#8fa1ff}.colophon{display:flex;justify-content:space-between;gap:20px;padding-top:28px;border-top:1px solid #514f49;font:9px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#77746d}
+
+  @media(max-width:1020px){.reader-rail{display:none}.cover-grid{grid-template-columns:1fr 4fr}.toc-preview{grid-column:1/-1;display:grid;grid-template-columns:150px 1fr;gap:20px}.toc-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.letter-grid{grid-template-columns:1fr 2fr}.letter-aside{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:28px}.feature-layout{grid-template-columns:190px 1fr}.story-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:680px){:root{--gutter:18px}.issuebar-inner{grid-template-columns:1fr auto;gap:12px}.issue-nav{display:none}.live-meta .place,.live-meta .available-label{display:none}.masthead{font-size:clamp(2rem,11.7vw,4.2rem);letter-spacing:-.08em}.cover{min-height:auto;padding-top:15px}.cover-furniture{grid-template-columns:1fr 1fr}.cover-furniture span:nth-child(2){display:none}.cover-grid{grid-template-columns:1fr;padding-top:26px}.cover-side{display:grid;grid-template-columns:1fr 1fr;gap:12px}.cover-side p{margin:0}.cover h1{font-size:clamp(3.45rem,17.8vw,5.4rem)}.toc-preview{display:block}.toc-mini{display:block}.cover-folio{grid-template-columns:1fr 1fr}.cover-stat:nth-child(2){border-right:0}.cover-stat:nth-child(-n+2){border-bottom:1px solid var(--rule)}.section{padding:76px 0}.section-head{grid-template-columns:auto 1fr;gap:14px;margin-bottom:30px}.section-head h2{grid-column:1/-1;grid-row:2}.section-head .descriptor{grid-column:2;text-align:right}.letter-grid{grid-template-columns:1fr}.letter-aside{display:block}.pullquote{font-size:clamp(2.25rem,12vw,3.5rem);margin:10px 0 34px}.feature-layout{grid-template-columns:1fr}.project-index{display:grid;grid-template-columns:1fr 1fr}.project-tab:nth-child(odd){border-right:1px solid var(--rule)}.project-tab{grid-template-columns:20px 1fr;padding:11px 7px}.project-tab .yr{display:none}.project-tab[aria-selected="true"]{padding-left:7px}.feature-caption{grid-template-columns:1fr;gap:16px}.feature-art{height:300px}.feature-glyph{font-size:15rem}.story-grid{grid-template-columns:1fr;margin-top:50px}.story{min-height:225px}.index-grid{grid-template-columns:1fr}.index-number{min-height:130px}.back-grid{grid-template-columns:1fr}.back-cover{min-height:88vh}.back-cover h2{font-size:clamp(4.4rem,22vw,7rem)}.colophon{flex-direction:column}.swipe-note{text-align:right}}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.live-dot{animation:none}.reveal{opacity:1;transform:none;filter:none;transition:none}.cover h1 .letter,.feature-art::before,.feature-art::after,.feature-glyph{transition:none!important;transform:none}.feature-art::after{transform:translateY(-50%)} }
+</style>
+
+<div class="reading-progress" id="progress"></div>
+<header class="issuebar"><div class="shell issuebar-inner">
+  <div class="pubmark" id="pubmark"></div>
+  <nav class="issue-nav" aria-label="Issue sections"><a href="#cover">Cover</a><a href="#letter">Letter</a><a href="#work">Features</a><a href="#index">Index</a><a href="#contact">Contact</a></nav>
+  <div class="live-meta" id="live-meta"></div>
+</div></header>
+<nav class="reader-rail" id="reader-rail" aria-label="Reading progress"></nav>
+
+<main>
+  <section class="cover" id="cover"><div class="shell">
+    <div class="cover-furniture"><span id="issue-date"></span><span>Independent developer journal</span><span id="cover-handle"></span></div>
+    <div class="masthead" id="masthead"></div>
+    <div class="cover-grid">
+      <aside class="cover-side" id="cover-side"></aside>
+      <div class="cover-feature">
+        <p class="cover-kicker">Cover story</p>
+        <h1 id="cover-headline"></h1>
+        <p class="standfirst" id="standfirst"></p>
+        <div class="byline" id="byline"></div>
+      </div>
+      <aside class="toc-preview"><h2>Inside this issue</h2><ol class="toc-mini" id="toc-mini"></ol></aside>
+    </div>
+    <div class="cover-folio" id="cover-stats"></div>
+  </div></section>
+
+  <section class="section" id="letter"><div class="shell">
+    <div class="section-head reveal"><span class="folio">01 / Editor’s letter</span><h2>Notes from the desk</h2><span class="descriptor">Practice, process<br>&amp; point of view</span></div>
+    <div class="letter-grid">
+      <div><div class="editor-meta" id="editor-meta"></div><p class="dropcap" id="editor-copy"></p></div>
+      <blockquote class="pullquote reveal" id="pullquote"></blockquote>
+      <aside class="letter-aside"><ul class="discipline-list" id="discipline-list"></ul><div class="credential-box" id="credential-box" hidden></div></aside>
+    </div>
+  </div></section>
+
+  <section class="section" id="work"><div class="shell">
+    <div class="section-head reveal"><span class="folio">02 / Features</span><h2>Selected work</h2><span class="descriptor" id="work-range"></span></div>
+    <div class="feature-layout">
+      <div class="project-index" id="project-tabs" role="tablist" aria-label="Select a project feature"></div>
+      <article class="feature-stage" id="feature-panel" role="tabpanel" tabindex="0" aria-live="polite">
+        <div class="feature-art" id="feature-art"><span class="feature-no" id="feature-no"></span><span class="feature-glyph" id="feature-glyph"></span></div>
+        <div class="feature-caption"><div class="feature-title"><h3 id="feature-name"></h3><div class="meta" id="feature-meta"></div></div><div class="feature-copy"><p id="feature-blurb"></p><div class="feature-tags" id="feature-tags"></div><div class="feature-links" id="feature-links"></div></div></div>
+        <div class="swipe-note">Select an entry · or swipe the feature plate</div>
+      </article>
+    </div>
+    <div class="story-grid" id="story-grid"></div>
+  </div></section>
+
+  <section class="section" id="index"><div class="shell">
+    <div class="section-head reveal"><span class="folio">03 / Reference</span><h2>The working index</h2><span class="descriptor">An unranked inventory<br>of tools &amp; output</span></div>
+    <div class="index-grid"><div class="numbers-index" id="numbers-index"></div><div class="stack-index"><div class="stack-lead"><span>Tools in regular rotation</span><b id="primary-label"></b></div><div class="stack-words" id="stack-words"></div></div></div>
+  </div></section>
+</main>
+
+<footer class="back-cover" id="contact"><div class="shell">
+  <div class="back-grid"><div><div class="section-label">04 / Back cover</div><div class="back-intro" id="back-intro"></div></div><div><h2>Start a<br><em>dialogue.</em></h2><button class="copy-mail" id="copy-mail"><span id="mail-text"></span><span id="copy-state">Copy address ⧉</span></button><div class="back-links" id="back-links"></div></div></div>
+  <div class="colophon" id="colophon"></div>
+</div></footer>
+
+<script>
+/* ============================================================================
+   FILL CONTRACT — the portfolio renderer replaces ONLY the DATA object below.
+   The shape is identical across every world (see world-prompts/FILL_CONTRACT.md).
+   Everything after "END DATA" is template logic and must not change per user.
+   ============================================================================ */
+const DATA = {
+  "identity": {
+    "name": "Dan Abramov",
+    "handle": "gaearon",
+    "role": "Software engineer and writer",
+    "headline": "Building and explaining user interfaces.",
+    "location": "",
+    "available": false
+  },
+  "tagline": "React, JavaScript, interface engineering and technical writing.",
+  "email": "",
+  "links": {
+    "github": "https://github.com/gaearon",
+    "site": "https://overreacted.io"
+  },
+  "stats": {
+    "contributionsPastYear": 755,
+    "publicRepos": 60,
+    "featuredBuilds": 4,
+    "buildingSince": 2011
+  },
+  "stack": [
+    "JavaScript",
+    "TypeScript",
+    "CSS",
+    "React"
+  ],
+  "primaryStack": "JavaScript",
+  "disciplines": [
+    [
+      "Interfaces",
+      "React"
+    ],
+    [
+      "Writing",
+      "Software education"
+    ],
+    [
+      "Tooling",
+      "Developer experience"
+    ]
+  ],
+  "projects": [
+    {
+      "name": "react-hot-loader",
+      "year": 2023,
+      "tech": [
+        "JavaScript",
+        "React"
+      ],
+      "stars": 12174,
+      "repoUrl": "https://github.com/gaearon/react-hot-loader",
+      "blurb": "Real-time React component editing, now superseded by Fast Refresh."
+    },
+    {
+      "name": "overreacted.io",
+      "year": 2026,
+      "tech": [
+        "TypeScript"
+      ],
+      "stars": 7273,
+      "repoUrl": "https://github.com/gaearon/overreacted.io",
+      "demoUrl": "https://overreacted.io",
+      "blurb": "The source for Dan Abramov's personal software-development publication."
+    },
+    {
+      "name": "react-hot-boilerplate",
+      "year": 2020,
+      "tech": [
+        "JavaScript",
+        "React"
+      ],
+      "stars": 3890,
+      "repoUrl": "https://github.com/gaearon/react-hot-boilerplate",
+      "blurb": "A minimal live-editing example for React."
+    },
+    {
+      "name": "react-transform-boilerplate",
+      "year": 2020,
+      "tech": [
+        "JavaScript",
+        "React",
+        "Webpack"
+      ],
+      "stars": 3335,
+      "repoUrl": "https://github.com/gaearon/react-transform-boilerplate",
+      "blurb": "A Webpack boilerplate for hot reloading and component-level error handling."
+    }
+  ],
+  "experience": [],
+  "credentials": []
+};
+/* ===== END DATA — template logic below (world-specific, not per-user) ======= */
+
+const R = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const STAR_MIN = 50;
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const accent = (s) => esc(s).replace(/\*([^*]+)\*/g,'<em>$1</em>');
+const $ = (id) => document.getElementById(id);
+const id = DATA.identity || {};
+const projects = Array.isArray(DATA.projects) ? DATA.projects : [];
+const links = DATA.links || {};
+const stats = DATA.stats || {};
+const pad = (n) => String(n + 1).padStart(2,'0');
+const [city] = String(id.location || '').split(',').map((s) => s.trim());
+const today = new Intl.DateTimeFormat('en-GB',{month:'long',year:'numeric'}).format(new Date());
+
+// ---- publication chrome + cover ----
+$('pubmark').innerHTML = `<i></i>${esc(id.name || id.handle || 'Portfolio')} / Field Notes`;
+$('issue-date').textContent = `Issue 01 · ${today}`;
+$('cover-handle').textContent = id.handle ? `@${id.handle}` : '';
+$('masthead').innerHTML = `${esc(String(id.name || id.handle || 'Field').toUpperCase())}<span class="slash">/</span>REVIEW`;
+function fitMasthead(){const el=$('masthead');el.style.fontSize='';const size=parseFloat(getComputedStyle(el).fontSize);if(el.scrollWidth>el.clientWidth)el.style.fontSize=`${Math.max(32,size*(el.clientWidth/el.scrollWidth)*.98)}px`}
+requestAnimationFrame(fitMasthead);addEventListener('resize',fitMasthead,{passive:true});
+$('cover-side').innerHTML = `<div><span class="label">Filed from</span><p>${esc(id.location || '')}<strong>${esc(id.role || '')}</strong></p></div><div><span class="label">In practice</span><p>${esc((DATA.disciplines || []).slice(0,2).map((d)=>d[0]).join(' / '))}<strong>${esc(DATA.primaryStack || '')}</strong></p></div>`;
+const rawHeadline = String(id.headline || id.role || id.name || '').replace(/\s*\.\s*$/,'');
+$('cover-headline').innerHTML = [...rawHeadline].map((c) => c === ' ' ? '<span class="letter space"> </span>' : `<span class="letter">${esc(c)}</span>`).join('') + '<span class="letter period">.</span>';
+$('standfirst').innerHTML = accent(DATA.tagline || '');
+$('byline').innerHTML = `A portfolio profile by <b>${esc(id.name || '')}</b> · ${esc(id.role || '')}`;
+$('toc-mini').innerHTML = projects.slice(0,4).map((p,i)=>`<li><b>${pad(i)}</b><span>${esc(p.name)}</span></li>`).join('');
+$('cover-stats').innerHTML = [
+  [stats.contributionsPastYear,'Contributions / year'],[stats.publicRepos,'Public repositories'],[stats.featuredBuilds,'Featured builds'],[`’${String(stats.buildingSince || '').slice(2)}`,'Building since']
+].filter(([v])=>v!==undefined&&v!=='').map(([v,l])=>`<div class="cover-stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+
+function updateClock(){
+  const bits=[];
+  if(id.available) bits.push('<i class="live-dot"></i><span class="available-label">Available</span>');
+  if(id.timezone){
+    let time=''; try{time=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:id.timezone});}catch(e){}
+    bits.push(`<span class="place">${esc(city || id.location || '')}</span><b>${esc(time)}${id.tzLabel ? ' · '+esc(id.tzLabel) : ''}</b>`);
+  }
+  $('live-meta').innerHTML=bits.join('');
+}
+updateClock(); setInterval(updateClock,30000);
+
+// ---- editor's letter ----
+$('editor-meta').innerHTML = `Editor<br><b>${esc(id.name || '')}</b><br><br>Beat<br><b>${esc((DATA.disciplines || []).map((d)=>d[0]).join(' · '))}</b>`;
+$('editor-copy').innerHTML = accent(DATA.tagline || '');
+const starred = String(DATA.tagline || '').match(/\*([^*]+)\*/);
+const quote = starred ? `The interface should ${esc(starred[1])}.` : esc(id.headline || id.role || '');
+$('pullquote').innerHTML = `“${quote.replace(esc(starred?.[1] || ''), starred ? `<em>${esc(starred[1])}</em>` : '')}”`;
+$('discipline-list').innerHTML = (DATA.disciplines || []).map(([k,v])=>`<li><b>${esc(k)}</b><span>${esc(v)}</span></li>`).join('');
+if(Array.isArray(DATA.credentials) && DATA.credentials.length){
+  $('credential-box').hidden=false;
+  $('credential-box').innerHTML='<h3>Contributor / Credentials</h3>'+DATA.credentials.map((c)=>{
+    const inner=`<strong>${esc(c.title)}</strong><span>${esc(c.issuer)} · ${esc(c.year)}</span>`;
+    return c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noreferrer">${inner}</a>` : `<div>${inner}</div>`;
+  }).join('');
+}
+
+// ---- interactive feature spread ----
+const years=projects.map((p)=>Number(p.year)).filter(Boolean);
+$('work-range').innerHTML = projects.length ? `${Math.min(...years)}—${Math.max(...years)}<br>${String(projects.length).padStart(2,'0')} stories` : 'No stories filed';
+$('project-tabs').innerHTML = projects.map((p,i)=>`<button class="project-tab" id="project-tab-${i}" role="tab" aria-controls="feature-panel" aria-selected="${i===0}" tabindex="${i===0?'0':'-1'}" data-i="${i}"><span class="n">${pad(i)}</span><span class="nm">${esc(p.name)}</span><span class="yr">${esc(p.year)}</span></button>`).join('');
+$('story-grid').innerHTML = projects.map((p,i)=>{
+  const star=p.stars>=STAR_MIN?` · ★ ${esc(p.stars)}`:'';
+  const href=p.demoUrl||p.repoUrl||'#';
+  return `<article class="story"><div class="top"><span>Story ${pad(i)}</span><span>${esc(p.year)}${star}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.blurb)}</p><div class="bottom"><span class="tech">${(p.tech||[]).map(esc).join(' · ')}</span>${href!=='#'?`<a href="${esc(href)}" target="_blank" rel="noreferrer" aria-label="Open ${esc(p.name)}">Read ↗</a>`:''}</div></article>`;
+}).join('');
+let activeProject=0, changeTimer=0;
+function showProject(next, focusTab=false){
+  if(!projects.length) return;
+  activeProject=(next+projects.length)%projects.length;
+  const p=projects[activeProject], stage=$('feature-panel');
+  stage.classList.add('changing'); clearTimeout(changeTimer); changeTimer=setTimeout(()=>stage.classList.remove('changing'),260);
+  document.querySelectorAll('.project-tab').forEach((b,i)=>{b.setAttribute('aria-selected',String(i===activeProject));b.tabIndex=i===activeProject?0:-1;});
+  $('feature-no').textContent=`Feature ${pad(activeProject)} / ${String(projects.length).padStart(2,'0')}`;
+  $('feature-glyph').textContent=String(p.name||'?').trim().charAt(0).toUpperCase();
+  $('feature-name').textContent=p.name||'';
+  const star=p.stars>=STAR_MIN?` · ★ ${p.stars}`:'';
+  $('feature-meta').textContent=`${p.year||''} · ${(p.tech||[]).join(' / ')}${star}`;
+  $('feature-blurb').textContent=p.blurb||'';
+  $('feature-tags').innerHTML=(p.tech||[]).map((t)=>`<span>${esc(t)}</span>`).join('');
+  $('feature-links').innerHTML=[p.repoUrl&&`<a href="${esc(p.repoUrl)}" target="_blank" rel="noreferrer">Repository ↗</a>`,p.demoUrl&&`<a href="${esc(p.demoUrl)}" target="_blank" rel="noreferrer">Live edition ↗</a>`].filter(Boolean).join('');
+  const art=$('feature-art'); art.style.setProperty('--angle',(18+activeProject*11)+'deg');art.style.setProperty('--shift',(activeProject%2?'-6%':'7%'));art.style.setProperty('--rotate',(activeProject%3-1)*4+'deg');art.style.setProperty('--ring',String(.78+(activeProject%4)*.12));
+  if(focusTab) $(`project-tab-${activeProject}`).focus();
+}
+$('project-tabs').addEventListener('click',(e)=>{const b=e.target.closest('.project-tab');if(b)showProject(+b.dataset.i);});
+$('project-tabs').addEventListener('keydown',(e)=>{if(!['ArrowDown','ArrowRight','ArrowUp','ArrowLeft','Home','End'].includes(e.key))return;e.preventDefault();const n=e.key==='Home'?0:e.key==='End'?projects.length-1:activeProject+(e.key==='ArrowDown'||e.key==='ArrowRight'?1:-1);showProject(n,true);});
+let dragX=null;
+$('feature-art').addEventListener('pointerdown',(e)=>{dragX=e.clientX;e.currentTarget.setPointerCapture?.(e.pointerId);});
+$('feature-art').addEventListener('pointerup',(e)=>{if(dragX===null)return;const dx=e.clientX-dragX;dragX=null;if(Math.abs(dx)>48)showProject(activeProject+(dx<0?1:-1));});
+$('feature-art').addEventListener('pointercancel',()=>{dragX=null;});
+showProject(0);
+
+// ---- index ----
+$('numbers-index').innerHTML = [[stats.contributionsPastYear,'Contributions in the last year'],[stats.publicRepos,'Public repositories shipped'],[stats.featuredBuilds,'Featured builds in this issue'],[`’${String(stats.buildingSince||'').slice(2)}`,'Building and shipping since']].filter(([v])=>v!==undefined&&v!=='').map(([v,l],i)=>`<div class="index-number"><b ${i<3?`data-count="${esc(v)}"`:''}>${i<3?'0':esc(v)}${i===3?'<i>→</i>':''}</b><span>${esc(l)}</span></div>`).join('');
+$('primary-label').textContent=`Primary · ${DATA.primaryStack||''}`;
+$('stack-words').innerHTML=(DATA.stack||[]).map((s)=>`<span class="stack-word ${s===DATA.primaryStack?'primary':''}">${esc(s)}</span>`).join('');
+
+// ---- back cover ----
+$('back-intro').innerHTML=`Correspondence<br><b>${esc(id.name||'')}</b><br>${esc(id.location||'')}<br><br>${id.available?'Currently open to considered work.':'Working independently.'}`;
+$('mail-text').textContent=DATA.email||'';
+$('back-links').innerHTML=[links.github&&['GitHub',links.github],links.site&&[links.site.replace(/^https?:\/\//,''),links.site],links.linkedin&&['LinkedIn',links.linkedin],links.x&&['X',links.x]].filter(Boolean).map(([label,url])=>`<a href="${esc(url)}" target="_blank" rel="noreferrer">${esc(label)} ↗</a>`).join('');
+$('colophon').innerHTML=`<span>© ${esc(id.name||'')} · ${esc(today)}</span><span>Issue 01 · ${esc(id.handle||'')} · Set in system serif &amp; grotesk</span>`;
+$('copy-mail').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(DATA.email||'');}catch(e){}$('copy-state').textContent='Copied ✓';setTimeout(()=>$('copy-state').textContent='Copy address ⧉',1500);});
+
+// ---- reader navigation, reveals, counters, restrained motion ----
+const sections=['cover','letter','work','index','contact'];
+$('reader-rail').innerHTML=sections.map((s,i)=>`<a href="#${s}" data-sec="${s}" class="${i===0?'active':''}"><span>${esc(s)}</span><i></i></a>`).join('');
+const navLinks=[...document.querySelectorAll('[data-sec],.issue-nav a')];
+function scrollState(){
+  if(document.hidden)return;
+  const d=document.documentElement,max=d.scrollHeight-d.clientHeight,y=d.scrollTop;$('progress').style.width=(max?y/max*100:0)+'%';
+  let cur='cover';sections.forEach((s)=>{const el=$(s);if(el&&el.offsetTop<=y+innerHeight*.42)cur=s;});
+  navLinks.forEach((a)=>{const s=a.dataset.sec||a.getAttribute('href').slice(1);a.classList.toggle('active',s===cur);});
+  if(!R){document.querySelectorAll('.pullquote').forEach((el)=>{const r=el.getBoundingClientRect();const p=Math.max(-1,Math.min(1,(r.top-innerHeight*.5)/innerHeight));el.style.transform=`translateY(${(-p*10).toFixed(1)}px)`;});}
+}
+let scrollRaf=0;addEventListener('scroll',()=>{if(!scrollRaf)scrollRaf=requestAnimationFrame(()=>{scrollRaf=0;scrollState();});},{passive:true});scrollState();
+const reveals=[...document.querySelectorAll('.reveal')];
+if(R||typeof IntersectionObserver!=='function')reveals.forEach((e)=>e.classList.add('in'));else{const io=new IntersectionObserver((entries)=>entries.forEach((e)=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.25});reveals.forEach((e)=>io.observe(e));setTimeout(()=>reveals.forEach((e)=>e.classList.add('in')),2400);}
+if(!R&&matchMedia('(hover:hover)').matches){
+  const letters=[...$('cover-headline').querySelectorAll('.letter')];$('cover-headline').addEventListener('pointermove',(e)=>{letters.forEach((l)=>{const r=l.getBoundingClientRect(),f=Math.max(0,1-Math.abs(e.clientX-(r.left+r.width/2))/190);l.style.transform=`translateY(${(-7*f).toFixed(1)}px) scaleY(${(1+.12*f).toFixed(3)})`;if(f>.55)l.style.color='var(--blue)';else l.style.color='';});});$('cover-headline').addEventListener('pointerleave',()=>letters.forEach((l)=>{l.style.transform='';l.style.color='';}));
+}
+function countUp(el,to){const start=performance.now(),dur=1100;function frame(now){const p=Math.min(1,(now-start)/dur);el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(frame);}requestAnimationFrame(frame);}
+const countEls=[...document.querySelectorAll('[data-count]')];let counted=false;const fireCounts=()=>{if(counted)return;counted=true;countEls.forEach((el)=>R?el.textContent=el.dataset.count:countUp(el,+el.dataset.count));};
+if(typeof IntersectionObserver==='function'){const cio=new IntersectionObserver((es)=>es.forEach((e)=>{if(e.isIntersecting){fireCounts();cio.disconnect();}}),{threshold:.3});cio.observe($('index'));}else fireCounts();setTimeout(fireCounts,2800);
+</script>

@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import type { Prisma } from "../../../../generated/prisma";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { profileDataSchema, type ProfileData } from "~/server/profile/model";
+import { isWorldId } from "~/server/worlds/catalog";
+import { renderWorld } from "~/server/worlds/render";
 
 /**
  * Portfolio router — the authenticated user can read and manage their own
@@ -67,16 +70,24 @@ export const portfolioRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const existing = await ctx.db.portfolio.findUnique({
         where: { ownerId: ctx.user.id },
-        select: { id: true },
+        select: { id: true, template: true, githubUsername: true },
       });
       if (!existing) {
         throw new TRPCError({ code: "NOT_FOUND", message: "No portfolio." });
       }
       const payload: ProfileData = input.profileData;
+      const code = isWorldId(existing.template)
+        ? renderWorld(existing.template, payload, existing.githubUsername)
+        : undefined;
       await ctx.db.portfolio.update({
         where: { id: existing.id },
-        data: { profileData: JSON.parse(JSON.stringify(payload)) as object },
+        data: {
+          profileData: JSON.parse(
+            JSON.stringify(payload),
+          ) as Prisma.InputJsonValue,
+          ...(code ? { code } : {}),
+        },
       });
-      return { ok: true };
+      return { ok: true, profileData: payload };
     }),
 });

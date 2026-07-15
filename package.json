@@ -12,6 +12,8 @@
     "engine:build": "node scripts/build-engine.mjs && node scripts/sync-brand-icons.mjs",
     "icons:sync": "node scripts/sync-brand-icons.mjs",
     "engine:watch": "node --watch-path=src/engine scripts/build-engine.mjs",
+    "examples:render": "node scripts/render-landing-examples.mjs",
+    "landing:verify": "node scripts/verify-proof-landing.mjs",
     "db:generate": "prisma migrate dev",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
@@ -26,6 +28,8 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:worlds": "RUN_BROWSER_WORLD_TESTS=true vitest run src/server/profile/model.test.ts src/server/worlds/rank.test.ts src/server/worlds/render.test.ts src/server/worlds/render.browser.test.ts",
+    "test:worlds:chooser:live": "RUN_LIVE_WORLD_CHOOSER=true node --env-file=.env --env-file=.env.local node_modules/vitest/vitest.mjs run src/server/worlds/choose.live.test.ts",
     "test:e2e": "playwright test",
     "loadtest": "k6 run loadtest/porfilo-load.js",
     "typecheck": "tsc --noEmit"
@@ -50,7 +54,7 @@
     "react-dom": "^19.0.0",
     "resend": "^6.14.0",
     "server-only": "^0.0.1",
-    "stripe": "^22.3.0",
+    "stripe": "22.2.0",
     "superjson": "^2.2.1",
     "three": "^0.184.0",
     "zod": "^3.24.2"
@@ -70,9 +74,10 @@
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "prisma": "^6.6.0",
+    "sharp": "0.34.5",
     "tailwindcss": "^4.0.15",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.27.0",
+    "typescript": "5.8.2",
+    "typescript-eslint": "8.27.0",
     "vitest": "^4.1.9"
   },
   "ct3aMetadata": {
@@ -80,6 +85,9 @@
   },
   "packageManager": "pnpm@10.25.0",
   "pnpm": {
+    "overrides": {
+      "expect-type": "1.3.0"
+    },
     "onlyBuiltDependencies": [
       "@prisma/client",
       "@prisma/engines",

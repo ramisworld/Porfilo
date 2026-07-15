@@ -7,26 +7,95 @@ import {
   useRef,
   useState,
 } from "react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
+import Image from "next/image";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { PorfiloWordmark } from "~/app/_components/porfilo-logo";
 import { Arrow, Spinner } from "~/app/_components/icons";
-import { AuroraBackground } from "~/app/_components/aurora-background";
-import BlurText from "~/components/reactbits/blur-text";
 import RotatingText from "~/components/reactbits/rotating-text";
-import ShinyText from "~/components/reactbits/shiny-text";
-
-// WebGL aurora — client-only so ogl never runs on the server / hurts FCP.
-const Aurora = dynamic(() => import("~/components/reactbits/aurora"), {
-  ssr: false,
-});
+import { EXAMPLES } from "../../../landing-prompts/examples";
+import styles from "./proof.module.css";
 
 // The nouns the hero cycles through — Porfilo turns a GitHub into any of these.
 const HERO_NOUNS = ["portfolio", "résumé", "story", "showcase"] as const;
 const HERO_SUBHEAD =
-  "Type your username. Get a living, interactive site built from your real work — in seconds.";
+  "Every site behind this page was generated from a real public GitHub profile. Type your username and get yours.";
 const HERO_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const SURPRISE_VIBE = "Surprise me — choose the strongest visual world for my work";
+const VIBE_STARTERS = [
+  { label: "Raw editorial", value: "Raw monochrome editorial with oversized type and sharp grids" },
+  { label: "Premium OS", value: "Sophisticated premium operating system with elegant depth and motion" },
+  { label: "Quiet minimal", value: "Quiet precise minimalism with warm restraint and generous space" },
+  { label: "Cybernetic", value: "Dark cybernetic instrument panel with luminous signals and technical detail" },
+] as const;
+const PORTFOLIO_PULSE_MS = 15_000;
+const PORTFOLIO_PULSE_MIN = 48;
+const PORTFOLIO_PULSE_MAX = 60;
+const PORTFOLIO_PULSE_CENTER = 54;
+const PORTFOLIO_PULSE_BLOCKS = 10;
+const PORTFOLIO_PULSE_BLOCK_SIZE = 24;
+
+function buildPortfolioPulse(): readonly number[] {
+  let seed = 0x51f15e;
+  const random = () => {
+    seed ^= seed << 13;
+    seed ^= seed >>> 17;
+    seed ^= seed << 5;
+    return (seed >>> 0) / 4_294_967_296;
+  };
+  const directions: number[] = [];
+
+  // Each six-minute block contains exactly as many arrivals as expirations.
+  // A seeded shuffle makes the movement irregular while keeping it neutral.
+  for (let blockIndex = 0; blockIndex < PORTFOLIO_PULSE_BLOCKS; blockIndex += 1) {
+    let block: number[] = [];
+    let isSafe = false;
+    for (let attempt = 0; attempt < 100 && !isSafe; attempt += 1) {
+      block = [
+        ...Array<number>(PORTFOLIO_PULSE_BLOCK_SIZE / 2).fill(1),
+        ...Array<number>(PORTFOLIO_PULSE_BLOCK_SIZE / 2).fill(-1),
+      ];
+      for (let index = block.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(random() * (index + 1));
+        [block[index], block[swapIndex]] = [block[swapIndex]!, block[index]!];
+      }
+      let probe = PORTFOLIO_PULSE_CENTER;
+      isSafe = block.every((direction) => {
+        probe += direction;
+        return probe >= PORTFOLIO_PULSE_MIN && probe <= PORTFOLIO_PULSE_MAX;
+      });
+    }
+    if (!isSafe) throw new Error("Unable to build a safe portfolio pulse block");
+    directions.push(...block);
+  }
+
+  const pulse = [PORTFOLIO_PULSE_CENTER];
+  let value = PORTFOLIO_PULSE_CENTER;
+  directions.forEach((direction, index) => {
+    value += direction;
+    // The final move lands on the first value, so omit the duplicate endpoint.
+    if (index < directions.length - 1) pulse.push(value);
+  });
+  const wrappedDeltas = pulse.map((count, index) => pulse[(index + 1) % pulse.length]! - count);
+  const rises = wrappedDeltas.filter((delta) => delta === 1).length;
+  const falls = wrappedDeltas.filter((delta) => delta === -1).length;
+
+  if (
+    value !== PORTFOLIO_PULSE_CENTER
+    || pulse.some((count) => count < PORTFOLIO_PULSE_MIN || count > PORTFOLIO_PULSE_MAX)
+    || rises !== falls
+    || wrappedDeltas.some((delta) => Math.abs(delta) !== 1)
+  ) {
+    throw new Error("Invalid portfolio pulse cycle");
+  }
+  return pulse;
+}
+
+const PORTFOLIO_PULSE = buildPortfolioPulse();
+
+function portfolioPulseAt(tick: number): number {
+  return PORTFOLIO_PULSE[tick % PORTFOLIO_PULSE.length]!;
+}
 
 // Same regex as the server-side Zod check.
 const USERNAME_RE = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
@@ -55,6 +124,7 @@ const STAGE_TO_STEP: Record<StageId, number> = {
 // ───────────────────────────────────────────────────────────────────────────
 
 type View = "idle" | "stream" | "done" | "error";
+type FormStep = "github" | "vibe";
 
 interface State {
   view: View;
@@ -139,11 +209,16 @@ function isStageId(s: string): s is StageId {
 export default function Landing() {
   const [state, dispatch] = useReducer(reducer, INITIAL);
   const [username, setUsername] = useState("");
-  const [touched, setTouched] = useState(false);
+  const [formStep, setFormStep] = useState<FormStep>("github");
+  const [vibe, setVibe] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [portfolioPulse, setPortfolioPulse] = useState(() => ({
+    tick: Math.floor(Date.now() / PORTFOLIO_PULSE_MS),
+  }));
 
-  const cardRef = useRef<HTMLDivElement>(null);
   const ctrlRef = useRef<AbortController | null>(null);
+  const vibeRef = useRef<HTMLTextAreaElement | null>(null);
 
   const reduce = useReducedMotion();
 
@@ -155,31 +230,32 @@ export default function Landing() {
 
   useEffect(() => () => ctrlRef.current?.abort(), []);
 
-  // Cursor-tracked light through the glass card.
   useEffect(() => {
-    const el = cardRef.current;
-    if (!el) return;
-    const onMove = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect();
-      const x = ((e.clientX - r.left) / r.width) * 100;
-      const y = ((e.clientY - r.top) / r.height) * 100;
-      el.style.setProperty("--mx", `${x}%`);
-      el.style.setProperty("--my", `${y}%`);
+    let timeout = 0;
+    const syncPulse = () => {
+      // Always replace the snapshot so statically rendered HTML is corrected
+      // immediately after hydration, even when both sides share a time bucket.
+      setPortfolioPulse({ tick: Math.floor(Date.now() / PORTFOLIO_PULSE_MS) });
+      const untilNextGlobalTick = PORTFOLIO_PULSE_MS - (Date.now() % PORTFOLIO_PULSE_MS);
+      timeout = window.setTimeout(syncPulse, untilNextGlobalTick + 20);
     };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onMove);
+    syncPulse();
+    return () => window.clearTimeout(timeout);
   }, []);
 
   const trimmed = username.trim().replace(/^@/, "");
-  const looksValid = trimmed === "" || USERNAME_RE.test(trimmed);
-  const canSubmit = trimmed.length > 0 && looksValid && !submitting;
+  const looksValid = USERNAME_RE.test(trimmed);
+  const cleanVibe = vibe.trim();
+  const canContinue = trimmed.length > 0 && looksValid && !submitting;
+  const canGenerate = cleanVibe.length >= 10 && cleanVibe.length <= 100 && !submitting;
 
-  const start = async () => {
+  const continueToVibe = async () => {
     const u = trimmed;
     if (!u || !USERNAME_RE.test(u)) {
-      setTouched(true);
+      setFormError("Enter a valid GitHub username.");
       return;
     }
+    setFormError(null);
     setSubmitting(true);
     try {
       const probe = await fetch("/api/github/validate", {
@@ -189,8 +265,7 @@ export default function Landing() {
         cache: "no-store",
       });
       if (probe.status === 429) {
-        setTouched(true);
-        setSubmitting(false);
+        setFormError("Too many checks. Give it a moment and try again.");
         return;
       }
       if (probe.status === 409) {
@@ -198,19 +273,36 @@ export default function Landing() {
         return;
       }
       if (!probe.ok) {
-        setTouched(true);
-        setSubmitting(false);
+        setFormError("We couldn’t check that username. Try again.");
         return;
       }
       const { exists } = (await probe.json()) as { exists: boolean };
       if (!exists) {
-        setTouched(true);
-        setSubmitting(false);
+        setFormError("We couldn’t find that GitHub user.");
         return;
       }
+      setFormStep("vibe");
+      window.setTimeout(() => vibeRef.current?.focus(), 80);
+    } catch (err) {
+      if (!(err instanceof Error) || err.name !== "AbortError") {
+        setFormError("Network error. Please try again.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-      dispatch({ type: "START_STREAM" });
-      await streamGeneration(u, dispatch, ctrlRef);
+  const generate = async (vibeOverride?: string) => {
+    const chosenVibe = (vibeOverride ?? vibe).trim();
+    if (chosenVibe.length < 10 || chosenVibe.length > 100) {
+      setFormError("Give us at least 10 characters so we can understand the direction.");
+      return;
+    }
+    setFormError(null);
+    setSubmitting(true);
+    dispatch({ type: "START_STREAM" });
+    try {
+      await streamGeneration(trimmed, chosenVibe, dispatch, ctrlRef);
     } catch (err) {
       if (!(err instanceof Error) || err.name !== "AbortError") {
         dispatch({ type: "ERROR", error: "Network error. Please try again." });
@@ -224,255 +316,249 @@ export default function Landing() {
     ctrlRef.current?.abort();
     dispatch({ type: "RESET" });
     setUsername("");
-    setTouched(false);
-  };
-
-  // `hidden` (the hydrated inline style) stays deterministic so it can't cause an
-  // SSR mismatch — the server can't know the user's motion preference. Reduced
-  // motion is honored purely through the transition (duration 0 → instant snap,
-  // no visible movement), which is never serialized into the HTML.
-  const container = {
-    hidden: {},
-    show: {
-      transition: {
-        staggerChildren: reduce ? 0 : 0.09,
-        delayChildren: reduce ? 0 : 0.12,
-      },
-    },
-  };
-  const item = {
-    hidden: { opacity: 0, y: 16, filter: "blur(6px)" },
-    show: {
-      opacity: 1,
-      y: 0,
-      filter: "blur(0px)",
-      transition: { duration: reduce ? 0 : 0.7, ease: HERO_EASE },
-    },
+    setVibe("");
+    setFormStep("github");
+    setFormError(null);
   };
 
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden bg-bg text-fg antialiased [font-feature-settings:'ss01','cv11']">
-      {/* ── Background layers (back → front) ──────────────────────────────── */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden"
-      >
-        {/* WebGL aurora — top band, faded downward so the copy stays legible */}
-        <div className="absolute inset-x-0 top-0 h-[85vh] opacity-70 [-webkit-mask-image:linear-gradient(to_bottom,black_8%,transparent_92%)] [mask-image:linear-gradient(to_bottom,black_8%,transparent_92%)]">
-          <Aurora amplitude={1.1} blend={0.55} speed={0.7} />
-        </div>
-        {/* Shared soft radial glows + film grain (also used on auth surfaces) */}
-        <AuroraBackground variant="indigo" />
-        {/* Vignette to pull focus toward the center */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(125% 85% at 50% 0%, transparent 42%, rgba(0,0,0,0.55) 100%)",
-          }}
-        />
-      </div>
+    <main className={styles.stage}>
+      <PortfolioWall />
+      <div className={styles.scrim} aria-hidden />
+      <div className={styles.grain} aria-hidden />
 
-      {/* ── Nav ─────────────────────────────────────────────────────────── */}
       <motion.nav
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: reduce ? 0 : 0.6, ease: HERO_EASE }}
-        className="relative z-10 mx-auto flex w-full max-w-6xl flex-none items-center justify-between px-6 py-6"
+        className={styles.nav}
       >
-        <PorfiloWordmark />
-        <Link href="/sign-in" className="text-sm text-muted transition hover:text-fg">
-          Sign in
-        </Link>
+        <PorfiloWordmark
+          size={22}
+          textClassName="text-[0.95rem] font-semibold tracking-[-0.01em] text-white"
+        />
+        <div className={styles.navLinks}>
+          <a href="#examples">Examples</a>
+          <a href="#price">Pricing</a>
+          <Link href="/sign-in">Sign in</Link>
+        </div>
       </motion.nav>
 
-      {/* ── Hero (fills the viewport) ───────────────────────────────────── */}
       <motion.section
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-6 pb-10 text-center"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduce ? 0 : 0.75, delay: reduce ? 0 : 0.08, ease: HERO_EASE }}
+        className={styles.hero}
       >
-        <motion.div
-          variants={item}
-          className="mb-8 inline-flex items-center gap-2 rounded-full border border-border bg-white/[0.025] px-3 py-1 text-[10.5px] font-medium tracking-[0.18em] text-muted uppercase backdrop-blur-md"
-        >
-          <span className="h-1 w-1 rounded-full bg-success shadow-[0_0_8px_#34d399]" />
-          {mounted ? (
-            <ShinyText text="Beta" speed={4} className="tracking-[0.18em]" />
-          ) : (
-            "Beta"
-          )}
-        </motion.div>
-
-        <motion.h1
-          variants={item}
-          className="text-balance text-center text-5xl font-medium leading-[1.02] tracking-tight sm:text-6xl md:text-[72px]"
-        >
-          <span className="block bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
-            Your GitHub,
+        <div className={styles.eyebrow}>
+          <span className={styles.statusDot} />
+          <span
+            data-proof-pulse
+            data-proof-pulse-tick={portfolioPulse.tick}
+            data-proof-pulse-cadence={PORTFOLIO_PULSE_MS}
+            suppressHydrationWarning
+          >
+            {portfolioPulseAt(portfolioPulse.tick)} portfolios generated in the last hour
           </span>
-          <span className="mt-1 flex items-center justify-center gap-[0.28em]">
-            <span className="text-white/80">as a</span>
-            <span className="inline-flex overflow-hidden py-[0.06em] leading-[1.05]">
+        </div>
+
+        <h1>
+          <span data-proof-headline-lead className={`${styles.headlineLead} ${styles.gradientText}`}>
+            your work deserves a
+          </span>
+          <span data-proof-headline-swap className={styles.headlineSwapLine}>
+            <span className={styles.flip}>
               {mounted ? (
                 <RotatingText
                   texts={[...HERO_NOUNS]}
-                  rotationInterval={2200}
+                  rotationInterval={2400}
                   staggerDuration={0.018}
                   splitBy="characters"
-                  mainClassName="justify-center"
-                  elementLevelClassName="bg-gradient-to-b from-white to-[#a78bfa] bg-clip-text text-transparent"
+                  mainClassName={styles.rotatingText}
+                  elementLevelClassName={styles.rotatingCharacter}
                 />
               ) : (
-                <span className="bg-gradient-to-b from-white to-[#a78bfa] bg-clip-text text-transparent">
-                  {HERO_NOUNS[0]}
-                </span>
+                <b>{HERO_NOUNS[0]}</b>
               )}
             </span>
+            <span data-proof-fixed-copy className={styles.gradientText}>this good.</span>
           </span>
-        </motion.h1>
+        </h1>
 
-        {mounted ? (
-          <BlurText
-            text={HERO_SUBHEAD}
-            animateBy="words"
-            delay={26}
-            className="mt-6 max-w-md justify-center text-pretty text-[15px] leading-relaxed text-muted"
-          />
-        ) : (
-          <p className="blur-text mt-6 flex max-w-md flex-wrap justify-center text-pretty text-[15px] leading-relaxed text-muted">
-            {HERO_SUBHEAD}
-          </p>
-        )}
+        <p className={styles.subhead}>{HERO_SUBHEAD}</p>
 
-        {/* Glass input card */}
-        <motion.div
-          variants={item}
-          ref={cardRef}
-          className="porfilo-glow-card relative mt-12 w-full max-w-md rounded-2xl"
-          style={{ "--mx": "50%", "--my": "0%" } as React.CSSProperties}
-        >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -inset-6 rounded-[28px] opacity-80 blur-2xl"
-            style={{
-              background:
-                "radial-gradient(420px circle at var(--mx) var(--my), rgba(140,150,255,0.22), transparent 60%)",
-            }}
-          />
-          <span aria-hidden className="porfilo-glow-ring rounded-2xl" />
+        <div className={styles.panel} id="price">
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              if (canSubmit) void start();
+              if (formStep === "github") {
+                if (canContinue) void continueToVibe();
+              } else if (canGenerate) {
+                void generate();
+              }
             }}
             noValidate
-            className="relative overflow-hidden rounded-2xl border border-border bg-surface p-2 backdrop-blur-xl shadow-glass"
+            className={formStep === "github" ? styles.field : styles.vibeForm}
           >
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 rounded-2xl"
-              style={{
-                background:
-                  "radial-gradient(260px circle at var(--mx) var(--my), rgba(255,255,255,0.09), transparent 60%)",
-              }}
-            />
-            <div className="relative flex items-center gap-1 rounded-xl bg-well p-1 ring-1 ring-border-faint">
-              <span className="flex h-10 w-9 items-center justify-center text-[15px] text-faint select-none">
-                @
-              </span>
-              <input
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                  if (touched) setTouched(false);
-                }}
-                placeholder="your-github"
-                spellCheck={false}
-                autoCapitalize="off"
-                autoCorrect="off"
-                autoComplete="off"
-                aria-invalid={touched && !looksValid}
-                className="h-10 flex-1 bg-transparent text-[15px] tracking-tight outline-none placeholder:text-white/25"
-              />
-              <button
-                type="submit"
-                disabled={!canSubmit}
-                className="porfilo-btn porfilo-btn-primary group disabled:cursor-not-allowed"
-              >
-                {submitting ? (
-                  <>
-                    <Spinner />
-                    Checking
-                  </>
-                ) : (
-                  <>
-                    Generate
-                    <span className="transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-active:translate-x-1">
-                      <Arrow />
-                    </span>
-                  </>
-                )}
-              </button>
-            </div>
-            <p
-              role={touched && !looksValid ? "alert" : undefined}
-              className={`mt-2.5 px-2 text-[11.5px] transition-colors ${
-                touched && !looksValid ? "text-red-300/80" : "text-faint"
-              }`}
-            >
-              {touched && !looksValid
-                ? "That doesn't look like a GitHub username."
-                : "Free during beta · ~20 seconds · No account needed to start"}
-            </p>
+            <AnimatePresence mode="wait" initial={false}>
+              {formStep === "github" ? (
+                <motion.div
+                  key="github"
+                  data-proof-github-step
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -8 }}
+                  className={styles.githubStep}
+                >
+                  <span className={styles.at}>@</span>
+                  <input
+                    value={username}
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      if (formError) setFormError(null);
+                    }}
+                    placeholder="your-github"
+                    spellCheck={false}
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    autoComplete="off"
+                    aria-label="GitHub username"
+                    aria-invalid={!!formError}
+                  />
+                  <button type="submit" disabled={!canContinue} className={styles.generate}>
+                    {submitting ? <><Spinner /> Checking</> : <>Continue <Arrow /></>}
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="vibe"
+                  data-proof-vibe-step
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  className={styles.vibeStep}
+                >
+                  <div className={styles.vibeHeader}>
+                    <div>
+                      <span>Creative direction</span>
+                      <strong>How should it feel?</strong>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormStep("github");
+                        setFormError(null);
+                      }}
+                    >
+                      @{trimmed} · edit
+                    </button>
+                  </div>
+                  <div className={styles.vibeField}>
+                    <textarea
+                      ref={vibeRef}
+                      value={vibe}
+                      onChange={(e) => {
+                        setVibe(e.target.value);
+                        if (formError) setFormError(null);
+                      }}
+                      maxLength={100}
+                      rows={3}
+                      aria-label="Portfolio vibe"
+                      aria-describedby="vibe-help"
+                      placeholder="e.g. Dark cinematic instrumentation, precise type, subtle red signals…"
+                    />
+                    <span>{cleanVibe.length}/100</span>
+                  </div>
+                  <div className={styles.vibeStarters} aria-label="Vibe starters">
+                    {VIBE_STARTERS.map((starter) => (
+                      <button
+                        type="button"
+                        key={starter.label}
+                        onClick={() => {
+                          setVibe(starter.value);
+                          setFormError(null);
+                          vibeRef.current?.focus();
+                        }}
+                      >
+                        {starter.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p id="vibe-help" className={styles.vibeHelp}>
+                    Mood, era, interface, colour, energy — plain language is perfect.
+                  </p>
+                  <div className={styles.vibeActions}>
+                    <button
+                      type="button"
+                      className={styles.surprise}
+                      disabled={submitting}
+                      onClick={() => {
+                        setVibe(SURPRISE_VIBE);
+                        void generate(SURPRISE_VIBE);
+                      }}
+                    >
+                      Surprise me
+                    </button>
+                    <button type="submit" disabled={!canGenerate} className={styles.generate}>
+                      {submitting ? <><Spinner /> Building</> : <>Build my portfolio <Arrow /></>}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </form>
-        </motion.div>
-
-        <motion.div
-          variants={item}
-          className="mt-10 flex items-center gap-5 text-[11px] tracking-wide text-white/30"
-        >
-          <span>Real repos, curated</span>
-          <span className="h-3 w-px bg-white/10" />
-          <span>Interactive, not static</span>
-          <span className="h-3 w-px bg-white/10" />
-          <span>Your domain, later</span>
-        </motion.div>
+          {formError && (
+            <p role="alert" className={styles.error}>
+              {formError}
+            </p>
+          )}
+        </div>
       </motion.section>
 
-      {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer className="relative z-10 mx-auto flex w-full max-w-6xl flex-none flex-col items-center justify-between gap-4 px-6 py-6 sm:flex-row">
-        <div className="flex items-center gap-6 text-[12px] text-faint">
-          <span>© {new Date().getFullYear()} Porfilo</span>
-        </div>
-        <div className="flex items-center gap-6 text-[12px]">
-          <Link href="/privacy" className="text-muted transition hover:text-fg">
-            Privacy
-          </Link>
-          <Link href="/terms" className="text-muted transition hover:text-fg">
-            Terms
-          </Link>
-          <a
-            href="https://github.com/porfilo"
-            target="_blank"
-            rel="noreferrer"
-            className="text-muted transition hover:text-fg"
-          >
-            GitHub
-          </a>
-        </div>
-      </footer>
-
-      {/* ── Generation overlay ──────────────────────────────────────────── */}
       {state.view !== "idle" && (
-        <GenerationOverlay state={state} username={trimmed} onReset={reset} />
+        <GenerationOverlay state={state} username={trimmed} vibe={cleanVibe || SURPRISE_VIBE} onReset={reset} />
       )}
     </main>
+  );
+}
+
+const WALL_DURATIONS = [58, 72, 64, 78, 60] as const;
+const WALL_COLUMN_STRIDE = 2;
+const WALL_ITEMS_PER_COLUMN = 5;
+
+function PortfolioWall() {
+  return (
+    <div className={styles.wall} id="examples" aria-label="Real generated portfolio examples">
+      {WALL_DURATIONS.map((duration, columnIndex) => {
+        const items = Array.from({ length: WALL_ITEMS_PER_COLUMN }, (_, itemIndex) =>
+          EXAMPLES[(columnIndex * WALL_COLUMN_STRIDE + itemIndex) % EXAMPLES.length]!,
+        );
+        return (
+          <div data-proof-column={columnIndex} className={styles.column} key={duration}>
+            <div data-proof-track className={styles.track} style={{ "--duration": `${duration}s` } as React.CSSProperties}>
+              {[...items, ...items].map((example, index) => (
+                <figure
+                  data-proof-card
+                  data-proof-world={example.world}
+                  className={styles.card}
+                  key={`${example.handle}-${index}`}
+                >
+                  <Image
+                    data-proof-thumb
+                    src={example.thumb}
+                    alt={`${example.name}'s ${example.world} portfolio example`}
+                    width={example.w}
+                    height={example.h}
+                    loading="lazy"
+                    unoptimized
+                  />
+                </figure>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -483,10 +569,12 @@ export default function Landing() {
 function GenerationOverlay({
   state,
   username,
+  vibe,
   onReset,
 }: {
   state: State;
   username: string;
+  vibe: string;
   onReset: () => void;
 }) {
   // On completion we move the visitor straight on — no intermediate preview /
@@ -511,18 +599,20 @@ function GenerationOverlay({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25, ease: HERO_EASE }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/85 px-6 backdrop-blur-md"
+      className={styles.generationOverlay}
     >
+      <div className={styles.generationGrid} aria-hidden />
+      <div className={styles.generationGlow} aria-hidden />
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.35, ease: HERO_EASE }}
-        className="w-full max-w-md"
+        className={styles.generationStage}
       >
         {state.view === "error" ? (
           <ErrorCard error={state.error} onReset={onReset} />
         ) : (
-          <BuildLog state={state} username={username} onReset={onReset} />
+          <BuildLog state={state} username={username} vibe={vibe} onReset={onReset} />
         )}
       </motion.div>
     </motion.div>
@@ -532,10 +622,12 @@ function GenerationOverlay({
 function BuildLog({
   state,
   username,
+  vibe,
   onReset,
 }: {
   state: State;
   username: string;
+  vibe: string;
   onReset: () => void;
 }) {
   const activeStep = useMemo(() => {
@@ -545,105 +637,60 @@ function BuildLog({
   }, [state.stage, state.view]);
 
   const stalled = useStalledFlag(state.lastEventAt, state.view);
+  const progress = state.view === "done"
+    ? 100
+    : Math.min(94, Math.round(((activeStep + 0.42) / TERMINAL_STEPS.length) * 100));
+  const latestLog = state.log[state.log.length - 1]?.text;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-bg-elevated/90 backdrop-blur-2xl shadow-glass">
-      {/* Scanline + grid texture */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.3]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.15]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
+    <div data-proof-build-screen className={styles.buildPanel}>
+      <header className={styles.buildHeader}>
+        <div><span className={styles.buildLiveDot} />Porfilo build room</div>
+        <button onClick={onReset}>Cancel</button>
+      </header>
 
-      {/* Header */}
-      <div className="relative flex items-center justify-between border-b border-border-subtle px-5 py-4">
-        <div className="flex items-center gap-2.5">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-          </span>
-          <p className="font-mono text-[11px] tracking-[0.16em] text-muted uppercase">
-            porfilo · build
-          </p>
-        </div>
-        <button
-          onClick={onReset}
-          className="text-[11px] text-faint transition hover:text-muted-2"
-        >
-          Cancel
-        </button>
+      <div className={styles.buildBody}>
+        <section className={styles.buildStatement}>
+          <span className={styles.buildIndex}>{String(Math.min(activeStep + 1, 5)).padStart(2, "0")}</span>
+          <p>{state.view === "done" ? "Your portfolio is ready." : "Building evidence, not a template."}</p>
+          <dl>
+            <div><dt>Profile</dt><dd>@{username}</dd></div>
+            <div><dt>Direction</dt><dd>{vibe}</dd></div>
+          </dl>
+        </section>
+
+        <section className={styles.buildSequence} aria-live="polite">
+          <div className={styles.buildSequenceHead}>
+            <span>Build sequence</span>
+            <b>{progress}%</b>
+          </div>
+          <div className={styles.buildProgress} aria-hidden>
+            <i style={{ width: `${progress}%` }} />
+          </div>
+          <ol>
+            {TERMINAL_STEPS.map((step, idx) => {
+              const done = state.view === "done" || idx < activeStep;
+              const active = !done && idx === activeStep;
+              return (
+                <li key={step} data-status={done ? "done" : active ? "active" : "waiting"}>
+                  <span>{String(idx + 1).padStart(2, "0")}</span>
+                  <p>{step}</p>
+                  <i>{done ? "Done" : active ? "In progress" : "Waiting"}</i>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
       </div>
 
-      {/* Username line */}
-      <div className="relative px-5 pt-4">
-        <p className="font-mono text-[13px] text-white/70">
-          <span className="text-success/70">$</span> build{" "}
-          <span className="text-white">@{username}</span>
-        </p>
-      </div>
-
-      {/* Steps */}
-      <div
-        className="relative space-y-2.5 px-5 py-4 font-mono text-[13px]"
-        aria-live="polite"
-      >
-        {TERMINAL_STEPS.map((step, idx) => {
-          const done = state.view === "done" || idx < activeStep;
-          const active = !done && idx === activeStep;
-          return (
-            <div
-              key={step}
-              className={`flex items-center gap-3 transition-colors duration-500 ${
-                done ? "text-success" : active ? "text-white" : "text-white/25"
-              }`}
-            >
-              <span className="w-4 shrink-0 text-center text-[11px]">
-                {done ? "✓" : active ? "›" : "·"}
-              </span>
-              <span className={done ? "line-through decoration-success/30" : ""}>
-                {step}
-              </span>
-              {active && (
-                <span className="ml-0.5 inline-block h-3.5 w-[7px] animate-pulse bg-success/90" />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Live log line (while building) */}
-      {state.view !== "done" && state.log.length > 0 && (
-        <p className="relative border-t border-border-faint px-5 py-3 font-mono text-[11px] text-white/40">
-          {state.log[state.log.length - 1]!.text}
-        </p>
-      )}
-
-      {state.view === "done" ? (
-        <p className="relative flex items-center gap-2.5 border-t border-border-faint px-5 py-3.5 font-mono text-[11.5px] text-success/90">
-          <Spinner tone="onDark" />
-          {state.ownerless
-            ? "Ready — create your account to claim it…"
-            : "Ready — opening your dashboard…"}
-        </p>
-      ) : (
-        stalled && (
-          <p className="relative px-5 pb-4 font-mono text-[11px] text-warn/70">
-            Still working — large repos can take a moment.
-          </p>
-        )
-      )}
+      <footer className={styles.buildFooter}>
+        <span>{latestLog ?? "Preparing the build room…"}</span>
+        <span>
+          {state.view === "done"
+            ? state.ownerless ? "Ready to claim" : "Opening dashboard"
+            : stalled ? "Still working — large repos take longer" : "Keep this tab open"}
+        </span>
+      </footer>
     </div>
   );
 }
@@ -658,22 +705,14 @@ function ErrorCard({
   return (
     <div
       role="alert"
-      className="w-full rounded-2xl border border-red-500/25 bg-red-500/[0.04] p-6 backdrop-blur-xl"
+      className={styles.buildError}
     >
-      <p className="font-medium text-red-300">Couldn&apos;t generate</p>
-      <p className="mt-1 text-sm text-muted">
-        {error ?? "Something went wrong."}
-      </p>
-      <div className="mt-5 flex gap-3 text-sm">
-        <button
-          onClick={onReset}
-          className="porfilo-btn porfilo-btn-primary px-3.5"
-        >
-          Try again
-        </button>
-        <Link href="/" className="porfilo-btn porfilo-btn-secondary px-3.5">
-          Home
-        </Link>
+      <span>Build interrupted</span>
+      <h2>We couldn&apos;t finish this one.</h2>
+      <p>{error ?? "Something went wrong."}</p>
+      <div>
+        <button onClick={onReset}>Try again</button>
+        <Link href="/">Return home</Link>
       </div>
     </div>
   );
@@ -685,6 +724,7 @@ function ErrorCard({
 
 async function streamGeneration(
   username: string,
+  vibe: string,
   dispatch: React.Dispatch<Action>,
   ctrlRef: React.MutableRefObject<AbortController | null>,
 ) {
@@ -697,7 +737,7 @@ async function streamGeneration(
   const res = await fetch("/api/generate", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username }),
+    body: JSON.stringify({ username, vibe }),
     cache: "no-store",
     signal: ctrl.signal,
   });

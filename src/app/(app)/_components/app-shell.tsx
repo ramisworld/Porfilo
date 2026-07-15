@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SignOutButton } from "./sign-out-button";
 import { PorfiloWordmark } from "~/app/_components/porfilo-logo";
-import { AuroraBackground } from "~/app/_components/aurora-background";
+import styles from "./app-shell.module.css";
 
 /**
  * Shared chrome for all signed-in pages.
@@ -25,37 +25,34 @@ export function AppShell({
   fit?: boolean;
   children: React.ReactNode;
 }) {
-  const widthClass = width === "wide" ? "max-w-6xl" : "max-w-3xl";
-
-  const rootClass = fit
-    ? "relative min-h-screen md:h-screen md:overflow-hidden bg-bg"
-    : "relative min-h-screen overflow-hidden bg-bg";
-
-  const sectionClass = fit
-    ? `relative z-10 mx-auto flex ${widthClass} flex-col px-6 pb-6 md:h-[calc(100vh-65px)] md:pb-0`
-    : `relative z-10 mx-auto flex min-h-[calc(100vh-65px)] ${widthClass} flex-col items-center justify-center px-6 pb-24`;
-
   return (
-    <main className={`${rootClass} text-fg antialiased [font-feature-settings:'ss01','cv11']`}>
-      <AuroraBackground variant="ghost" />
-
-      <nav className="relative z-10 mx-auto flex h-[65px] w-full max-w-6xl items-center justify-between px-6">
-        <Link href="/dashboard" className="transition hover:opacity-90">
-          <PorfiloWordmark />
+    <main className={styles.shell} data-fit={fit ? "true" : "false"}>
+      <div className={styles.grid} aria-hidden />
+      <nav className={styles.nav}>
+        <Link href="/dashboard" className={styles.brand}>
+          <PorfiloWordmark
+            size={22}
+            textClassName="text-[0.95rem] font-semibold tracking-[-0.01em] text-white"
+          />
         </Link>
-        <div className="flex items-center gap-4 text-[12px] text-muted-2">
+        <div className={styles.account}>
           {navAction}
           {displayName && (
-            <span className="hidden sm:inline">
-              Signed in as{" "}
-              <span className="text-fg/80">{displayName}</span>
+            <span>
+              Account / <b>{displayName}</b>
             </span>
           )}
           <SignOutButton />
         </div>
       </nav>
 
-      <section className={sectionClass}>{children}</section>
+      <section
+        className={styles.content}
+        data-fit={fit ? "true" : "false"}
+        data-width={width}
+      >
+        {children}
+      </section>
     </main>
   );
 }

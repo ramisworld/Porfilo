@@ -9,6 +9,8 @@ import { env } from "~/env";
  */
 export const MODELS = {
   facts: env.ANTHROPIC_MODEL_FACTS,
+  chooser: env.ANTHROPIC_MODEL_CHOOSER,
+  /** @deprecated The free-form author path is retained only for legacy code. */
   design: env.ANTHROPIC_MODEL_DESIGN,
 } as const;
 

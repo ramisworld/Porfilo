@@ -5,17 +5,18 @@ import { DEFAULT_SPEC, designSpecSchema } from "~/engine/spec";
 import { ENGINE_VERSION } from "~/engine/version";
 import { env } from "~/env";
 import type { ProfileData } from "~/server/profile/model";
+import { renderStoredWorld } from "~/server/worlds/render";
 
-export function buildPortfolioIframe(
-  portfolio: {
-    designSpec: unknown;
-    profileData: unknown;
-    engineVersion: string | null;
-    code: string | null;
-  },
-): React.JSX.Element | null {
-  let html: string | null = null;
-  if (portfolio.designSpec) {
+export function buildPortfolioIframe(portfolio: {
+  designSpec: unknown;
+  profileData: unknown;
+  engineVersion: string | null;
+  code: string | null;
+  template: string;
+  githubUsername: string;
+}): React.JSX.Element | null {
+  let html = renderStoredWorld(portfolio);
+  if (!html && portfolio.designSpec) {
     const parsed = designSpecSchema.safeParse(portfolio.designSpec);
     const spec = parsed.success ? parsed.data : DEFAULT_SPEC;
     const version = portfolio.engineVersion ?? ENGINE_VERSION;
@@ -24,7 +25,7 @@ export function buildPortfolioIframe(
       portfolio.profileData as ProfileData,
       version,
     );
-  } else if (portfolio.code) {
+  } else if (!html && portfolio.code) {
     html = portfolio.code;
   }
   if (!html) return null;

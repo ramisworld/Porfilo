@@ -1,7 +1,8 @@
 import type { Language, Stat } from "~/server/profile/model";
 import type { RawProfile, RawRepo, RepoNode } from "./types";
 
-export const MAX_PROJECTS = 8;
+/** Product invariant: no generated or edited portfolio may contain more than nine projects. */
+export const MAX_PROJECTS = 9;
 
 const LOW_SIGNAL_NAME =
   /(^|[-_])(clone|tutorial|test|tests|example|examples|demo|hello[-_]?world|playground|learn|learning|practice|boilerplate|starter|template|config|dotfiles)([-_]|$)/i;
@@ -9,7 +10,7 @@ const LOW_SIGNAL_NAME =
 const daysSince = (iso: string | null): number =>
   iso ? (Date.now() - new Date(iso).getTime()) / 86_400_000 : Infinity;
 
-/** Score every repo and return the best ≤8 (all of them if there are fewer). */
+/** Score every repo and return the best ≤9 (all of them if there are fewer). */
 export function scoreAndSelect(
   repos: RepoNode[],
   pinnedNames: string[],

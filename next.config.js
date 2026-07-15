@@ -5,6 +5,13 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  // World templates are intentionally filesystem-backed so design code stays
+  // immutable and editable outside the application bundle. Include them in
+  // standalone/serverless traces for runtime rendering.
+  outputFileTracingIncludes: {
+    "/*": ["./world-prompts/*.html"],
+  },
+};
 
 export default config;

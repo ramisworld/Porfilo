@@ -52,6 +52,7 @@ export default async function DashboardPage() {
         abilities: [],
         stats: [],
         projects: [],
+        experience: [],
         credentials: [],
       };
 
@@ -75,6 +76,7 @@ export default async function DashboardPage() {
         id={portfolio.id}
         slug={portfolio.publicSubdomainSlug}
         githubUsername={portfolio.githubUsername}
+        vibe={portfolio.vibe}
         isPublic={portfolio.isPublic}
         views={portfolio.views}
         createdAt={portfolio.createdAt.toISOString()}

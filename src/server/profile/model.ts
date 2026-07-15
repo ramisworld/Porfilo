@@ -43,8 +43,21 @@ export const projectSchema = z.object({
   blurb: z.string(),
   tech: z.array(z.string()),
   stars: z.number().int().nonnegative().optional(),
+  /** Last meaningful project year from GitHub. Optional for legacy/manual rows. */
+  year: z.number().int().min(1970).max(2100).optional(),
   demoUrl: z.string().url().optional(),
   repoUrl: z.string().url(),
+});
+
+export const experienceSchema = z.object({
+  role: z.string().trim().min(1).max(120),
+  company: z.string().trim().min(1).max(120),
+  startDate: z.string().trim().min(1).max(32),
+  endDate: z.string().trim().max(32).optional(),
+  location: z.string().trim().max(100).optional(),
+  summary: z.string().trim().max(600).optional(),
+  highlights: z.array(z.string().trim().min(1).max(180)).max(6).optional(),
+  url: z.string().url().optional(),
 });
 
 // User-curated credentials (certifications / licenses).
@@ -57,6 +70,7 @@ export const credentialSchema = z.object({
   issuer: z.string().min(1).max(80),
   issuerKey: z.string().max(40).optional(),
   credentialId: z.string().max(80).optional(),
+  year: z.number().int().min(1900).max(2100).optional(),
   url: z.string().url().optional(),
   skills: z.array(z.string().min(1).max(40)).max(15).optional(),
 });
@@ -75,7 +89,17 @@ export const profileDataSchema = z.object({
   abilities: z.array(abilitySchema).default([]),
   stats: z.array(statSchema),
   projects: z.array(projectSchema).max(9),
+  /** Optional and user-curated; an empty list removes the section completely. */
+  experience: z.array(experienceSchema).max(12).default([]),
   credentials: z.array(credentialSchema).max(20).default([]),
+  /** Stable GitHub facts used by every world without parsing display labels. */
+  github: z
+    .object({
+      contributionsPastYear: z.number().int().nonnegative(),
+      publicRepos: z.number().int().nonnegative(),
+      memberSinceYear: z.number().int().min(2008).max(2100),
+    })
+    .optional(),
 });
 
 export type Links = z.infer<typeof linksSchema>;
@@ -83,5 +107,6 @@ export type Language = z.infer<typeof languageSchema>;
 export type Ability = z.infer<typeof abilitySchema>;
 export type Stat = z.infer<typeof statSchema>;
 export type Project = z.infer<typeof projectSchema>;
+export type Experience = z.infer<typeof experienceSchema>;
 export type Credential = z.infer<typeof credentialSchema>;
 export type ProfileData = z.infer<typeof profileDataSchema>;
