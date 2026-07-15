@@ -16,9 +16,10 @@ import {
   releaseGenerationLock,
 } from "~/server/generation-lock";
 import { runGeneration } from "~/server/portfolio/generate";
+import { pruneExpiredClaimablePortfolios } from "~/server/portfolio/claims";
 
-// Absolute per-process ceiling on generations started per hour, independent of
-// any client-derived identity. Backstops a per-IP rate-limit bypass.
+// Shared ceiling on generations started per hour, independent of any
+// client-derived identity. Backstops a per-IP rate-limit bypass across replicas.
 const GLOBAL_HOURLY_MAX = Math.max(
   1,
   Number(process.env.GLOBAL_GENERATIONS_PER_HOUR ?? 120),
@@ -41,7 +42,10 @@ const bodySchema = z.object({
   username: z
     .string()
     .trim()
-    .regex(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i, "Invalid GitHub username"),
+    .regex(
+      /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i,
+      "Invalid GitHub username",
+    ),
   vibe: z.string().trim().min(10).max(100).optional(),
 });
 
@@ -67,7 +71,8 @@ export async function POST(req: NextRequest) {
   try {
     parsed = bodySchema.parse(await req.json());
   } catch (e) {
-    const msg = e instanceof z.ZodError ? e.issues[0]?.message : "Invalid request";
+    const msg =
+      e instanceof z.ZodError ? e.issues[0]?.message : "Invalid request";
     return json({ error: msg ?? "Invalid request" }, 400);
   }
   const { username, vibe } = parsed;
@@ -95,20 +100,9 @@ export async function POST(req: NextRequest) {
     return json({ error: budget, code: "budget_reached" }, 503);
   }
 
-  // ── Global ceiling (identity-independent) ──────────────────────────────
-  // Holds even if the per-IP key below is spoofed. Concurrency is reserved
-  // later, just before work starts, and released in the stream's finally.
-  const globalHourly = limit("gen:global:hour", {
-    window: "1h",
-    max: GLOBAL_HOURLY_MAX,
-  });
-  if (!globalHourly.ok) {
-    return json(
-      { error: "We're at capacity right now. Please try again shortly.", code: "at_capacity" },
-      503,
-      { "retry-after": String(globalHourly.retryAfter) },
-    );
-  }
+  // Anonymous previews are claimable for 30 minutes. Prune expired token-bound
+  // rows opportunistically before accepting more generation work.
+  await pruneExpiredClaimablePortfolios();
 
   // ── Rate limits ────────────────────────────────────────────────────────
   //   - 3 generations / hour  keyed on user id (authed) or IP (anonymous)
@@ -119,7 +113,7 @@ export async function POST(req: NextRequest) {
   // which a caller can forge to land every request in a fresh bucket.
   const ip = clientIp(req.headers);
 
-  const hourly = limit(`gen:hour:${ownerId ?? `anon:${ip}`}`, {
+  const hourly = await limit(`gen:hour:${ownerId ?? `anon:${ip}`}`, {
     window: "1h",
     max: 3,
   });
@@ -129,14 +123,17 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const ipBurst = limit(`gen:ipburst:${ip}`, { window: "1m", max: 5 });
+  const ipBurst = await limit(`gen:ipburst:${ip}`, {
+    window: "1m",
+    max: 5,
+  });
   if (!ipBurst.ok) {
     return json({ error: "Too many requests. Slow down." }, 429, {
       "retry-after": String(ipBurst.retryAfter),
     });
   }
 
-  const cooldown = limit(`gen:cooldown:${username.toLowerCase()}`, {
+  const cooldown = await limit(`gen:cooldown:${username.toLowerCase()}`, {
     window: "10s",
     max: 1,
   });
@@ -145,6 +142,24 @@ export async function POST(req: NextRequest) {
       { error: "That username was just generated. Wait a moment." },
       429,
       { "retry-after": String(cooldown.retryAfter) },
+    );
+  }
+
+  // Charge the shared capacity bucket only after the caller-specific gates
+  // pass. A client blocked by its own quota can no longer exhaust capacity for
+  // every other user.
+  const globalHourly = await limit("gen:global:hour", {
+    window: "1h",
+    max: GLOBAL_HOURLY_MAX,
+  });
+  if (!globalHourly.ok) {
+    return json(
+      {
+        error: "We're at capacity right now. Please try again shortly.",
+        code: "at_capacity",
+      },
+      503,
+      { "retry-after": String(globalHourly.retryAfter) },
     );
   }
 
@@ -164,7 +179,10 @@ export async function POST(req: NextRequest) {
   if (!tryAcquireGlobalSlot()) {
     if (ownerId) await releaseGenerationLock(ownerId);
     return json(
-      { error: "We're at capacity right now. Please try again shortly.", code: "at_capacity" },
+      {
+        error: "We're at capacity right now. Please try again shortly.",
+        code: "at_capacity",
+      },
       503,
       { "retry-after": "15" },
     );
@@ -262,8 +280,15 @@ export async function POST(req: NextRequest) {
         await safeWrite(encoder.encode(sseFrame(out)));
       }
     } catch (err) {
-      const error = err instanceof Error ? err.message : "Generation failed.";
-      await safeWrite(encoder.encode(sseFrame({ stage: "error", error })));
+      console.error("[generate] generation failed", err);
+      await safeWrite(
+        encoder.encode(
+          sseFrame({
+            stage: "error",
+            error: "We couldn't generate that portfolio. Please try again.",
+          }),
+        ),
+      );
     } finally {
       if (ownerId) await releaseGenerationLock(ownerId);
       releaseGlobalSlot();

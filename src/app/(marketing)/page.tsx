@@ -213,9 +213,11 @@ export default function Landing() {
   const [vibe, setVibe] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [portfolioPulse, setPortfolioPulse] = useState(() => ({
-    tick: Math.floor(Date.now() / PORTFOLIO_PULSE_MS),
-  }));
+  // Do not bake a build-time count into static HTML. Until hydration we render
+  // a fixed-width placeholder, then publish the current global tick.
+  const [portfolioPulse, setPortfolioPulse] = useState<{ tick: number } | null>(
+    null,
+  );
 
   const ctrlRef = useRef<AbortController | null>(null);
   const vibeRef = useRef<HTMLTextAreaElement | null>(null);
@@ -354,11 +356,12 @@ export default function Landing() {
           <span className={styles.statusDot} />
           <span
             data-proof-pulse
-            data-proof-pulse-tick={portfolioPulse.tick}
+            data-proof-pulse-tick={portfolioPulse?.tick ?? ""}
             data-proof-pulse-cadence={PORTFOLIO_PULSE_MS}
-            suppressHydrationWarning
           >
-            {portfolioPulseAt(portfolioPulse.tick)} portfolios generated in the last hour
+            {portfolioPulse
+              ? `${portfolioPulseAt(portfolioPulse.tick)} portfolios generated in the last hour`
+              : "— portfolios generated in the last hour"}
           </span>
         </div>
 

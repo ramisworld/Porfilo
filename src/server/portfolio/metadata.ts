@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { ProfileData } from "~/server/profile/model";
+import { profileDataSchema, type ProfileData } from "~/server/profile/model";
 
 /** Best display name — profile identity first, GitHub username as fallback. */
 export function portfolioDisplayName(
@@ -7,7 +7,7 @@ export function portfolioDisplayName(
   githubUsername: string,
 ): string {
   const n = data?.identity.name?.trim();
-  return n ?? githubUsername;
+  return n?.length ? n : githubUsername;
 }
 
 export function buildPortfolioMetadata({
@@ -15,13 +15,16 @@ export function buildPortfolioMetadata({
   githubUsername,
   isPublic,
   canonicalUrl,
+  imageUrl = "/api/og",
 }: {
   profileData: unknown;
   githubUsername: string;
   isPublic: boolean;
   canonicalUrl: string;
+  imageUrl?: string;
 }): Metadata {
-  const data = profileData as ProfileData | undefined;
+  const parsed = profileDataSchema.safeParse(profileData);
+  const data = parsed.success ? parsed.data : undefined;
   const name = portfolioDisplayName(data, githubUsername);
   const role = data?.identity.role?.trim() ?? "Developer";
   const headline = data?.identity.headline?.trim() ?? role;
@@ -42,7 +45,7 @@ export function buildPortfolioMetadata({
       url: canonicalUrl,
       images: [
         {
-          url: "/api/og",
+          url: imageUrl,
           width: 1200,
           height: 630,
           alt: title,
@@ -53,7 +56,7 @@ export function buildPortfolioMetadata({
       card: "summary_large_image",
       title,
       description: headline,
-      images: ["/api/og"],
+      images: [imageUrl],
     },
     robots: isPublic ? undefined : { index: false, follow: false },
   };

@@ -71,7 +71,22 @@ async function captureLandingStates(name, viewport) {
   const { context, page, errors } = await pageWithErrors(viewport);
   await installGenerationMock(page);
   await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await page.waitForFunction(
+    () =>
+      (document
+        .querySelector("[data-proof-pulse]")
+        ?.getAttribute("data-proof-pulse-tick")?.length ?? 0) > 0,
+  );
   await page.getByLabel("GitHub username").fill("octocat");
+  await page
+    .getByRole("button", { name: /continue/i })
+    .waitFor({ state: "visible" });
+  await page.waitForFunction(
+    () => {
+      const button = document.querySelector('button[type="submit"]');
+      return button instanceof HTMLButtonElement && !button.disabled;
+    },
+  );
   await page.getByRole("button", { name: /continue/i }).click();
   await page.getByLabel("Portfolio vibe").waitFor();
   await page.getByRole("button", { name: "Cybernetic" }).click();

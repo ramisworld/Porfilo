@@ -7,6 +7,9 @@ vi.mock("~/env", () => ({ env: { STRIPE_CUSTOM_DOMAIN_PRICE_ID: undefined } }));
 // trpc.ts imports these at module load; we supply the ctx.db ourselves.
 vi.mock("~/server/db", () => ({ db: {} }));
 vi.mock("~/server/auth", () => ({ getSession: vi.fn() }));
+vi.mock("~/server/ratelimit", () => ({
+  limit: vi.fn().mockResolvedValue({ ok: true, retryAfter: 0 }),
+}));
 
 const h = vi.hoisted(() => ({
   createSession: vi.fn(),
@@ -31,7 +34,10 @@ type FeatureAccessStub = {
 /** Build a caller with a controllable db + a signed-in user. */
 function callerFor(userId: string, featureAccess: FeatureAccessStub) {
   const ctx = {
-    db: { featureAccess },
+    db: {
+      featureAccess,
+      customDomain: { findFirst: vi.fn().mockResolvedValue(null) },
+    },
     session: { user: { id: userId, email: `${userId}@example.com` } },
     headers: new Headers(),
   } as unknown as Parameters<typeof createCaller>[0];
@@ -40,9 +46,11 @@ function callerFor(userId: string, featureAccess: FeatureAccessStub) {
 
 function featureAccessStub(accessStatus: string | null): FeatureAccessStub {
   return {
-    findUnique: vi.fn().mockResolvedValue(
-      accessStatus === null ? null : { status: accessStatus },
-    ),
+    findUnique: vi
+      .fn()
+      .mockResolvedValue(
+        accessStatus === null ? null : { status: accessStatus },
+      ),
     upsert: vi.fn().mockResolvedValue({ id: "fa_new" }),
     update: vi.fn().mockResolvedValue({ id: "fa_new" }),
   };
@@ -83,7 +91,10 @@ describe("billing.createCustomDomainCheckoutSession", () => {
     // this pending, so access stays locked until the webhook fulfils it.
     expect(fa.upsert).toHaveBeenCalledWith({
       where: {
-        userId_featureKey: { userId: "user-fresh", featureKey: "custom_domain" },
+        userId_featureKey: {
+          userId: "user-fresh",
+          featureKey: "custom_domain",
+        },
       },
       create: {
         userId: "user-fresh",
@@ -147,14 +158,17 @@ describe("billing.createCustomDomainCheckoutSession", () => {
 
   it("rejects unauthenticated callers", async () => {
     const ctx = {
-      db: { featureAccess: featureAccessStub(null) },
+      db: {
+        featureAccess: featureAccessStub(null),
+        customDomain: { findFirst: vi.fn().mockResolvedValue(null) },
+      },
       session: null,
       headers: new Headers(),
     } as unknown as Parameters<typeof createCaller>[0];
     const caller = createCaller(ctx);
 
-    await expect(caller.createCustomDomainCheckoutSession()).rejects.toBeInstanceOf(
-      TRPCError,
-    );
+    await expect(
+      caller.createCustomDomainCheckoutSession(),
+    ).rejects.toBeInstanceOf(TRPCError);
   });
 });

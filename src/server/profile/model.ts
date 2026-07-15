@@ -17,14 +17,14 @@ export const linksSchema = z.object({
 });
 
 export const languageSchema = z.object({
-  label: z.string(),
+  label: z.string().trim().min(1).max(40),
   /** 0-100, aggregated + deduped share of bytes across repos. Internal signal, not a skill grade. */
   share: z.number().min(0).max(100),
 });
 
 export const abilitySchema = z.object({
-  label: z.string(),
-  source: z.string().optional(),
+  label: z.string().trim().min(1).max(120),
+  source: z.string().trim().min(1).max(160).optional(),
   weight: z.number().min(0).max(100).optional(),
 });
 
@@ -33,15 +33,15 @@ export const stackLabelSchema = z.string().trim().min(1).max(40);
 
 export const statSchema = z.object({
   /** Pre-formatted, flattering-but-true (never a zero). e.g. "1.2k", "6", "2023". */
-  value: z.string(),
-  label: z.string(),
+  value: z.string().trim().min(1).max(40),
+  label: z.string().trim().min(1).max(80),
 });
 
 export const projectSchema = z.object({
-  name: z.string(),
+  name: z.string().trim().min(1).max(140),
   /** 1–2 sentence, grounded blurb (from README intro / topics / manifest). */
-  blurb: z.string(),
-  tech: z.array(z.string()),
+  blurb: z.string().trim().min(1).max(600),
+  tech: z.array(z.string().trim().min(1).max(40)).max(20),
   stars: z.number().int().nonnegative().optional(),
   /** Last meaningful project year from GitHub. Optional for legacy/manual rows. */
   year: z.number().int().min(1970).max(2100).optional(),
@@ -77,10 +77,10 @@ export const credentialSchema = z.object({
 
 export const profileDataSchema = z.object({
   identity: z.object({
-    name: z.string(),
-    headline: z.string(),
-    role: z.string(),
-    location: z.string().optional(),
+    name: z.string().trim().min(1).max(120),
+    headline: z.string().trim().min(1).max(240),
+    role: z.string().trim().min(1).max(120),
+    location: z.string().trim().min(1).max(120).optional(),
     links: linksSchema,
   }),
   languages: z.array(languageSchema),

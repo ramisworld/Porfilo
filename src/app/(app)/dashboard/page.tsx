@@ -42,8 +42,8 @@ export default async function DashboardPage() {
     : {
         identity: {
           name: portfolio.githubUsername,
-          headline: "",
-          role: "",
+          headline: "Developer portfolio",
+          role: "Developer",
           links: {},
         },
         languages: [],

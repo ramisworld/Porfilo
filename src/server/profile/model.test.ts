@@ -79,4 +79,26 @@ describe("profile data schema", () => {
     expect(parsed.experience[0]?.company).toBe("Example Labs");
     expect(parsed.credentials[0]?.year).toBe(2025);
   });
+
+  it("rejects blank identity and project content", () => {
+    expect(
+      profileDataSchema.safeParse({
+        ...legacyProfile,
+        identity: { ...legacyProfile.identity, name: "   " },
+      }).success,
+    ).toBe(false);
+    expect(
+      profileDataSchema.safeParse({
+        ...legacyProfile,
+        projects: [
+          {
+            ...legacyProfile.projects[0],
+            name: "",
+            blurb: " ",
+            tech: [""],
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
 });

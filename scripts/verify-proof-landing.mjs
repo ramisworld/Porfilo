@@ -201,9 +201,16 @@ async function verifySynchronizedPulse() {
 
   await pageB.reload({ waitUntil: "domcontentloaded" });
   await waitForTick(pageB, secondA.tick);
-  const reloadedB = await readPulse(pageB);
-  assert(reloadedB.tick === secondA.tick, "portfolio pulse: reload moved to an unexpected tick");
-  assert(reloadedB.count === secondA.count, "portfolio pulse: reload reset the live count");
+  const [currentA, reloadedB] = await Promise.all([readPulse(pageA), readPulse(pageB)]);
+  const currentTick = Math.floor(Date.now() / cadence);
+  assert(
+    reloadedB.tick === currentTick,
+    `portfolio pulse: reload is not on the current global tick (${reloadedB.tick} vs ${currentTick})`,
+  );
+  assert(
+    reloadedB.tick === currentA.tick && reloadedB.count === currentA.count,
+    "portfolio pulse: users disagree after reload",
+  );
 
   await context.close();
   console.log(`portfolio-pulse: synchronized, reload-safe, live delta=${delta}`);

@@ -1,65 +1,21 @@
-import { test, expect, type Page, type Route } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { test, expect } from "@playwright/test";
+import { PrismaClient } from "../generated/prisma/index.js";
 
 /**
  * Premium $9 custom-domain unlock — end-to-end.
  *
  * Auth is real (via the storage state from global-setup); the tRPC billing
- * boundary is stubbed so the flow is deterministic and needs neither real Stripe
- * nor a live webhook. We start locked, assert the premium modal, click Unlock,
- * and — instead of a real Stripe redirect — return `alreadyUnlocked` + flip the
- * access stub so the UI drops into the normal domain chooser.
+ * boundary is real. Before clicking Unlock, the test writes the same paid
+ * entitlement a verified Stripe webhook would create, so the duplicate-charge
+ * guard returns `alreadyUnlocked` without contacting Stripe.
  *
- * If /dashboard redirects to sign-in (no auth wired), the test skips itself.
+ * Global setup provisions a disposable authenticated account and portfolio.
  */
 
-/** Toggled to true once the user "pays". Drives the access stub. */
-let unlocked = false;
-
-/** tRPC v11 + superjson success envelope for a batch of results. */
-function trpcBatch(values: unknown[]): string {
-  return JSON.stringify(values.map((v) => ({ result: { data: { json: v } } })));
-}
-
-/** Value returned for each intercepted procedure (null for anything unknown). */
-function valueForProcedure(name: string): unknown {
-  if (name === "billing.customDomainAccess") return { unlocked };
-  if (name === "domain.mine") return null; // no domain yet
-  if (name === "billing.createCustomDomainCheckoutSession") {
-    unlocked = true; // simulate successful payment + webhook fulfilment
-    return { alreadyUnlocked: true };
-  }
-  return null;
-}
-
-async function stubTrpcBilling(page: Page): Promise<void> {
-  await page.route("**/api/trpc/**", async (route: Route) => {
-    const path = new URL(route.request().url()).pathname;
-    const procs = decodeURIComponent(path.split("/api/trpc/")[1] ?? "").split(",");
-    // Only intervene when a billing/domain procedure is in the batch; otherwise
-    // let it hit the real backend.
-    if (!procs.some((p) => p.startsWith("billing.") || p === "domain.mine")) {
-      return route.continue();
-    }
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: trpcBatch(procs.map(valueForProcedure)),
-    });
-  });
-}
-
-test.beforeEach(() => {
-  unlocked = false;
-});
-
 test("locked user sees the premium $9 modal and unlocks", async ({ page }) => {
-  await stubTrpcBilling(page);
-
-  const response = await page.goto("/dashboard");
-  test.skip(
-    !!response && response.url().includes("/sign-in"),
-    "No authenticated storage state — see e2e/README.md",
-  );
+  await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/dashboard/);
 
   // Open the custom-domain flow from the dashboard tile.
   await page.getByRole("button", { name: /add custom domain/i }).click();
@@ -71,19 +27,70 @@ test("locked user sees the premium $9 modal and unlocks", async ({ page }) => {
     dialog.getByRole("heading", { name: "Unlock custom domains" }),
   ).toBeVisible();
   await expect(
-    dialog.getByText("Connect your own domain to your Porfilo site."),
+    dialog.getByText("Own the URL people remember.", { exact: true }),
   ).toBeVisible();
 
   // Never renders "USD".
   await expect(dialog).not.toContainText("USD");
 
-  // Unlock → (stubbed) payment + fulfilment → normal chooser appears.
-  await dialog
-    .getByRole("button", { name: "Unlock custom domains" })
-    .click();
+  // Simulate the verified webhook fulfilment in the database. The subsequent
+  // real mutation must detect access and avoid creating a Stripe session.
+  const fixture = JSON.parse(
+    readFileSync("e2e/.auth/fixture.json", "utf8"),
+  ) as { userId: string };
+  const db = new PrismaClient();
+  await db.featureAccess.create({
+    data: {
+      userId: fixture.userId,
+      featureKey: "custom_domain",
+      status: "paid",
+      paidAt: new Date(),
+    },
+  });
+  await db.$disconnect();
+
+  // Unlock → duplicate-charge guard → normal chooser appears.
+  await dialog.getByRole("button", { name: /Unlock custom domains/ }).click();
 
   await expect(
     dialog.getByRole("heading", { name: /choose your portfolio url/i }),
   ).toBeVisible();
   await expect(dialog.getByText("Use your own domain")).toBeVisible();
+});
+
+test("public portfolio routes expose correct status, metadata, and OG image", async ({
+  page,
+  request,
+}) => {
+  const fixture = JSON.parse(
+    readFileSync("e2e/.auth/fixture.json", "utf8"),
+  ) as { userId: string };
+  const db = new PrismaClient();
+  const portfolio = await db.portfolio.findUniqueOrThrow({
+    where: { ownerId: fixture.userId },
+    select: { publicSubdomainSlug: true },
+  });
+  await db.$disconnect();
+
+  const missing = await request.get("/sites/definitely-missing-portfolio");
+  expect(missing.status()).toBe(404);
+
+  const og = await request.get("/api/og");
+  expect(og.status()).toBe(200);
+  expect(og.headers()["content-type"]).toContain("image/png");
+
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  const response = await page.goto(`/sites/${portfolio.publicSubdomainSlug}`, {
+    waitUntil: "networkidle",
+  });
+  expect(response?.status()).toBe(200);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    new RegExp(`/sites/${portfolio.publicSubdomainSlug}/opengraph-image$`),
+  );
+  expect(page.frames()).toHaveLength(2);
+  expect(errors).toEqual([]);
 });

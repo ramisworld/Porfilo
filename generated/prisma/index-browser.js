@@ -215,6 +215,14 @@ exports.Prisma.GitHubCacheScalarFieldEnum = {
   fetchedAt: 'fetchedAt'
 };
 
+exports.Prisma.RateLimitBucketScalarFieldEnum = {
+  key: 'key',
+  hits: 'hits',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.FeatureAccessScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -276,6 +284,7 @@ exports.Prisma.ModelName = {
   Portfolio: 'Portfolio',
   CustomDomain: 'CustomDomain',
   GitHubCache: 'GitHubCache',
+  RateLimitBucket: 'RateLimitBucket',
   FeatureAccess: 'FeatureAccess',
   GenerationLock: 'GenerationLock'
 };

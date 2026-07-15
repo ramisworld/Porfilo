@@ -5,6 +5,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("~/env", () => ({ env: {} }));
 vi.mock("~/server/db", () => ({ db: {} }));
 vi.mock("~/server/auth", () => ({ getSession: vi.fn() }));
+vi.mock("~/server/ratelimit", () => ({
+  limit: vi.fn().mockResolvedValue({ ok: true, retryAfter: 0 }),
+}));
 
 import { createCallerFactory } from "~/server/api/trpc";
 import { domainRouter } from "./domain";
@@ -18,8 +21,11 @@ function callerFor(opts: { access: string | null; portfolio?: unknown }) {
       featureAccess: {
         findUnique: vi
           .fn()
-          .mockResolvedValue(opts.access === null ? null : { status: opts.access }),
+          .mockResolvedValue(
+            opts.access === null ? null : { status: opts.access },
+          ),
       },
+      customDomain: { findFirst: vi.fn().mockResolvedValue(null) },
       portfolio: {
         findUnique: vi.fn().mockResolvedValue(opts.portfolio ?? null),
       },

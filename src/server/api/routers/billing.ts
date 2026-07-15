@@ -46,7 +46,7 @@ export const billingRouter = createTRPCRouter({
         });
       }
 
-      const rl = limit(`billing:checkout:${ctx.user.id}`, {
+      const rl = await limit(`billing:checkout:${ctx.user.id}`, {
         window: "10m",
         max: 8,
       });

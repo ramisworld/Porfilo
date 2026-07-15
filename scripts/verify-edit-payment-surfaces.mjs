@@ -113,9 +113,18 @@ async function capturePayment(name, viewport) {
       })
     : page.getByRole("button", { name: /add custom domain/i });
   await trigger.click();
-  await page
-    .getByText("Own the URL people remember.", { exact: true })
-    .waitFor();
+  if (portfolio.customDomain?.hostname) {
+    // Pre-payment domains are grandfathered and must open management directly.
+    await page
+      .getByRole("dialog")
+      .getByText(new RegExp(`Live at ${portfolio.customDomain.hostname.replaceAll(".", "\\.")}`))
+      .first()
+      .waitFor();
+  } else {
+    await page
+      .getByText("Own the URL people remember.", { exact: true })
+      .waitFor();
+  }
   await save(page, name);
   assert(errors.length === 0, `${name}: ${errors.join("\n")}`);
   await context.close();

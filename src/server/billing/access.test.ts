@@ -4,10 +4,17 @@ import { hasCustomDomainAccess } from "./access";
 type Db = Parameters<typeof hasCustomDomainAccess>[0];
 
 /** Minimal db stub whose featureAccess.findUnique resolves to a given row. */
-function dbReturning(row: { status: string } | null) {
+function dbReturning(
+  row: { status: string } | null,
+  connectedDomain: { id: string } | null = null,
+) {
   const findUnique = vi.fn().mockResolvedValue(row);
-  const db = { featureAccess: { findUnique } } as unknown as Db;
-  return { db, findUnique };
+  const findFirst = vi.fn().mockResolvedValue(connectedDomain);
+  const db = {
+    featureAccess: { findUnique },
+    customDomain: { findFirst },
+  } as unknown as Db;
+  return { db, findUnique, findFirst };
 }
 
 describe("hasCustomDomainAccess", () => {
@@ -29,6 +36,11 @@ describe("hasCustomDomainAccess", () => {
   it("is false when the user has no entitlement row", async () => {
     const { db } = dbReturning(null);
     expect(await hasCustomDomainAccess(db, "user-1")).toBe(false);
+  });
+
+  it("grandfathers an existing connected custom domain", async () => {
+    const { db } = dbReturning(null, { id: "domain-1" });
+    expect(await hasCustomDomainAccess(db, "user-1")).toBe(true);
   });
 
   it("looks the row up by the (userId, featureKey) unique", async () => {

@@ -1,0 +1,30 @@
+.next/
+generated/
+node_modules/
+public/engine/
+test-results/
+playwright-report/
+
+# Legacy generated/reference surfaces are intentionally kept byte-stable. They
+# have their own rendering tests and are not part of the application formatter.
+eslint.config.js
+landing-prompts/*.ts
+loadtest/
+src/app/(auth)/
+src/app/(legal)/
+src/app/(marketing)/page.tsx
+src/app/_components/icons.tsx
+src/app/_components/portfolio-not-found.tsx
+src/app/api/trpc/
+src/app/loading.tsx
+src/app/not-found.tsx
+src/components/reactbits/
+src/engine/
+src/lib/porfilo-mark.tsx
+src/middleware.ts
+src/server/billing/fulfillment.test.ts
+src/server/domains/
+src/server/github/
+src/server/llm/author.ts
+src/server/portfolio/og-image.tsx
+src/trpc/

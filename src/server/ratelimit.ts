@@ -1,13 +1,5 @@
-import { LRUCache } from "lru-cache";
-
-/**
- * Tiny in-process sliding-window rate limiter.
- *
- *   limit("gen:<userId>", { window: "1h", max: 3 })
- *
- * Buckets are keyed and capped to 10k entries with a 24h TTL — good enough for
- * a single Node process. Swap for Upstash Ratelimit when we go multi-instance.
- */
+import "server-only";
+import { db } from "~/server/db";
 
 type WindowSpec = "10s" | "1m" | "10m" | "1h" | "24h";
 
@@ -24,37 +16,47 @@ interface LimitOpts {
   max: number;
 }
 
-const buckets = new LRUCache<string, number[]>({
-  max: 10_000,
-  ttl: WINDOWS["24h"],
-});
-
-export function limit(
+/**
+ * Database-backed fixed-window limiter.
+ *
+ * The timestamp is part of the primary key, so a new window starts without a
+ * read/modify/write race. Prisma's atomic increment keeps concurrent requests
+ * consistent across processes and Railway replicas.
+ */
+export async function limit(
   key: string,
   opts: LimitOpts,
-): { ok: boolean; retryAfter: number } {
+): Promise<{ ok: boolean; retryAfter: number }> {
   const windowMs = WINDOWS[opts.window];
-  const now = Date.now();
-  const fullKey = `${key}|${opts.window}`;
-  const hits = (buckets.get(fullKey) ?? []).filter((t) => now - t < windowMs);
+  const nowMs = Date.now();
+  const windowStart = Math.floor(nowMs / windowMs) * windowMs;
+  const expiresAt = new Date(windowStart + windowMs);
+  const bucketKey = `${key}|${opts.window}|${windowStart}`;
 
-  if (hits.length >= opts.max) {
-    const oldest = hits[0] ?? now;
-    return {
-      ok: false,
-      retryAfter: Math.ceil((windowMs - (now - oldest)) / 1000),
-    };
+  const bucket = await db.rateLimitBucket.upsert({
+    where: { key: bucketKey },
+    create: { key: bucketKey, hits: 1, expiresAt },
+    update: { hits: { increment: 1 } },
+    select: { hits: true },
+  });
+
+  // Cheap, deterministic cleanup: approximately one request in every 64.
+  // Failure is deliberately non-fatal because cleanup must never take down a
+  // user request.
+  if ((nowMs >>> 0) % 64 === 0) {
+    void db.rateLimitBucket
+      .deleteMany({ where: { expiresAt: { lt: new Date(nowMs) } } })
+      .catch(() => undefined);
   }
 
-  hits.push(now);
-  buckets.set(fullKey, hits);
-  return { ok: true, retryAfter: 0 };
+  return {
+    ok: bucket.hits <= opts.max,
+    retryAfter: Math.max(1, Math.ceil((expiresAt.getTime() - nowMs) / 1000)),
+  };
 }
 
-/**
- * Legacy 5/min limiter — kept so existing call sites continue to work while
- * we migrate to the explicit `limit(key, { window, max })` signature.
- */
-export function rateLimit(key: string): { ok: boolean; retryAfter: number } {
+export async function rateLimit(
+  key: string,
+): Promise<{ ok: boolean; retryAfter: number }> {
   return limit(key, { window: "1m", max: 5 });
 }

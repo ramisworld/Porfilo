@@ -46,7 +46,8 @@ export async function POST(req: NextRequest) {
   try {
     parsed = bodySchema.parse(await req.json());
   } catch (e) {
-    const msg = e instanceof z.ZodError ? e.issues[0]?.message : "Invalid request";
+    const msg =
+      e instanceof z.ZodError ? e.issues[0]?.message : "Invalid request";
     return json({ error: msg ?? "Invalid request", exists: false }, 400);
   }
 
@@ -68,7 +69,10 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const rl = limit(`validate:${userId ?? `anon:${ip}`}`, { window: "1m", max: 10 });
+  const rl = await limit(`validate:${userId ?? `anon:${ip}`}`, {
+    window: "1m",
+    max: 10,
+  });
   if (!rl.ok) {
     return json({ error: "Too many requests" }, 429, {
       "retry-after": String(rl.retryAfter),

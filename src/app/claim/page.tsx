@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Prisma } from "../../../generated/prisma";
 import { getSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { CLAIM_WINDOW_MS } from "~/server/portfolio/claims";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +12,6 @@ export const dynamic = "force-dynamic";
 // it was created. Magic-link email delivery + the user clicking through can
 // take a few minutes, so we allow a generous window. After it expires the
 // portfolio stays ownerless (still publicly served) and is prunable later.
-const CLAIM_WINDOW_MS = 30 * 60 * 1000;
-
 /**
  * Claim-on-auth landing.
  *
@@ -42,7 +41,9 @@ export default async function ClaimPage({
     if (slug) q.set("slug", slug);
     if (ct) q.set("ct", ct);
     const qs = q.toString();
-    redirect(`/sign-in?next=${encodeURIComponent(qs ? `/claim?${qs}` : "/claim")}`);
+    redirect(
+      `/sign-in?next=${encodeURIComponent(qs ? `/claim?${qs}` : "/claim")}`,
+    );
   }
 
   if (!slug) redirect("/dashboard");

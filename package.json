@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "pnpm engine:build && next build",
+    "audit:prod": "node scripts/audit-prod.mjs",
     "check": "next lint && tsc --noEmit",
     "engine:build": "node scripts/build-engine.mjs && node scripts/sync-brand-icons.mjs",
     "icons:sync": "node scripts/sync-brand-icons.mjs",
@@ -70,7 +71,7 @@
     "esbuild": "^0.28.1",
     "eslint": "^9.23.0",
     "eslint-config-next": "^15.2.3",
-    "postcss": "^8.5.3",
+    "postcss": "^8.5.19",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "prisma": "^6.6.0",
@@ -86,7 +87,8 @@
   "packageManager": "pnpm@10.25.0",
   "pnpm": {
     "overrides": {
-      "expect-type": "1.3.0"
+      "expect-type": "1.3.0",
+      "postcss": "8.5.19"
     },
     "onlyBuiltDependencies": [
       "@prisma/client",

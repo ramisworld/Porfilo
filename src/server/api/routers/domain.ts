@@ -10,10 +10,7 @@ import {
   validateFreeSubdomainLabel,
   suggestAlternatives,
 } from "~/server/domains/subdomain";
-import {
-  checkDomainStatus,
-  toDisplayStatus,
-} from "~/server/domains/status";
+import { checkDomainStatus, toDisplayStatus } from "~/server/domains/status";
 import { shouldRefreshCustomDomain } from "~/server/domains/row-state";
 import {
   CloudflareApiError,
@@ -54,7 +51,10 @@ export const domainRouter = createTRPCRouter({
       const portfolio = await requirePortfolio(ctx);
       await ensureNoExistingDomain(ctx, portfolio.id);
 
-      const rl = limit(`domain:add:${ctx.user.id}`, { window: "10m", max: 5 });
+      const rl = await limit(`domain:add:${ctx.user.id}`, {
+        window: "10m",
+        max: 5,
+      });
       if (!rl.ok) {
         throw new TRPCError({
           code: "TOO_MANY_REQUESTS",
@@ -131,7 +131,10 @@ export const domainRouter = createTRPCRouter({
       const portfolio = await requirePortfolio(ctx);
       await ensureNoExistingDomain(ctx, portfolio.id);
 
-      const rl = limit(`domain:add:${ctx.user.id}`, { window: "10m", max: 5 });
+      const rl = await limit(`domain:add:${ctx.user.id}`, {
+        window: "10m",
+        max: 5,
+      });
       if (!rl.ok) {
         throw new TRPCError({
           code: "TOO_MANY_REQUESTS",
@@ -161,7 +164,10 @@ export const domainRouter = createTRPCRouter({
         cf = await cfCreateOrGetHostname(hostname);
       } catch (err) {
         if (err instanceof CloudflareDisabledError) {
-          throw new TRPCError({ code: "PRECONDITION_FAILED", message: err.message });
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: err.message,
+          });
         }
         if (err instanceof CloudflareApiError) {
           throw new TRPCError({
@@ -219,7 +225,10 @@ export const domainRouter = createTRPCRouter({
       return withInstructions(row, "FREE_SUBDOMAIN_ACTIVE");
     }
 
-    const rl = limit(`domain:recheck:${ctx.user.id}`, { window: "1m", max: 12 });
+    const rl = await limit(`domain:recheck:${ctx.user.id}`, {
+      window: "1m",
+      max: 12,
+    });
     if (!rl.ok) {
       throw new TRPCError({
         code: "TOO_MANY_REQUESTS",
@@ -332,9 +341,7 @@ async function refreshCustomDomainRow(
 }
 
 function cnameTarget(): string {
-  return (
-    env.NEXT_PUBLIC_CUSTOM_DOMAIN_CNAME_TARGET ?? "customers.porfilo.com"
-  );
+  return env.NEXT_PUBLIC_CUSTOM_DOMAIN_CNAME_TARGET ?? "customers.porfilo.com";
 }
 
 function extractTxt(cf: CfHostname): { host: string; value: string } | null {

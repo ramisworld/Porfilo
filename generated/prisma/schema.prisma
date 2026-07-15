@@ -150,6 +150,18 @@ model GitHubCache {
   fetchedAt DateTime @default(now())
 }
 
+// Shared fixed-window counters for abuse controls. Keeping these in Postgres
+// makes limits consistent across Railway replicas and process restarts.
+model RateLimitBucket {
+  key       String   @id
+  hits      Int      @default(0)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
+}
+
 // A one-time, account-level entitlement unlocking a paid feature.
 //
 // Today the only feature is "custom_domain" — a single $9 one-time unlock that

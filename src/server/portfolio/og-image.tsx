@@ -5,7 +5,7 @@ import {
   designSpecSchema,
   type DesignSpec,
 } from "~/engine/spec";
-import type { ProfileData } from "~/server/profile/model";
+import { profileDataSchema } from "~/server/profile/model";
 import { portfolioDisplayName } from "~/server/portfolio/metadata";
 
 export const OG_SIZE = { width: 1200, height: 630 } as const;
@@ -24,7 +24,8 @@ function parseOgInput(
   designSpec: unknown,
   githubUsername: string,
 ): OgProps {
-  const data = profileData as ProfileData | undefined;
+  const profile = profileDataSchema.safeParse(profileData);
+  const data = profile.success ? profile.data : undefined;
   const parsed = designSpecSchema.safeParse(designSpec);
   const spec = parsed.success ? parsed.data : DEFAULT_SPEC;
   return {

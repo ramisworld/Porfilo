@@ -8,6 +8,7 @@ import { Resend } from "resend";
 import { env } from "~/env";
 import { db } from "~/server/db";
 import { limit } from "~/server/ratelimit";
+import { clientIp } from "~/server/client-ip";
 
 /**
  * BetterAuth — single source of truth for sessions.
@@ -114,7 +115,7 @@ export const auth = betterAuth({
       expiresIn: 60 * 10, // 10 minutes
       sendMagicLink: async ({ email, url }, ctx) => {
         // Cap to 5 sends per email / hour to prevent inbox spam + Resend abuse.
-        const rl = limit(`magic:${email.toLowerCase()}`, {
+        const rl = await limit(`magic:${email.toLowerCase()}`, {
           window: "1h",
           max: 5,
         });
@@ -123,12 +124,12 @@ export const auth = betterAuth({
             "Too many sign-in emails. Try again in a few minutes.",
           );
         }
-        const headers = ctx?.request?.headers ?? ctx?.headers;
-        const ip =
-          headers?.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-          headers?.get("x-real-ip")?.trim() ??
-          "local";
-        const ipLimit = limit(`magic:ip:${ip}`, { window: "1h", max: 10 });
+        const headers = ctx?.request?.headers ?? ctx?.headers ?? new Headers();
+        const ip = clientIp(headers);
+        const ipLimit = await limit(`magic:ip:${ip}`, {
+          window: "1h",
+          max: 10,
+        });
         if (!ipLimit.ok) {
           throw new Error(
             "Too many sign-in emails from this network. Try again later.",
