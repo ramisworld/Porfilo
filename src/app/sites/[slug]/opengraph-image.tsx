@@ -16,7 +16,7 @@ export default async function OgImage({
   const portfolio = await db.portfolio.findFirst({
     where: { OR: [{ slug }, { publicSubdomainSlug: slug }] },
   });
-  if (!portfolio) return renderPorfiloLandingOgImage();
+  if (!portfolio) return await renderPorfiloLandingOgImage();
   try {
     return await renderPortfolioHeroImage(portfolio);
   } catch (error) {

@@ -54,11 +54,11 @@ export async function GET() {
   const hostname = hostnameFromHeaders(await headers());
 
   if (isPorfiloAppHost(hostname)) {
-    return renderPorfiloLandingOgImage();
+    return await renderPorfiloLandingOgImage();
   }
 
   const portfolio = await portfolioForHost(hostname);
-  if (!portfolio) return renderPorfiloLandingOgImage();
+  if (!portfolio) return await renderPorfiloLandingOgImage();
   try {
     return await renderPortfolioHeroImage(portfolio);
   } catch (error) {
