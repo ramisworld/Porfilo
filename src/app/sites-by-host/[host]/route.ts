@@ -8,6 +8,7 @@ import {
   buildPortfolioHtml,
   findPortfolioForHost,
 } from "~/server/portfolio/render-iframe";
+import { portfolioHeroImageVersion } from "~/server/portfolio/hero-image-version";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export async function GET(
       profileData: portfolio.profileData,
       githubUsername: portfolio.githubUsername,
       canonicalUrl,
-      imageUrl: `${canonicalUrl}/api/og`,
+      imageUrl: `${canonicalUrl}/api/og?v=${portfolioHeroImageVersion(portfolio.updatedAt)}`,
       isPublic: portfolio.isPublic,
     }),
   );

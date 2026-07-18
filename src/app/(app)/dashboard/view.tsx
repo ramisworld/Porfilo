@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import type { ProfileData } from "~/server/profile/model";
 import { EditModal } from "./edit-modal";
 import { DomainTile } from "./domain-tile";
+import { PremiumModal } from "./premium-modal";
+import { RegenerationModal } from "./regeneration-modal";
+import { api } from "~/trpc/react";
 import styles from "./dashboard.module.css";
 
 export function DashboardView(props: {
@@ -21,10 +24,13 @@ export function DashboardView(props: {
   profileData: ProfileData;
 }) {
   const router = useRouter();
+  const premium = api.billing.premiumAccess.useQuery();
 
   const [previewLoaded, setPreviewLoaded] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [premiumOpen, setPremiumOpen] = useState(false);
+  const [regenerationOpen, setRegenerationOpen] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>(
     props.profileData,
   );
@@ -32,6 +38,16 @@ export function DashboardView(props: {
   useEffect(() => {
     if (!editorOpen) setProfileData(props.profileData);
   }, [props.profileData, editorOpen]);
+
+  useEffect(() => {
+    const openRegeneration = () => {
+      setPremiumOpen(false);
+      setRegenerationOpen(true);
+    };
+    window.addEventListener("porfilo:premium-unlocked", openRegeneration);
+    return () =>
+      window.removeEventListener("porfilo:premium-unlocked", openRegeneration);
+  }, []);
 
   const created = (() => {
     const d = new Date(props.createdAt);
@@ -158,7 +174,7 @@ export function DashboardView(props: {
 
         <aside className={styles.operations}>
           <div className={styles.operationsHead}>
-            <span>Operations / 03</span>
+            <span>Operations / 04</span>
             <strong>Make it move.</strong>
             <p>Update the proof, inspect the live build, or claim your URL.</p>
           </div>
@@ -177,13 +193,30 @@ export function DashboardView(props: {
               <i aria-hidden>→</i>
             </button>
 
+            <button
+              type="button"
+              className={styles.operation}
+              disabled={premium.isLoading}
+              onClick={() => {
+                if (premium.data?.unlocked) setRegenerationOpen(true);
+                else setPremiumOpen(true);
+              }}
+            >
+              <span className={styles.operationNumber}>02</span>
+              <span>
+                <b>Regenerate portfolio</b>
+                <small>New GitHub, new vibe, same URL</small>
+              </span>
+              <i aria-hidden>{premium.data?.unlocked ? "↻" : "◆"}</i>
+            </button>
+
             <a
               href={props.publicUrl}
               target="_blank"
               rel="noreferrer"
               className={styles.operation}
             >
-              <span className={styles.operationNumber}>02</span>
+              <span className={styles.operationNumber}>03</span>
               <span>
                 <b>Open live site</b>
                 <small>View the public build</small>
@@ -192,7 +225,7 @@ export function DashboardView(props: {
             </a>
 
             <div className={styles.domainOperation}>
-              <span className={styles.operationNumber}>03</span>
+              <span className={styles.operationNumber}>04</span>
               <div>
                 <b>Publishing URL</b>
                 <small>Free subdomain or your own</small>
@@ -215,6 +248,23 @@ export function DashboardView(props: {
           githubUsername={props.githubUsername}
           onClose={() => setEditorOpen(false)}
           onSaved={handleSaved}
+        />
+      )}
+      {premiumOpen && (
+        <PremiumModal
+          onClose={() => setPremiumOpen(false)}
+          onUnlocked={() => {
+            setPremiumOpen(false);
+            setRegenerationOpen(true);
+          }}
+        />
+      )}
+      {regenerationOpen && (
+        <RegenerationModal
+          initialUsername={props.githubUsername}
+          initialVibe={props.vibe}
+          onClose={() => setRegenerationOpen(false)}
+          onDone={refreshPreview}
         />
       )}
     </div>

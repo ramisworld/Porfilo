@@ -179,6 +179,8 @@ exports.Prisma.PortfolioScalarFieldEnum = {
   engineVersion: 'engineVersion',
   template: 'template',
   code: 'code',
+  ogImage: 'ogImage',
+  ogImageFingerprint: 'ogImageFingerprint',
   isPublic: 'isPublic',
   views: 'views',
   claimNonce: 'claimNonce',

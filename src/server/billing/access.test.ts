@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { hasCustomDomainAccess } from "./access";
+import { hasPremiumAccess } from "./access";
 
-type Db = Parameters<typeof hasCustomDomainAccess>[0];
+type Db = Parameters<typeof hasPremiumAccess>[0];
 
 /** Minimal db stub whose featureAccess.findUnique resolves to a given row. */
 function dbReturning(
@@ -17,38 +17,38 @@ function dbReturning(
   return { db, findUnique, findFirst };
 }
 
-describe("hasCustomDomainAccess", () => {
+describe("hasPremiumAccess", () => {
   it("is true only when the entitlement is paid", async () => {
     const { db } = dbReturning({ status: "paid" });
-    expect(await hasCustomDomainAccess(db, "user-1")).toBe(true);
+    expect(await hasPremiumAccess(db, "user-1")).toBe(true);
   });
 
   it("is false for a pending entitlement (checkout started, not completed)", async () => {
     const { db } = dbReturning({ status: "pending" });
-    expect(await hasCustomDomainAccess(db, "user-1")).toBe(false);
+    expect(await hasPremiumAccess(db, "user-1")).toBe(false);
   });
 
   it("is false for a failed entitlement", async () => {
     const { db } = dbReturning({ status: "failed" });
-    expect(await hasCustomDomainAccess(db, "user-1")).toBe(false);
+    expect(await hasPremiumAccess(db, "user-1")).toBe(false);
   });
 
   it("is false when the user has no entitlement row", async () => {
     const { db } = dbReturning(null);
-    expect(await hasCustomDomainAccess(db, "user-1")).toBe(false);
+    expect(await hasPremiumAccess(db, "user-1")).toBe(false);
   });
 
   it("grandfathers an existing connected custom domain", async () => {
     const { db } = dbReturning(null, { id: "domain-1" });
-    expect(await hasCustomDomainAccess(db, "user-1")).toBe(true);
+    expect(await hasPremiumAccess(db, "user-1")).toBe(true);
   });
 
   it("looks the row up by the (userId, featureKey) unique", async () => {
     const { db, findUnique } = dbReturning({ status: "paid" });
-    await hasCustomDomainAccess(db, "user-42");
+    await hasPremiumAccess(db, "user-42");
     expect(findUnique).toHaveBeenCalledWith({
       where: {
-        userId_featureKey: { userId: "user-42", featureKey: "custom_domain" },
+        userId_featureKey: { userId: "user-42", featureKey: "premium" },
       },
       select: { status: true },
     });

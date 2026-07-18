@@ -1,21 +1,32 @@
 /**
- * Shared constants for the one-time custom-domain unlock.
+ * Shared constants for the one-time Porfilo Premium unlock.
  *
  * Kept dependency-free (no Stripe SDK, no env) so the access gate and unit tests
  * can import them without loading the payment client.
  */
 
-/** Value stored in FeatureAccess.featureKey for the custom-domain unlock. */
-export const CUSTOM_DOMAIN_FEATURE_KEY = "custom_domain";
+/** Value stored in FeatureAccess.featureKey for the lifetime Premium unlock. */
+export const PREMIUM_FEATURE_KEY = "premium";
 
 /** Price of the unlock, in the smallest currency unit. $9 = 900. */
-export const CUSTOM_DOMAIN_AMOUNT = 900;
+export const PREMIUM_AMOUNT = 900;
 
 /** Internal bookkeeping currency — never rendered in the UI (UI shows "$9"). */
-export const CUSTOM_DOMAIN_CURRENCY = "usd";
+export const PREMIUM_CURRENCY = "usd";
 
 /** Product name shown on the Stripe-hosted checkout page + receipt. */
-export const CUSTOM_DOMAIN_PRODUCT_NAME = "Porfilo Custom Domains";
+export const PREMIUM_PRODUCT_NAME = "Porfilo Premium";
+
+/** Description shown in Stripe Checkout for the one-time Premium purchase. */
+export const PREMIUM_PRODUCT_DESCRIPTION =
+  "Use your own domain and regenerate your portfolio with new designs. One-time payment.";
+
+/**
+ * Bumped whenever checkout parameters materially change. It keeps Stripe
+ * idempotency keys stable for retries of the same offer without reusing a key
+ * from an older price/configuration.
+ */
+export const PREMIUM_CHECKOUT_VERSION = "usd-900-v1";
 
 /**
  * Stripe API version we pin the client to. Matches the version the installed

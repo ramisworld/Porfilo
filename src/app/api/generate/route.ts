@@ -17,6 +17,7 @@ import {
 } from "~/server/generation-lock";
 import { runGeneration } from "~/server/portfolio/generate";
 import { pruneExpiredClaimablePortfolios } from "~/server/portfolio/claims";
+import { hasPremiumAccess } from "~/server/billing/access";
 
 // Shared ceiling on generations started per hour, independent of any
 // client-derived identity. Backstops a per-IP rate-limit bypass across replicas.
@@ -47,6 +48,7 @@ const bodySchema = z.object({
       "Invalid GitHub username",
     ),
   vibe: z.string().trim().min(10).max(100).optional(),
+  mode: z.enum(["create", "replace"]).default("create"),
 });
 
 function json(data: unknown, status: number, headers?: HeadersInit) {
@@ -75,12 +77,45 @@ export async function POST(req: NextRequest) {
       e instanceof z.ZodError ? e.issues[0]?.message : "Invalid request";
     return json({ error: msg ?? "Invalid request" }, 400);
   }
-  const { username, vibe } = parsed;
+  const { username, vibe, mode } = parsed;
+  const replacing = mode === "replace";
+  let replacePortfolioId: string | undefined;
 
-  // ── Beta cap: one portfolio per *signed-in* account ─────────────────────
+  // ── Ownership + Premium policy ─────────────────────────────────────────
   // Anonymous callers have no account yet — the cap is enforced at claim
-  // time instead (see /claim). IP + username rate limits below guard anon abuse.
-  if (ownerId) {
+  // time instead (see /claim). Replace-in-place regeneration is authenticated,
+  // Premium-only, and keeps the existing public URL/domain intact.
+  if (replacing) {
+    if (!ownerId) {
+      return json(
+        {
+          error: "Sign in to regenerate your portfolio.",
+          code: "unauthorized",
+        },
+        401,
+      );
+    }
+    if (!(await hasPremiumAccess(db, ownerId))) {
+      return json(
+        {
+          error: "Porfilo Premium is required to regenerate your portfolio.",
+          code: "premium_required",
+        },
+        403,
+      );
+    }
+    const existing = await db.portfolio.findUnique({
+      where: { ownerId },
+      select: { id: true },
+    });
+    if (!existing) {
+      return json(
+        { error: "No portfolio was found to regenerate.", code: "not_found" },
+        404,
+      );
+    }
+    replacePortfolioId = existing.id;
+  } else if (ownerId) {
     const existing = await db.portfolio.count({ where: { ownerId } });
     if (existing >= PORTFOLIO_QUOTA_PER_USER) {
       return json(
@@ -166,7 +201,9 @@ export async function POST(req: NextRequest) {
   // The generation lock table FKs to User, so it's only usable for signed-in
   // callers. Anonymous generation is protected by the IP/username limits above.
   if (ownerId) {
-    const lock = await acquireGenerationLock(ownerId, username);
+    const lock = await acquireGenerationLock(ownerId, username, {
+      allowExistingPortfolio: replacing,
+    });
     if (!lock.ok) {
       return json({ error: lock.error, code: lock.code }, lock.status, {
         ...(lock.retryAfter ? { "retry-after": String(lock.retryAfter) } : {}),
@@ -270,6 +307,7 @@ export async function POST(req: NextRequest) {
       for await (const event of runGeneration(username, vibe ?? DEFAULT_VIBE, {
         ownerId,
         claimNonceHash,
+        replacePortfolioId,
       })) {
         if (closed) break;
         // Attach the plaintext claim token to the terminal event only.

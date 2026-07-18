@@ -36,6 +36,7 @@ export function getStripe(): Stripe {
   cached ??= new Stripe(env.STRIPE_SECRET_KEY, {
     apiVersion: STRIPE_API_VERSION,
     typescript: true,
+    maxNetworkRetries: 2,
     appInfo: { name: "Porfilo", url: "https://porfilo.com" },
   });
   return cached;

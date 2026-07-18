@@ -474,6 +474,11 @@
 }
 
 @media (max-width: 900px) {
+  .shell {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
   .layout {
     display: block;
   }
@@ -504,11 +509,11 @@
   .access {
     min-height: calc(100svh - 64px);
     align-items: flex-start;
-    padding: 2rem 1rem;
+    padding: 1.5rem 1rem 2rem;
   }
 
   .accessInner {
-    padding: 1.25rem;
+    padding: 1.15rem;
     box-shadow: 7px 7px 0 #e8380d;
   }
 
@@ -516,15 +521,54 @@
     font-size: clamp(2.35rem, 12vw, 3rem);
   }
 
-  .emailField {
-    display: grid;
+  .submitButton {
+    padding: 0 0.65rem;
+  }
+}
+
+@media (max-width: 520px) and (max-height: 740px) {
+  .access {
+    padding: 1rem 0.9rem 1.5rem;
+  }
+
+  .accessInner {
+    padding: 1rem;
+  }
+
+  .kicker {
+    margin-bottom: 0.75rem;
+  }
+
+  .accessInner h1 {
+    font-size: 2.2rem;
+  }
+
+  .lede {
+    margin-top: 0.7rem;
+    line-height: 1.45;
+  }
+
+  .authForm {
+    margin-top: 1.15rem;
+  }
+
+  .oauthButton {
+    min-height: 2.75rem;
+  }
+
+  .divider {
+    margin: 0.75rem 0;
   }
 
   .emailField input {
-    width: 100%;
+    min-height: 3rem;
   }
 
   .submitButton {
-    width: calc(100% - 0.5rem);
+    min-height: 2.7rem;
+  }
+
+  .terms {
+    margin-top: 1rem;
   }
 }

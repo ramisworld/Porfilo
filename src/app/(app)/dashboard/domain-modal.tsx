@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { api } from "~/trpc/react";
 import type { DomainWithInstructions } from "~/server/api/routers/domain";
@@ -15,6 +15,7 @@ import {
 } from "~/lib/root-domain";
 import { PorfiloButton } from "~/app/_components/porfilo-button";
 import { useToast } from "~/app/_components/toast";
+import { PremiumOffer } from "./premium-offer";
 import styles from "./domain-modal.module.css";
 
 type FlowStep = "choose" | "free" | "custom" | "manage";
@@ -32,9 +33,9 @@ export function DomainModal({
   const mine = api.domain.mine.useQuery();
   const existing = mine.data;
 
-  // The paywall: the whole tile is gated behind the one-time $9 unlock. While
+  // The paywall: the whole tile is gated behind the one-time $9 Premium unlock. While
   // returning from checkout, poll until the webhook flips access to unlocked.
-  const access = api.billing.customDomainAccess.useQuery(undefined, {
+  const access = api.billing.premiumAccess.useQuery(undefined, {
     refetchInterval: (query) =>
       pendingUnlock && !query.state.data?.unlocked ? 2000 : false,
   });
@@ -103,11 +104,11 @@ export function DomainModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose, confirmRemove]);
 
-  const eyebrow = unlocked ? "Portfolio URL" : "Custom domains";
+  const eyebrow = unlocked ? "Portfolio URL" : "Porfilo Premium";
   const title = !unlocked
     ? pendingUnlock
       ? "Unlocking access"
-      : "Unlock custom domains"
+      : "Unlock Porfilo Premium"
     : existing
       ? modalTitle(existing.displayStatus)
       : step === "choose"
@@ -160,7 +161,7 @@ export function DomainModal({
             pendingUnlock ? (
               <UnlockingState />
             ) : (
-              <UpgradePanel onClose={onClose} />
+              <PremiumOffer onClose={onClose} intent="domain" />
             )
           ) : confirmRemove && existing ? (
             <RemoveConfirm
@@ -725,122 +726,6 @@ function LoadingRow() {
   );
 }
 
-/**
- * Premium paywall shown when the user hasn't unlocked custom domains. One-time
- * $9 unlock — deliberately no subscription language. Kicks off a Stripe Checkout
- * Session and redirects; the webhook does the actual unlock on return.
- */
-function UpgradePanel({ onClose }: { onClose: () => void }) {
-  const utils = api.useUtils();
-  const [redirecting, setRedirecting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const checkout = api.billing.createCustomDomainCheckoutSession.useMutation({
-    onSuccess: async (res) => {
-      if ("alreadyUnlocked" in res) {
-        // Already paid (e.g. a second tab) — just refresh access and drop into
-        // the normal flow instead of charging again.
-        await utils.billing.customDomainAccess.invalidate();
-        return;
-      }
-      setRedirecting(true);
-      window.location.assign(res.url);
-    },
-    onError: (e) => setError(e.message),
-  });
-
-  const busy = checkout.isPending || redirecting;
-  const cta = redirecting
-    ? "Redirecting to Stripe…"
-    : checkout.isPending
-      ? "Creating secure checkout…"
-      : "Unlock custom domains — $9";
-
-  return (
-    <div className={styles.upgrade}>
-      <div className={styles.upgradeHero}>
-        <div>
-          <p className={styles.upgradeKicker}>One-time portfolio upgrade</p>
-          <h3 className={styles.upgradeTitle}>Own the URL people remember.</h3>
-          <p className={styles.upgradeLead}>
-            Put your work on your own domain, keep the portfolio you already
-            built, and make every shared link feel unmistakably yours.
-          </p>
-        </div>
-        <div className={styles.price} aria-label="Nine US dollars, paid once">
-          <strong>$9</strong>
-          <span>
-            Paid once
-            <br />
-            No subscription
-          </span>
-        </div>
-      </div>
-
-      <div className={styles.urlProof} aria-label="Example URL upgrade">
-        <div className={styles.urlCell}>
-          <small>Before</small>
-          <code>yourname.porfilo.com</code>
-        </div>
-        <div className={styles.urlArrow} aria-hidden>
-          →
-        </div>
-        <div className={styles.urlCell}>
-          <small>After</small>
-          <code>yourname.com</code>
-        </div>
-      </div>
-
-      <ul className={styles.valueGrid}>
-        <FeatureRow index="01" title="Your own domain">
-          Connect a root domain or subdomain you already own.
-        </FeatureRow>
-        <FeatureRow index="02" title="SSL handled">
-          Secure HTTPS is issued and renewed automatically.
-        </FeatureRow>
-        <FeatureRow index="03" title="Free URL included">
-          Your Porfilo subdomain remains available whenever you need it.
-        </FeatureRow>
-      </ul>
-
-      {error && (
-        <p role="alert" className={styles.error}>
-          {error} Please try again.
-        </p>
-      )}
-
-      <div className={styles.checkout}>
-        <p className={styles.checkoutNote}>
-          Stripe-hosted secure checkout
-          <br />
-          Instant access after payment
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setError(null);
-            checkout.mutate();
-          }}
-          disabled={busy}
-          className={styles.cta}
-        >
-          {busy && <Spinner />}
-          {cta}
-        </button>
-      </div>
-
-      <button
-        type="button"
-        onClick={onClose}
-        disabled={busy}
-        className={styles.later}
-      >
-        Keep my current URL
-      </button>
-    </div>
-  );
-}
-
 /** Post-checkout state: payment captured, waiting for the webhook to unlock. */
 function UnlockingState() {
   return (
@@ -850,27 +735,9 @@ function UnlockingState() {
           <UnlockIcon />
         </span>
         <strong>Payment received.</strong>
-        <p>Unlocking your custom domain access…</p>
+        <p>Unlocking Porfilo Premium…</p>
       </div>
     </div>
-  );
-}
-
-function FeatureRow({
-  index,
-  title,
-  children,
-}: {
-  index: string;
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <li className={styles.feature}>
-      <span className={styles.featureIndex}>{index} / INCLUDED</span>
-      <strong>{title}</strong>
-      <p>{children}</p>
-    </li>
   );
 }
 

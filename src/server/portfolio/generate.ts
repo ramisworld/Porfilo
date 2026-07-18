@@ -64,6 +64,12 @@ export interface RunGenerationOptions {
    * signed-in runs (they own the row immediately).
    */
   claimNonceHash?: string | null;
+  /**
+   * Existing owned portfolio to replace atomically after the new snapshot has
+   * rendered. Its id, preview URL, visibility, and CustomDomain relation are
+   * preserved; only generated content/design fields change.
+   */
+  replacePortfolioId?: string;
 }
 
 /**
@@ -110,12 +116,43 @@ export async function* runGeneration(
     yield { stage: "saving", message: "Publishing preview URL…" };
     const slug = newSlug();
     const publicSubdomainSlug = newPublicSlug();
+    let publishedSlug = publicSubdomainSlug;
     // Race-proof one-portfolio-per-user: re-check inside a serializable
     // transaction so two concurrent requests can't both slip a row past the
     // pre-flight count in the route handler. Anonymous (ownerless)
     // generations skip this — there's no per-owner cap to enforce.
     await db.$transaction(
       async (tx) => {
+        if (opts.replacePortfolioId) {
+          if (!opts.ownerId) throw new Error("REPLACEMENT_REQUIRES_OWNER");
+
+          const existing = await tx.portfolio.findFirst({
+            where: { id: opts.replacePortfolioId, ownerId: opts.ownerId },
+            select: { publicSubdomainSlug: true },
+          });
+          if (!existing) throw new Error("PORTFOLIO_NOT_FOUND");
+
+          publishedSlug = existing.publicSubdomainSlug;
+          await tx.portfolio.update({
+            where: { id: opts.replacePortfolioId },
+            data: {
+              githubUsername: profile.user.login,
+              vibe,
+              profileData: JSON.parse(
+                JSON.stringify(data),
+              ) as Prisma.InputJsonValue,
+              designSpec: Prisma.JsonNull,
+              code,
+              engineVersion: ENGINE_VERSION,
+              template: choice.worldId,
+              claimNonce: null,
+              ogImage: null,
+              ogImageFingerprint: null,
+            },
+          });
+          return;
+        }
+
         if (opts.ownerId) {
           const owned = await tx.portfolio.count({
             where: { ownerId: opts.ownerId },
@@ -148,13 +185,10 @@ export async function* runGeneration(
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
 
-    logRunTotal(
-      { username: profile.user.login, slug: publicSubdomainSlug },
-      usages,
-    );
+    logRunTotal({ username: profile.user.login, slug: publishedSlug }, usages);
     yield {
       stage: "done",
-      slug: publicSubdomainSlug,
+      slug: publishedSlug,
       ownerless: !opts.ownerId,
     };
   } catch (err) {

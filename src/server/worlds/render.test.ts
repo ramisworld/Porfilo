@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { WORLD_CATALOG } from "./catalog";
-import { renderWorld } from "./render";
+import { normalizeWorldId, WORLD_CATALOG } from "./catalog";
+import { renderStoredWorld, renderWorld } from "./render";
 import { WORLD_TEST_PROFILE } from "./test-profile";
 
 describe("approved world rendering", () => {
@@ -11,6 +11,14 @@ describe("approved world rendering", () => {
   for (const world of WORLD_CATALOG) {
     it(`fills ${world.name} from one bounded profile`, () => {
       const code = renderWorld(world.id, WORLD_TEST_PROFILE, "alexrivera");
+      if (world.id === "terminal-nexus") {
+        expect(code).toContain('"experience":"terminalNexus"');
+        expect(code).toContain('"scene":"ghostObject"');
+        expect(code).toContain("Long Form Classification Model");
+        expect(code).toContain("/engine/v3.js");
+        expect(code).not.toContain("ramisworld");
+        return;
+      }
       expect(code.match(/const DATA =/g)).toHaveLength(1);
       expect(code).toContain('"handle": "alexrivera"');
       expect(code).toContain("Long Form Classification Model");
@@ -27,5 +35,17 @@ describe("approved world rendering", () => {
       "alexrivera",
     );
     expect(code).not.toContain('id="porfilo-experience"');
+  });
+
+  it("normalizes legacy Terminal Nexus identifiers onto the canonical world", () => {
+    expect(normalizeWorldId("terminalNexus")).toBe("terminal-nexus");
+    const code = renderStoredWorld({
+      template: "terminalNexus",
+      profileData: WORLD_TEST_PROFILE,
+      githubUsername: "alexrivera",
+    });
+    expect(code).toContain('"experience":"terminalNexus"');
+    expect(code).toContain('"scene":"ghostObject"');
+    expect(code).toContain("/engine/v3.js");
   });
 });

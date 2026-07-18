@@ -1,6 +1,6 @@
 # E2E tests (Playwright)
 
-Covers the premium **$9 custom-domain unlock** flow end-to-end.
+Covers the **$9 Porfilo Premium** lifetime unlock flow end-to-end.
 
 ## Run
 
@@ -27,11 +27,11 @@ deletes the account and all cascaded test data after the run.
 
 ## What the spec asserts
 
-`custom-domain-unlock.spec.ts` — auth is real; the tRPC billing calls are stubbed
-so the flow is deterministic (no live Stripe / webhook):
+`custom-domain-unlock.spec.ts` — auth is real; Stripe itself is bypassed by
+writing the same paid entitlement a verified webhook would create:
 
-1. A locked user opens the tile and sees the premium modal: the one-time **$9**
-   price, the **"Unlock custom domains"** CTA, the "Connect your own domain…"
-   copy, and — critically — **no "USD"** anywhere.
-2. Clicking **Unlock** simulates payment + fulfilment (the access stub flips to
-   unlocked) and the modal transitions into the normal domain chooser.
+1. A locked user clicks **Regenerate portfolio** and sees Porfilo Premium, the
+   one-time **$9** price, and both regeneration and custom-domain benefits.
+2. The paid entitlement avoids Stripe and opens the regeneration control.
+3. Closing regeneration and opening **Add custom domain** reaches the normal
+   domain chooser with no second payment.

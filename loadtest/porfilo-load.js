@@ -9,7 +9,7 @@ import { Rate, Trend } from "k6/metrics";
  * Goal: find real breaking points around the $9 unlock, not vanity numbers.
  * Scenarios (run together):
  *   1. dashboard_reads   — the tRPC batch the dashboard fires (domain.mine +
- *                          billing.customDomainAccess), ramped 0→1000 VUs.
+ *                          billing.premiumAccess), ramped 0→1000 VUs.
  *   2. checkout_clicks   — concurrent "+ Add custom domain" → createCheckoutSession.
  *   3. webhook_bursts    — signed checkout.session.completed deliveries, incl.
  *                          duplicates, to prove idempotency holds under retries.
@@ -87,14 +87,14 @@ function authHeaders() {
 /** Dashboard read: the exact batched query the dashboard client fires. */
 export function dashboardRead() {
   const input = encodeURIComponent(JSON.stringify({ 0: { json: null }, 1: { json: null } }));
-  const url = `${BASE}/api/trpc/domain.mine,billing.customDomainAccess?batch=1&input=${input}`;
+  const url = `${BASE}/api/trpc/domain.mine,billing.premiumAccess?batch=1&input=${input}`;
   const res = http.get(url, { headers: authHeaders(), tags: { name: "dashboard_read" } });
   check(res, { "dashboard 2xx/401": (r) => r.status === 200 || r.status === 401 });
 }
 
 /** "+ Add custom domain" click → create a Checkout Session. */
 export function checkoutClick() {
-  const url = `${BASE}/api/trpc/billing.createCustomDomainCheckoutSession?batch=1`;
+  const url = `${BASE}/api/trpc/billing.createPremiumCheckoutSession?batch=1`;
   const body = JSON.stringify({ 0: { json: null } });
   const res = http.post(url, body, {
     headers: authHeaders(),

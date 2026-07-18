@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import type { Prisma } from "../../../../generated/prisma";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { profileDataSchema, type ProfileData } from "~/server/profile/model";
-import { isWorldId } from "~/server/worlds/catalog";
+import { normalizeWorldId } from "~/server/worlds/catalog";
 import { renderWorld } from "~/server/worlds/render";
 
 /**
@@ -76,8 +76,9 @@ export const portfolioRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "No portfolio." });
       }
       const payload: ProfileData = input.profileData;
-      const code = isWorldId(existing.template)
-        ? renderWorld(existing.template, payload, existing.githubUsername)
+      const worldId = normalizeWorldId(existing.template);
+      const code = worldId
+        ? renderWorld(worldId, payload, existing.githubUsername)
         : undefined;
       await ctx.db.portfolio.update({
         where: { id: existing.id },
@@ -86,6 +87,8 @@ export const portfolioRouter = createTRPCRouter({
             JSON.stringify(payload),
           ) as Prisma.InputJsonValue,
           ...(code ? { code } : {}),
+          ogImage: null,
+          ogImageFingerprint: null,
         },
       });
       return { ok: true, profileData: payload };

@@ -29,12 +29,12 @@ async function pageWithErrors(viewport) {
   return { context, page, errors };
 }
 
-async function save(page, name) {
-  const output = join(root, "landing-prompts", `${name}.png`);
-  await page.screenshot({ path: output, fullPage: false });
+async function save(page, name, { screenshot = true } = {}) {
+  const output = screenshot ? join(root, "landing-prompts", `${name}.png`) : null;
+  if (output) await page.screenshot({ path: output, fullPage: false });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   assert(overflow <= 0, `${name}: horizontal overflow ${overflow}px`);
-  console.log(`${name}: overflow=0 -> ${output}`);
+  console.log(`${name}: overflow=0${output ? ` -> ${output}` : ""}`);
 }
 
 async function installGenerationMock(page) {
@@ -67,7 +67,7 @@ async function installGenerationMock(page) {
   });
 }
 
-async function captureLandingStates(name, viewport) {
+async function captureLandingStates(name, viewport, { screenshots = true } = {}) {
   const { context, page, errors } = await pageWithErrors(viewport);
   await installGenerationMock(page);
   await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
@@ -96,8 +96,13 @@ async function captureLandingStates(name, viewport) {
     );
     return button instanceof HTMLButtonElement && !button.disabled;
   });
-  await page.waitForTimeout(220);
   const buildButton = page.getByRole("button", { name: /build my portfolio/i });
+  await page.waitForFunction(() => {
+    const button = [...document.querySelectorAll("button")].find((candidate) =>
+      /build my portfolio/i.test(candidate.textContent ?? ""),
+    );
+    return button instanceof HTMLButtonElement && getComputedStyle(button).opacity === "1";
+  });
   const buildButtonVisual = await buildButton.evaluate((button) => ({
     background: getComputedStyle(button).backgroundColor,
     color: getComputedStyle(button).color,
@@ -109,13 +114,42 @@ async function captureLandingStates(name, viewport) {
       buildButtonVisual.opacity === "1",
     `${name} landing states: enabled build button lacks contrast (${JSON.stringify(buildButtonVisual)})`,
   );
-  await save(page, `proof-vibe-${name}`);
+  await save(page, `proof-vibe-${name}`, { screenshot: screenshots });
   await buildButton.click();
   await page.locator("[data-proof-build-screen]").waitFor();
   await page.waitForTimeout(1100);
-  await save(page, `proof-build-${name}`);
+  const buildBounds = await page.locator("[data-proof-build-screen]").evaluate((panel) => {
+    const rect = panel.getBoundingClientRect();
+    return { top: rect.top, bottom: rect.bottom, viewportHeight: innerHeight };
+  });
+  assert(
+    buildBounds.top >= 0 && buildBounds.bottom <= buildBounds.viewportHeight,
+    `${name} landing states: build panel is clipped vertically`,
+  );
+  await save(page, `proof-build-${name}`, { screenshot: screenshots });
   assert(errors.length === 0, `${name} landing states: ${errors.join("\n")}`);
   await context.close();
+}
+
+async function verifyCompactAuth(path, targetText, name, viewport) {
+  const { context, page, errors } = await pageWithErrors(viewport);
+  await page.goto(`${baseUrl}${path}`, { waitUntil: "networkidle" });
+  const target = page.getByText(targetText, { exact: false });
+  await target.scrollIntoViewIfNeeded();
+  assert(await target.isVisible(), `${name}: final auth content is not reachable`);
+  const bounds = await target.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      bottom: rect.bottom,
+      horizontalOverflow: document.documentElement.scrollWidth - innerWidth,
+      viewportHeight: innerHeight,
+    };
+  });
+  assert(bounds.bottom <= bounds.viewportHeight, `${name}: final auth content remains clipped after scroll`);
+  assert(bounds.horizontalOverflow <= 0, `${name}: horizontal overflow ${bounds.horizontalOverflow}px`);
+  assert(errors.length === 0, `${name}: ${errors.join("\n")}`);
+  await context.close();
+  console.log(`${name}: content reachable, overflow=0`);
 }
 
 async function capturePublicPage(path, name, viewport) {
@@ -169,12 +203,29 @@ async function captureDashboard(name, viewport) {
 try {
   await captureLandingStates("desktop", { width: 1440, height: 900 });
   await captureLandingStates("mobile", { width: 390, height: 844 });
+  await captureLandingStates(
+    "compact-phone",
+    { width: 375, height: 667 },
+    { screenshots: false },
+  );
   await capturePublicPage("/sign-in", "proof-auth-desktop", { width: 1440, height: 900 });
   await capturePublicPage("/sign-in", "proof-auth-mobile", { width: 390, height: 844 });
   await capturePublicPage(
     "/check-email?email=hello%40example.com",
     "proof-email-desktop",
     { width: 1440, height: 900 },
+  );
+  await verifyCompactAuth(
+    "/sign-in",
+    "Sessions last 30 days",
+    "compact-phone auth",
+    { width: 375, height: 667 },
+  );
+  await verifyCompactAuth(
+    "/check-email?email=hello%40example.com",
+    "Use a different email",
+    "compact-phone check-email",
+    { width: 375, height: 667 },
   );
   await captureDashboard("proof-dashboard-desktop", { width: 1440, height: 900 });
   await captureDashboard("proof-dashboard-mobile", { width: 390, height: 844 });

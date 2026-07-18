@@ -1,7 +1,7 @@
 import type Stripe from "stripe";
 import { env } from "~/env";
 import { getStripe, isStripeConfigured } from "~/server/billing/stripe";
-import { fulfillCheckout } from "~/server/billing/fulfillment";
+import { failCheckout, fulfillCheckout } from "~/server/billing/fulfillment";
 
 // Stripe SDK + Prisma are Node-only; the webhook must read the raw body, so no
 // caching and always dynamic.
@@ -52,6 +52,8 @@ export async function POST(req: Request): Promise<Response> {
     ) {
       const session = event.data.object;
       await fulfillCheckout(session.id);
+    } else if (event.type === "checkout.session.async_payment_failed") {
+      await failCheckout(event.data.object.id);
     }
     // All other event types are acknowledged without action.
   } catch (err) {

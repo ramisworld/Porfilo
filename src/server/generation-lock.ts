@@ -36,6 +36,7 @@ const isFkViolation = (e: unknown) => hasPrismaErrorCode(e, "P2003");
 export async function acquireGenerationLock(
   ownerId: string,
   githubUsername: string,
+  options: { allowExistingPortfolio?: boolean } = {},
 ): Promise<GenerationLockResult> {
   const now = new Date();
   const expiresAt = new Date(now.getTime() + GENERATION_LOCK_TTL_MS);
@@ -47,9 +48,11 @@ export async function acquireGenerationLock(
           where: { expiresAt: { lt: now } },
         });
 
-        const existing = await tx.portfolio.count({ where: { ownerId } });
-        if (existing >= 1) {
-          throw new Error(QUOTA_REACHED);
+        if (!options.allowExistingPortfolio) {
+          const existing = await tx.portfolio.count({ where: { ownerId } });
+          if (existing >= 1) {
+            throw new Error(QUOTA_REACHED);
+          }
         }
 
         await tx.generationLock.create({

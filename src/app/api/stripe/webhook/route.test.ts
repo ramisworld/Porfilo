@@ -11,9 +11,13 @@ vi.mock("~/env", () => ({
   },
 }));
 
-const h = vi.hoisted(() => ({ fulfillCheckout: vi.fn() }));
+const h = vi.hoisted(() => ({
+  fulfillCheckout: vi.fn(),
+  failCheckout: vi.fn(),
+}));
 vi.mock("~/server/billing/fulfillment", () => ({
   fulfillCheckout: h.fulfillCheckout,
+  failCheckout: h.failCheckout,
 }));
 
 // Real Stripe client (dummy key — no network), so signature verification runs
@@ -76,6 +80,18 @@ describe("POST /api/stripe/webhook", () => {
 
     expect(res.status).toBe(200);
     expect(h.fulfillCheckout).toHaveBeenCalledWith("cs_async");
+  });
+
+  it("records checkout.session.async_payment_failed", async () => {
+    const payload = eventPayload(
+      "checkout.session.async_payment_failed",
+      "cs_failed",
+    );
+    const res = await POST(request(payload, sign(payload)));
+
+    expect(res.status).toBe(200);
+    expect(h.failCheckout).toHaveBeenCalledWith("cs_failed");
+    expect(h.fulfillCheckout).not.toHaveBeenCalled();
   });
 
   it("rejects a tampered payload with 400 and does not fulfil", async () => {

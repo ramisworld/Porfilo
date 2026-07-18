@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 // KEEP IN SYNC with src/engine/version.ts (ENGINE_VERSION).
-const ENGINE_VERSION = "v2";
+const ENGINE_VERSION = "v3";
 
 const root = process.cwd();
 const runtimeDir = join(root, "src/engine/runtime");

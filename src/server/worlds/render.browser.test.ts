@@ -28,13 +28,19 @@ describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
         if (message.type() === "error") errors.push(message.text());
       });
 
-      await page.setContent(
-        renderWorld(world.id, WORLD_TEST_PROFILE, "alexrivera"),
-        {
-          waitUntil: "domcontentloaded",
-        },
-      );
-      await page.waitForTimeout(180);
+      let html = renderWorld(world.id, WORLD_TEST_PROFILE, "alexrivera");
+      if (world.id === "terminal-nexus") {
+        html = html.replace(
+          "<head>",
+          '<head><base href="http://localhost:3000/">',
+        );
+      }
+      await page.setContent(html, { waitUntil: "domcontentloaded" });
+      if (world.id === "terminal-nexus") {
+        await page.waitForSelector(".xp-terminalNexus", { timeout: 5_000 });
+      } else {
+        await page.waitForTimeout(180);
+      }
 
       for (const width of [1440, 390]) {
         await page.setViewportSize({

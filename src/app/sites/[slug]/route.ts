@@ -8,6 +8,7 @@ import {
   buildPortfolioHtml,
   findPortfolioBySlug,
 } from "~/server/portfolio/render-iframe";
+import { portfolioHeroImageVersion } from "~/server/portfolio/hero-image-version";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,7 @@ export async function GET(
       profileData: portfolio.profileData,
       githubUsername: portfolio.githubUsername,
       canonicalUrl,
-      imageUrl: `${canonicalUrl}/sites/${encodeURIComponent(slug)}/opengraph-image`,
+      imageUrl: `${canonicalUrl}/sites/${encodeURIComponent(slug)}/opengraph-image?v=${portfolioHeroImageVersion(portfolio.updatedAt)}`,
       isPublic: portfolio.isPublic,
     }),
   );

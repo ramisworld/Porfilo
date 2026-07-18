@@ -1,8 +1,11 @@
 import "server-only";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { renderPortfolioPage } from "~/engine/render";
+import { TERMINAL_NEXUS_SPEC } from "~/engine/presets/terminal-nexus";
+import { ENGINE_VERSION } from "~/engine/version";
 import { profileDataSchema, type ProfileData } from "~/server/profile/model";
-import { getWorld, isWorldId, type WorldId } from "./catalog";
+import { getWorld, normalizeWorldId, type WorldId } from "./catalog";
 import { toWorldData, type WorldData } from "./data";
 
 const templateCache = new Map<WorldId, string>();
@@ -111,6 +114,9 @@ export function renderWorld(
   githubUsername: string,
 ): string {
   const profile = profileDataSchema.parse(profileInput);
+  if (worldId === "terminal-nexus") {
+    return renderPortfolioPage(TERMINAL_NEXUS_SPEC, profile, ENGINE_VERSION);
+  }
   const data = toWorldData(profile, githubUsername);
   let code = injectData(readWorldTemplate(worldId), data);
   const extension = experienceExtension(worldId, data);
@@ -128,8 +134,9 @@ export function renderStoredWorld(input: {
   profileData: unknown;
   githubUsername: string;
 }): string | null {
-  if (!isWorldId(input.template)) return null;
+  const worldId = normalizeWorldId(input.template);
+  if (!worldId) return null;
   const profile = profileDataSchema.safeParse(input.profileData);
   if (!profile.success) return null;
-  return renderWorld(input.template, profile.data, input.githubUsername);
+  return renderWorld(worldId, profile.data, input.githubUsername);
 }

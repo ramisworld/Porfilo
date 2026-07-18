@@ -28,6 +28,34 @@ export function DomainTile() {
   });
   const [open, setOpen] = useState(false);
   const [pendingUnlock, setPendingUnlock] = useState(false);
+  const confirmCheckout = api.billing.confirmPremiumCheckout.useMutation({
+    onSuccess: async ({ unlocked }) => {
+      await utils.billing.premiumAccess.invalidate();
+      const intent = window.sessionStorage.getItem("porfilo:premium-intent");
+      if (unlocked && intent === "regenerate") {
+        window.sessionStorage.removeItem("porfilo:premium-intent");
+        setPendingUnlock(false);
+        setOpen(false);
+        window.setTimeout(
+          () =>
+            window.dispatchEvent(new CustomEvent("porfilo:premium-unlocked")),
+          0,
+        );
+        toast("Porfilo Premium unlocked.");
+        return;
+      }
+      if (!unlocked) {
+        setPendingUnlock(false);
+        toast("We couldn't verify that payment. No access was granted.");
+      }
+    },
+    onError: () => {
+      setPendingUnlock(false);
+      toast(
+        "Payment verification is delayed. Your card won't be charged twice.",
+      );
+    },
+  });
 
   // Handle the return from Stripe Checkout. On success we reopen the modal in
   // its "unlocking" state and poll access until the webhook lands; on cancel we
@@ -36,6 +64,7 @@ export function DomainTile() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const checkout = params.get("checkout");
+    const sessionId = params.get("session_id");
     if (!checkout) return;
 
     const url = new URL(window.location.href);
@@ -44,13 +73,19 @@ export function DomainTile() {
     window.history.replaceState(null, "", url.toString());
 
     if (checkout === "success") {
+      if (!sessionId) {
+        toast("Payment could not be verified.");
+        return;
+      }
+      const intent = window.sessionStorage.getItem("porfilo:premium-intent");
       setPendingUnlock(true);
-      setOpen(true);
-      void utils.billing.customDomainAccess.invalidate();
+      setOpen(intent !== "regenerate");
+      confirmCheckout.mutate({ sessionId });
     } else if (checkout === "cancelled") {
+      window.sessionStorage.removeItem("porfilo:premium-intent");
       toast("Checkout cancelled — no charge.");
     }
-    // utils + toast are stable references; run once on mount.
+    // Mutation + toast references are stable; process this URL only on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -1,27 +1,28 @@
 import "server-only";
 import type { db as DbType } from "~/server/db";
-import { CUSTOM_DOMAIN_FEATURE_KEY } from "./constants";
+import { PREMIUM_FEATURE_KEY } from "./constants";
 
 type Db = typeof DbType;
 
 /**
- * Whether the user may use custom domains.
+ * Whether the user owns the lifetime Premium entitlement.
  *
  * The single source of truth for the paywall — reused by the dashboard access
  * query, the success-page polling, AND the server-side gate on the domain
  * mutations. Access is granted only when a verified Stripe webhook has flipped
  * the row to "paid"; a merely `pending` row (checkout started, not completed)
- * returns false. Accounts with a custom domain created before billing launched
- * are grandfathered from the existing domain row.
+ * returns false. Accounts with a custom domain created before Premium launched
+ * are grandfathered from the existing domain row. Premium gates both custom
+ * domains and replace-in-place portfolio regeneration.
  */
-export async function hasCustomDomainAccess(
+export async function hasPremiumAccess(
   db: Db,
   userId: string,
 ): Promise<boolean> {
   const [row, connectedDomain] = await Promise.all([
     db.featureAccess.findUnique({
       where: {
-        userId_featureKey: { userId, featureKey: CUSTOM_DOMAIN_FEATURE_KEY },
+        userId_featureKey: { userId, featureKey: PREMIUM_FEATURE_KEY },
       },
       select: { status: true },
     }),

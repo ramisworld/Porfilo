@@ -435,6 +435,29 @@
     return arr(data.credentials).map(tnCredCard).join("");
   }
 
+  function tnExperienceCard(item, index) {
+    var highlights = arr(item.highlights)
+      .slice(0, 3)
+      .map(function (entry) {
+        return "<li>" + esc(entry) + "</li>";
+      })
+      .join("");
+    var company = item.url
+      ? '<a href="' + esc(item.url) + '" target="_blank" rel="noreferrer">' + esc(item.company) + " &#8599;</a>"
+      : "<span>" + esc(item.company) + "</span>";
+    return (
+      '<article class="xp-tn-exp reveal" style="--i:' + index + '">' +
+      '<div class="xp-tn-exp-index">' + String(index + 1).padStart(2, "0") + "</div>" +
+      '<div class="xp-tn-exp-main"><div class="xp-tn-exp-meta"><span>' +
+      esc(item.startDate) + " — " + esc(item.endDate || "Present") +
+      "</span>" + (item.location ? "<span>" + esc(item.location) + "</span>" : "") +
+      "</div><h3>" + esc(item.role) + '</h3><div class="xp-tn-exp-company">' + company + "</div>" +
+      (item.summary ? "<p>" + esc(item.summary) + "</p>" : "") +
+      (highlights ? "<ul>" + highlights + "</ul>" : "") +
+      "</div></article>"
+    );
+  }
+
   function terminalNexus(data) {
     var l = links(data);
     var loc = identity(data).location || "";
@@ -444,20 +467,27 @@
     var gh = ghHandle(data);
     var stackStr = tnStack(data);
 
+    var experienceItems = arr(data.experience).slice(0, 8);
+    var hasExperience = experienceItems.length > 0;
     var hasCreds = tnHasCredentials(data);
     var items = [
       { id: "hero", k: "00", label: "ROOT" },
       { id: "status", k: "01", label: "STATUS" },
       { id: "systems", k: "02", label: "SYSTEMS" },
     ];
-    if (hasCreds) {
-      items.push({ id: "creds", k: "03", label: "CREDENTIALS" });
-      items.push({ id: "ping", k: "04", label: "SIGNAL" });
-    } else {
-      // No credentials? Re-number the SIGNAL section so the rail stays
-      // continuous (00 ROOT, 01 STATUS, 02 SYSTEMS, 03 SIGNAL).
-      items.push({ id: "ping", k: "03", label: "SIGNAL" });
+    var nextSection = 3;
+    var experienceNumber = null;
+    var credentialsNumber = null;
+    if (hasExperience) {
+      experienceNumber = String(nextSection++).padStart(2, "0");
+      items.push({ id: "porfilo-experience", k: experienceNumber, label: "EXPERIENCE" });
     }
+    if (hasCreds) {
+      credentialsNumber = String(nextSection++).padStart(2, "0");
+      items.push({ id: "creds", k: credentialsNumber, label: "CREDENTIALS" });
+    }
+    var signalNumber = String(nextSection).padStart(2, "0");
+    items.push({ id: "ping", k: signalNumber, label: "SIGNAL" });
     var rail =
       '<nav class="xp-nav xp-tn-rail" aria-label="Sections">' +
       items
@@ -615,9 +645,21 @@
       '<div class="xp-tn-grid">' +
       repos +
       "</div></section>" +
+      (hasExperience
+        ? '<section id="porfilo-experience" class="xp-tn-section xp-tn-experience">' +
+          tnHead(experienceNumber, "EXPERIENCE", "TIMELINE") +
+          '<div class="xp-tn-prompt xp-tn-lsprompt">root@' +
+          esc(user) +
+          ":~# cat /var/log/career.log · " +
+          experienceItems.length +
+          " entries</div>" +
+          '<div class="xp-tn-exp-list">' +
+          experienceItems.map(tnExperienceCard).join("") +
+          "</div></section>"
+        : "") +
       (hasCreds
         ? '<section id="creds" class="xp-tn-section xp-tn-creds-section">' +
-          tnHead("03", "CREDENTIALS", "VERIFIED") +
+          tnHead(credentialsNumber, "CREDENTIALS", "VERIFIED") +
           '<div class="xp-tn-prompt xp-tn-lsprompt">root@' +
           esc(user) +
           ":~# cat /etc/credentials.d/* \u00b7 " +
@@ -628,7 +670,7 @@
           "</div></section>"
         : "") +
       '<section id="ping" class="xp-tn-section xp-tn-ping">' +
-      tnHead(hasCreds ? "04" : "03", "SIGNAL", "HANDSHAKE") +
+      tnHead(signalNumber, "SIGNAL", "HANDSHAKE") +
       '<div class="xp-tn-console xp-tn-handshake-console">' +
       '<div class="xp-tn-panelbar"><span>root@' +
       esc(user) +

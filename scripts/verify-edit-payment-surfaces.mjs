@@ -44,7 +44,7 @@ const entitlement = await db.featureAccess.findUnique({
   where: {
     userId_featureKey: {
       userId: portfolio.ownerId,
-      featureKey: "custom_domain",
+      featureKey: "premium",
     },
   },
 });
@@ -122,7 +122,7 @@ async function capturePayment(name, viewport) {
       .waitFor();
   } else {
     await page
-      .getByText("Own the URL people remember.", { exact: true })
+      .getByText("Keep evolving the work.", { exact: true })
       .waitFor();
   }
   await save(page, name);

@@ -1,6 +1,7 @@
 /* @jsxImportSource react */
 import { ImageResponse } from "next/og";
-import { OG_SIZE } from "~/server/portfolio/og-image";
+
+const OG_SIZE = { width: 1200, height: 630 } as const;
 
 /** Satori-safe link preview for the Porfilo landing page. */
 export function renderPorfiloLandingOgImage() {

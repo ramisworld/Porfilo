@@ -4,8 +4,8 @@
 
 | Scenario          | What it simulates                                              |
 | ----------------- | ------------------------------------------------------------- |
-| `dashboard_reads` | The batched `domain.mine` + `billing.customDomainAccess` query, ramped 0→1000 VUs |
-| `checkout_clicks` | Concurrent "+ Add custom domain" → `createCustomDomainCheckoutSession` |
+| `dashboard_reads` | The batched `domain.mine` + `billing.premiumAccess` query, ramped 0→1000 VUs |
+| `checkout_clicks` | Concurrent Premium CTA → `createPremiumCheckoutSession` |
 | `webhook_bursts`  | Signed `checkout.session.completed` deliveries incl. duplicates (idempotency under retries) |
 
 ## Run

@@ -99,6 +99,32 @@ describe("acquireGenerationLock", () => {
     expect(result.status).toBe(409);
   });
 
+  it("allows an existing portfolio only for a replace-in-place run", async () => {
+    let countCalled = false;
+    txFn = async (cb) => {
+      const tx: TxStub = {
+        generationLock: {
+          deleteMany: vi.fn(async () => ({ count: 0 })),
+          create: vi.fn(async () => ({})),
+        },
+        portfolio: {
+          count: vi.fn(async () => {
+            countCalled = true;
+            return 1;
+          }),
+        },
+      };
+      await cb(tx);
+    };
+
+    const result = await acquireGenerationLock("user-1", "max", {
+      allowExistingPortfolio: true,
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(countCalled).toBe(false);
+  });
+
   it("maps Prisma P2002 (unique violation) to generation_in_progress 409", async () => {
     txFn = async (cb) => {
       const tx: TxStub = {

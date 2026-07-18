@@ -1,7 +1,11 @@
 import "server-only";
 import { db } from "~/server/db";
 import { getStripe } from "./stripe";
-import { CUSTOM_DOMAIN_FEATURE_KEY } from "./constants";
+import {
+  PREMIUM_AMOUNT,
+  PREMIUM_CURRENCY,
+  PREMIUM_FEATURE_KEY,
+} from "./constants";
 
 export type FulfillResult =
   | { status: "fulfilled" } // newly flipped to paid
@@ -24,6 +28,7 @@ export type FulfillResult =
  */
 export async function fulfillCheckout(
   sessionId: string,
+  expectedUserId?: string,
 ): Promise<FulfillResult> {
   const stripe = getStripe();
   const session = await stripe.checkout.sessions.retrieve(sessionId, {
@@ -37,8 +42,29 @@ export async function fulfillCheckout(
   }
 
   const metaUserId = session.metadata?.userId ?? null;
-  const metaFeatureKey =
-    session.metadata?.featureKey ?? CUSTOM_DOMAIN_FEATURE_KEY;
+  const metaFeatureKey = session.metadata?.featureKey ?? null;
+
+  if (expectedUserId && metaUserId !== expectedUserId) {
+    return { status: "ignored", reason: "requesting user mismatch" };
+  }
+
+  // Never grant access for a Session that happens to carry plausible metadata
+  // but charged a different offer. This also safely rejects any uncompleted
+  // legacy Checkout Sessions after the production offer changes.
+  if (
+    session.mode !== "payment" ||
+    session.amount_total !== PREMIUM_AMOUNT ||
+    session.currency !== PREMIUM_CURRENCY
+  ) {
+    return { status: "ignored", reason: "purchase details mismatch" };
+  }
+  if (
+    !metaUserId ||
+    metaFeatureKey !== PREMIUM_FEATURE_KEY ||
+    session.client_reference_id !== metaUserId
+  ) {
+    return { status: "ignored", reason: "checkout identity mismatch" };
+  }
 
   // Resolve the record created at checkout time. Primary: the session id we
   // stored. Fallback: the (userId, featureKey) unique, in case a later retry
@@ -84,4 +110,12 @@ export async function fulfillCheckout(
   return updated.count > 0
     ? { status: "fulfilled" }
     : { status: "already_fulfilled" };
+}
+
+/** Record a delayed-payment failure without ever revoking paid access. */
+export async function failCheckout(sessionId: string): Promise<void> {
+  await db.featureAccess.updateMany({
+    where: { stripeCheckoutSessionId: sessionId, status: { not: "paid" } },
+    data: { status: "failed" },
+  });
 }

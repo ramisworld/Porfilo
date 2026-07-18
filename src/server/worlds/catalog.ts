@@ -758,3 +758,10 @@ export function getWorld(id: WorldId): WorldDefinition {
 export function isWorldId(value: string): value is WorldId {
   return WORLD_BY_ID.has(value as WorldId);
 }
+
+/** Normalize identifiers written before the approved world catalog existed. */
+export function normalizeWorldId(value: string): WorldId | null {
+  if (isWorldId(value)) return value;
+  if (value === "terminalNexus") return "terminal-nexus";
+  return null;
+}

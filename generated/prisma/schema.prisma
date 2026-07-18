@@ -93,6 +93,9 @@ model Portfolio {
   engineVersion       String?
   template            String        @default("terminalNexus")
   code                String?       @db.Text
+  // Cached social preview captured from this portfolio's actual rendered hero.
+  ogImage             Bytes?
+  ogImageFingerprint  String?
   isPublic            Boolean       @default(true)
   views               Int           @default(0)
   // SHA-256 of the one-time claim token handed to the anonymous browser that
@@ -164,11 +167,10 @@ model RateLimitBucket {
 
 // A one-time, account-level entitlement unlocking a paid feature.
 //
-// Today the only feature is "custom_domain" — a single $9 one-time unlock that
-// gates the "Add custom domain" dashboard tile (both the free subdomain and the
-// bring-your-own-domain paths). Access is permanent: removing a domain later
-// does not revoke it. Fulfilment happens ONLY from a verified Stripe webhook,
-// never from the client success URL.
+// "premium" is a single $9 lifetime unlock. It gates custom domains and
+// replace-in-place portfolio regeneration. Access is permanent: removing a
+// domain later does not revoke it. Fulfilment happens only after a server-side
+// validation of the Stripe Checkout Session.
 //
 // One row per (userId, featureKey) — the @@unique makes duplicate paid records
 // impossible and makes webhook fulfilment idempotent. The pending row is created
@@ -177,7 +179,7 @@ model FeatureAccess {
   id                      String    @id @default(cuid())
   userId                  String
   user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // Stable feature identifier, e.g. "custom_domain".
+  // Stable feature identifier, currently "premium".
   featureKey              String
   // pending | paid | failed
   status                  String    @default("pending")

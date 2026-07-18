@@ -6237,6 +6237,8 @@ export namespace Prisma {
     engineVersion: string | null
     template: string | null
     code: string | null
+    ogImage: Bytes | null
+    ogImageFingerprint: string | null
     isPublic: boolean | null
     views: number | null
     claimNonce: string | null
@@ -6254,6 +6256,8 @@ export namespace Prisma {
     engineVersion: string | null
     template: string | null
     code: string | null
+    ogImage: Bytes | null
+    ogImageFingerprint: string | null
     isPublic: boolean | null
     views: number | null
     claimNonce: string | null
@@ -6273,6 +6277,8 @@ export namespace Prisma {
     engineVersion: number
     template: number
     code: number
+    ogImage: number
+    ogImageFingerprint: number
     isPublic: number
     views: number
     claimNonce: number
@@ -6300,6 +6306,8 @@ export namespace Prisma {
     engineVersion?: true
     template?: true
     code?: true
+    ogImage?: true
+    ogImageFingerprint?: true
     isPublic?: true
     views?: true
     claimNonce?: true
@@ -6317,6 +6325,8 @@ export namespace Prisma {
     engineVersion?: true
     template?: true
     code?: true
+    ogImage?: true
+    ogImageFingerprint?: true
     isPublic?: true
     views?: true
     claimNonce?: true
@@ -6336,6 +6346,8 @@ export namespace Prisma {
     engineVersion?: true
     template?: true
     code?: true
+    ogImage?: true
+    ogImageFingerprint?: true
     isPublic?: true
     views?: true
     claimNonce?: true
@@ -6442,6 +6454,8 @@ export namespace Prisma {
     engineVersion: string | null
     template: string
     code: string | null
+    ogImage: Bytes | null
+    ogImageFingerprint: string | null
     isPublic: boolean
     views: number
     claimNonce: string | null
@@ -6480,6 +6494,8 @@ export namespace Prisma {
     engineVersion?: boolean
     template?: boolean
     code?: boolean
+    ogImage?: boolean
+    ogImageFingerprint?: boolean
     isPublic?: boolean
     views?: boolean
     claimNonce?: boolean
@@ -6501,6 +6517,8 @@ export namespace Prisma {
     engineVersion?: boolean
     template?: boolean
     code?: boolean
+    ogImage?: boolean
+    ogImageFingerprint?: boolean
     isPublic?: boolean
     views?: boolean
     claimNonce?: boolean
@@ -6521,6 +6539,8 @@ export namespace Prisma {
     engineVersion?: boolean
     template?: boolean
     code?: boolean
+    ogImage?: boolean
+    ogImageFingerprint?: boolean
     isPublic?: boolean
     views?: boolean
     claimNonce?: boolean
@@ -6541,6 +6561,8 @@ export namespace Prisma {
     engineVersion?: boolean
     template?: boolean
     code?: boolean
+    ogImage?: boolean
+    ogImageFingerprint?: boolean
     isPublic?: boolean
     views?: boolean
     claimNonce?: boolean
@@ -6548,7 +6570,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PortfolioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "slug" | "publicSubdomainSlug" | "vibe" | "profileData" | "designSpec" | "engineVersion" | "template" | "code" | "isPublic" | "views" | "claimNonce" | "createdAt" | "updatedAt", ExtArgs["result"]["portfolio"]>
+  export type PortfolioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "slug" | "publicSubdomainSlug" | "vibe" | "profileData" | "designSpec" | "engineVersion" | "template" | "code" | "ogImage" | "ogImageFingerprint" | "isPublic" | "views" | "claimNonce" | "createdAt" | "updatedAt", ExtArgs["result"]["portfolio"]>
   export type PortfolioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | Portfolio$ownerArgs<ExtArgs>
     customDomain?: boolean | Portfolio$customDomainArgs<ExtArgs>
@@ -6578,6 +6600,8 @@ export namespace Prisma {
       engineVersion: string | null
       template: string
       code: string | null
+      ogImage: Prisma.Bytes | null
+      ogImageFingerprint: string | null
       isPublic: boolean
       views: number
       claimNonce: string | null
@@ -7019,6 +7043,8 @@ export namespace Prisma {
     readonly engineVersion: FieldRef<"Portfolio", 'String'>
     readonly template: FieldRef<"Portfolio", 'String'>
     readonly code: FieldRef<"Portfolio", 'String'>
+    readonly ogImage: FieldRef<"Portfolio", 'Bytes'>
+    readonly ogImageFingerprint: FieldRef<"Portfolio", 'String'>
     readonly isPublic: FieldRef<"Portfolio", 'Boolean'>
     readonly views: FieldRef<"Portfolio", 'Int'>
     readonly claimNonce: FieldRef<"Portfolio", 'String'>
@@ -13035,6 +13061,8 @@ export namespace Prisma {
     engineVersion: 'engineVersion',
     template: 'template',
     code: 'code',
+    ogImage: 'ogImage',
+    ogImageFingerprint: 'ogImageFingerprint',
     isPublic: 'isPublic',
     views: 'views',
     claimNonce: 'claimNonce',
@@ -13219,6 +13247,20 @@ export namespace Prisma {
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
+
+
+  /**
+   * Reference to a field of type 'Bytes'
+   */
+  export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
+
+
+
+  /**
+   * Reference to a field of type 'Bytes[]'
+   */
+  export type ListBytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes[]'>
+
 
 
   /**
@@ -13567,6 +13609,8 @@ export namespace Prisma {
     engineVersion?: StringNullableFilter<"Portfolio"> | string | null
     template?: StringFilter<"Portfolio"> | string
     code?: StringNullableFilter<"Portfolio"> | string | null
+    ogImage?: BytesNullableFilter<"Portfolio"> | Bytes | null
+    ogImageFingerprint?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
     views?: IntFilter<"Portfolio"> | number
     claimNonce?: StringNullableFilter<"Portfolio"> | string | null
@@ -13588,6 +13632,8 @@ export namespace Prisma {
     engineVersion?: SortOrderInput | SortOrder
     template?: SortOrder
     code?: SortOrderInput | SortOrder
+    ogImage?: SortOrderInput | SortOrder
+    ogImageFingerprint?: SortOrderInput | SortOrder
     isPublic?: SortOrder
     views?: SortOrder
     claimNonce?: SortOrderInput | SortOrder
@@ -13612,6 +13658,8 @@ export namespace Prisma {
     engineVersion?: StringNullableFilter<"Portfolio"> | string | null
     template?: StringFilter<"Portfolio"> | string
     code?: StringNullableFilter<"Portfolio"> | string | null
+    ogImage?: BytesNullableFilter<"Portfolio"> | Bytes | null
+    ogImageFingerprint?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
     views?: IntFilter<"Portfolio"> | number
     claimNonce?: StringNullableFilter<"Portfolio"> | string | null
@@ -13633,6 +13681,8 @@ export namespace Prisma {
     engineVersion?: SortOrderInput | SortOrder
     template?: SortOrder
     code?: SortOrderInput | SortOrder
+    ogImage?: SortOrderInput | SortOrder
+    ogImageFingerprint?: SortOrderInput | SortOrder
     isPublic?: SortOrder
     views?: SortOrder
     claimNonce?: SortOrderInput | SortOrder
@@ -13660,6 +13710,8 @@ export namespace Prisma {
     engineVersion?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
     template?: StringWithAggregatesFilter<"Portfolio"> | string
     code?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
+    ogImage?: BytesNullableWithAggregatesFilter<"Portfolio"> | Bytes | null
+    ogImageFingerprint?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
     isPublic?: BoolWithAggregatesFilter<"Portfolio"> | boolean
     views?: IntWithAggregatesFilter<"Portfolio"> | number
     claimNonce?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
@@ -14387,6 +14439,8 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    ogImage?: Bytes | null
+    ogImageFingerprint?: string | null
     isPublic?: boolean
     views?: number
     claimNonce?: string | null
@@ -14408,6 +14462,8 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    ogImage?: Bytes | null
+    ogImageFingerprint?: string | null
     isPublic?: boolean
     views?: number
     claimNonce?: string | null
@@ -14427,6 +14483,8 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
     claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
@@ -14448,6 +14506,8 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
     claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
@@ -14468,6 +14528,8 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    ogImage?: Bytes | null
+    ogImageFingerprint?: string | null
     isPublic?: boolean
     views?: number
     claimNonce?: string | null
@@ -14486,6 +14548,8 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
     claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
@@ -14505,6 +14569,8 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
     claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15295,6 +15361,13 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type BytesNullableFilter<$PrismaModel = never> = {
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel> | null
+    in?: Bytes[] | ListBytesFieldRefInput<$PrismaModel> | null
+    notIn?: Bytes[] | ListBytesFieldRefInput<$PrismaModel> | null
+    not?: NestedBytesNullableFilter<$PrismaModel> | Bytes | null
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -15328,6 +15401,8 @@ export namespace Prisma {
     engineVersion?: SortOrder
     template?: SortOrder
     code?: SortOrder
+    ogImage?: SortOrder
+    ogImageFingerprint?: SortOrder
     isPublic?: SortOrder
     views?: SortOrder
     claimNonce?: SortOrder
@@ -15349,6 +15424,8 @@ export namespace Prisma {
     engineVersion?: SortOrder
     template?: SortOrder
     code?: SortOrder
+    ogImage?: SortOrder
+    ogImageFingerprint?: SortOrder
     isPublic?: SortOrder
     views?: SortOrder
     claimNonce?: SortOrder
@@ -15366,6 +15443,8 @@ export namespace Prisma {
     engineVersion?: SortOrder
     template?: SortOrder
     code?: SortOrder
+    ogImage?: SortOrder
+    ogImageFingerprint?: SortOrder
     isPublic?: SortOrder
     views?: SortOrder
     claimNonce?: SortOrder
@@ -15427,6 +15506,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
     _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type BytesNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel> | null
+    in?: Bytes[] | ListBytesFieldRefInput<$PrismaModel> | null
+    notIn?: Bytes[] | ListBytesFieldRefInput<$PrismaModel> | null
+    not?: NestedBytesNullableWithAggregatesFilter<$PrismaModel> | Bytes | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBytesNullableFilter<$PrismaModel>
+    _max?: NestedBytesNullableFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -15912,6 +16001,10 @@ export namespace Prisma {
     connect?: CustomDomainWhereUniqueInput
   }
 
+  export type NullableBytesFieldUpdateOperationsInput = {
+    set?: Bytes | null
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -16138,6 +16231,13 @@ export namespace Prisma {
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
+
+  export type NestedBytesNullableFilter<$PrismaModel = never> = {
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel> | null
+    in?: Bytes[] | ListBytesFieldRefInput<$PrismaModel> | null
+    notIn?: Bytes[] | ListBytesFieldRefInput<$PrismaModel> | null
+    not?: NestedBytesNullableFilter<$PrismaModel> | Bytes | null
+  }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -16183,6 +16283,16 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedBytesNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Bytes | BytesFieldRefInput<$PrismaModel> | null
+    in?: Bytes[] | ListBytesFieldRefInput<$PrismaModel> | null
+    notIn?: Bytes[] | ListBytesFieldRefInput<$PrismaModel> | null
+    not?: NestedBytesNullableWithAggregatesFilter<$PrismaModel> | Bytes | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBytesNullableFilter<$PrismaModel>
+    _max?: NestedBytesNullableFilter<$PrismaModel>
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -16293,6 +16403,8 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    ogImage?: Bytes | null
+    ogImageFingerprint?: string | null
     isPublic?: boolean
     views?: number
     claimNonce?: string | null
@@ -16312,6 +16424,8 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    ogImage?: Bytes | null
+    ogImageFingerprint?: string | null
     isPublic?: boolean
     views?: number
     claimNonce?: string | null
@@ -16481,6 +16595,8 @@ export namespace Prisma {
     engineVersion?: StringNullableFilter<"Portfolio"> | string | null
     template?: StringFilter<"Portfolio"> | string
     code?: StringNullableFilter<"Portfolio"> | string | null
+    ogImage?: BytesNullableFilter<"Portfolio"> | Bytes | null
+    ogImageFingerprint?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
     views?: IntFilter<"Portfolio"> | number
     claimNonce?: StringNullableFilter<"Portfolio"> | string | null
@@ -16877,6 +16993,8 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    ogImage?: Bytes | null
+    ogImageFingerprint?: string | null
     isPublic?: boolean
     views?: number
     claimNonce?: string | null
@@ -16897,6 +17015,8 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    ogImage?: Bytes | null
+    ogImageFingerprint?: string | null
     isPublic?: boolean
     views?: number
     claimNonce?: string | null
@@ -16931,6 +17051,8 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
     claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16951,6 +17073,8 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
     claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17138,6 +17262,8 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    ogImage?: Bytes | null
+    ogImageFingerprint?: string | null
     isPublic?: boolean
     views?: number
     claimNonce?: string | null
@@ -17244,6 +17370,8 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
     claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17263,6 +17391,8 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
     claimNonce?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17282,6 +17412,8 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     views?: IntFieldUpdateOperationsInput | number
     claimNonce?: NullableStringFieldUpdateOperationsInput | string | null

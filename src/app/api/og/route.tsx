@@ -4,7 +4,7 @@ import {
   findPortfolioBySlug,
   findPortfolioForHost,
 } from "~/server/portfolio/render-iframe";
-import { renderPortfolioOgImage } from "~/server/portfolio/og-image";
+import { renderPortfolioHeroImage } from "~/server/portfolio/hero-image";
 
 export const runtime = "nodejs";
 
@@ -58,9 +58,14 @@ export async function GET() {
   }
 
   const portfolio = await portfolioForHost(hostname);
-  return renderPortfolioOgImage(
-    portfolio?.profileData,
-    portfolio?.designSpec,
-    portfolio?.githubUsername ?? hostname,
-  );
+  if (!portfolio) return renderPorfiloLandingOgImage();
+  try {
+    return await renderPortfolioHeroImage(portfolio);
+  } catch (error) {
+    console.error("Failed to capture portfolio hero image", error);
+    return new Response("Portfolio preview is temporarily unavailable.", {
+      status: 503,
+      headers: { "Retry-After": "30" },
+    });
+  }
 }

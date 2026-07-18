@@ -22,7 +22,7 @@ import {
 import { limit } from "~/server/ratelimit";
 import type { DomainDisplayStatus } from "~/server/domains/types";
 import { cnameLabel } from "~/server/domains/cname-label";
-import { hasCustomDomainAccess } from "~/server/billing/access";
+import { hasPremiumAccess } from "~/server/billing/access";
 
 export const domainRouter = createTRPCRouter({
   mine: protectedProcedure.query(async ({ ctx }) => {
@@ -269,15 +269,14 @@ type Ctx = {
 
 /**
  * Server-side paywall: the whole "Add custom domain" tile (free subdomain AND
- * bring-your-own) is gated behind the one-time $9 unlock. Enforced here so the
- * feature can't be used by bypassing the UI. Access is granted only by verified
- * Stripe webhook fulfilment.
+ * bring-your-own) is gated behind the one-time $9 Premium unlock. Enforced here
+ * so the feature can't be used by bypassing the UI.
  */
 async function requireCustomDomainAccess(ctx: Ctx) {
-  if (!(await hasCustomDomainAccess(ctx.db, ctx.user.id))) {
+  if (!(await hasPremiumAccess(ctx.db, ctx.user.id))) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Unlock custom domains to continue.",
+      message: "Porfilo Premium is required to use custom domains.",
     });
   }
 }

@@ -22,10 +22,14 @@ vi.mock("./stripe", () => ({
   }),
 }));
 
-import { fulfillCheckout } from "./fulfillment";
+import { failCheckout, fulfillCheckout } from "./fulfillment";
 
 type SessionShape = {
   id: string;
+  mode: "payment";
+  amount_total: number;
+  currency: string;
+  client_reference_id: string;
   payment_status: "paid" | "unpaid" | "no_payment_required";
   payment_intent: string | { id: string } | null;
   metadata: Record<string, string> | null;
@@ -34,9 +38,13 @@ type SessionShape = {
 function session(overrides: Partial<SessionShape> = {}): SessionShape {
   return {
     id: "cs_test_1",
+    mode: "payment",
+    amount_total: 900,
+    currency: "usd",
+    client_reference_id: "user-1",
     payment_status: "paid",
     payment_intent: "pi_test_1",
-    metadata: { userId: "user-1", featureKey: "custom_domain" },
+    metadata: { userId: "user-1", featureKey: "premium" },
     ...overrides,
   };
 }
@@ -89,9 +97,49 @@ describe("fulfillCheckout", () => {
     expect(h.updateMany).not.toHaveBeenCalled();
   });
 
+  it("refuses to fulfil a legacy or misconfigured amount", async () => {
+    h.retrieve.mockResolvedValue(session({ amount_total: 1500 }));
+
+    const result = await fulfillCheckout("cs_test_1");
+
+    expect(result).toEqual({
+      status: "ignored",
+      reason: "purchase details mismatch",
+    });
+    expect(h.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("requires Checkout identity to match the authenticated user metadata", async () => {
+    h.retrieve.mockResolvedValue(session({ client_reference_id: "other-user" }));
+
+    const result = await fulfillCheckout("cs_test_1");
+
+    expect(result).toEqual({
+      status: "ignored",
+      reason: "checkout identity mismatch",
+    });
+    expect(h.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("does not let one signed-in user confirm another user's Session", async () => {
+    h.retrieve.mockResolvedValue(session());
+
+    const result = await fulfillCheckout("cs_test_1", "different-user");
+
+    expect(result).toEqual({
+      status: "ignored",
+      reason: "requesting user mismatch",
+    });
+    expect(h.findUnique).not.toHaveBeenCalled();
+    expect(h.updateMany).not.toHaveBeenCalled();
+  });
+
   it("refuses to fulfil when metadata userId does not match the record (spoofing)", async () => {
     h.retrieve.mockResolvedValue(
-      session({ metadata: { userId: "attacker", featureKey: "custom_domain" } }),
+      session({
+        client_reference_id: "attacker",
+        metadata: { userId: "attacker", featureKey: "premium" },
+      }),
     );
     h.findUnique.mockResolvedValue(paidRecord); // record.userId = "user-1"
 
@@ -124,7 +172,7 @@ describe("fulfillCheckout", () => {
     expect(h.findUnique).toHaveBeenCalledTimes(2);
     expect(h.findUnique).toHaveBeenNthCalledWith(2, {
       where: {
-        userId_featureKey: { userId: "user-1", featureKey: "custom_domain" },
+        userId_featureKey: { userId: "user-1", featureKey: "premium" },
       },
     });
   });
@@ -149,6 +197,18 @@ describe("fulfillCheckout", () => {
 
     expect(h.retrieve).toHaveBeenCalledWith("cs_test_1", {
       expand: ["line_items"],
+    });
+  });
+
+  it("marks a delayed-payment failure without revoking paid access", async () => {
+    await failCheckout("cs_failed");
+
+    expect(h.updateMany).toHaveBeenCalledWith({
+      where: {
+        stripeCheckoutSessionId: "cs_failed",
+        status: { not: "paid" },
+      },
+      data: { status: "failed" },
     });
   });
 });

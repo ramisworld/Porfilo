@@ -541,6 +541,11 @@
   color: var(--ink);
 }
 
+.operation:disabled {
+  cursor: wait;
+  opacity: 0.48;
+}
+
 .operationPrimary {
   background: var(--acid);
   color: var(--ink);
@@ -651,7 +656,7 @@
     font-size: 19px;
   }
   .operationList {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .operation,
   .domainOperation {
