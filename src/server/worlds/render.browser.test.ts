@@ -1,10 +1,43 @@
 import { chromium, type Browser } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { WORLD_CATALOG } from "./catalog";
 import { renderWorld } from "./render";
 import { WORLD_TEST_PROFILE } from "./test-profile";
 
 const runBrowser = process.env.RUN_BROWSER_WORLD_TESTS === "true";
+
+const EXPECTED_COLLECTION_CLASS: Partial<Record<string, string>> = {
+  "variable-type-foundry": "v-type",
+  "isometric-microcity": "v-city",
+  "modular-synthesizer": "v-synth",
+  "electromechanical-pinball": "v-pinball",
+  "digital-loom": "v-loom",
+  "climate-engine": "v-climate",
+  "zen-systems-garden": "v-zen",
+  darkroom: "v-darkroom",
+  "kinetic-sculpture-garden": "v-sculpture",
+  "seismic-archive": "v-seismic",
+  "living-blueprint": "v-blueprint",
+  "signal-studio": "v-signal",
+  "shadowbox-theatre": "v-shadowbox",
+  "bioluminescent-field-guide": "v-biolume",
+  "grand-complication": "v-timepiece",
+  "neural-aperture": "v-aperture",
+  "neural-chromatic": "v-chromatic",
+  "neural-dither": "v-dither",
+  "neural-gravity": "v-gravity",
+  "neural-magnetic": "v-magnetic",
+  "liquid-chrome-monolith": "v-chrome",
+  "impossible-architecture": "v-architecture",
+  "agent-colony": "v-colony",
+  "paper-cinema": "v-cinema",
+  "aerodynamic-laboratory": "v-aero",
+  "memory-palace": "v-memory",
+  "kinetic-bauhaus-factory": "v-bauhaus",
+  "polar-night-expedition": "v-polar",
+};
 
 describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
   let browser: Browser;
@@ -27,6 +60,25 @@ describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
       page.on("console", (message) => {
         if (message.type() === "error") errors.push(message.text());
       });
+
+      if (world.id === "terminal-nexus") {
+        await page.route("http://localhost:3000/**", (route) => {
+          const pathname = new URL(route.request().url()).pathname;
+          if (pathname === "/engine/v3.js") {
+            return route.fulfill({
+              contentType: "text/javascript",
+              body: readFileSync(join(process.cwd(), "public/engine/v3.js")),
+            });
+          }
+          if (pathname === "/engine/v3.css") {
+            return route.fulfill({
+              contentType: "text/css",
+              body: readFileSync(join(process.cwd(), "public/engine/v3.css")),
+            });
+          }
+          return route.fulfill({ status: 204, body: "" });
+        });
+      }
 
       let html = renderWorld(world.id, WORLD_TEST_PROFILE, "alexrivera");
       if (world.id === "terminal-nexus") {
@@ -53,6 +105,7 @@ describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
             document.documentElement.scrollWidth -
             document.documentElement.clientWidth,
           bodyText: document.body.innerText,
+          bodyClass: document.body.className,
           deadCredentialLinks: document.querySelectorAll('a[href="#"]').length,
           experienceVisible: Boolean(
             document.querySelector("#porfilo-experience"),
@@ -96,6 +149,11 @@ describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
           }),
         ).toBeLessThanOrEqual(2);
         expect(state.bodyText).not.toMatch(/\b(?:undefined|NaN|Infinity)\b/);
+        if (world.id !== "terminal") {
+          expect(state.bodyText).toMatch(/Long Form Classification Model/i);
+        }
+        const expectedClass = EXPECTED_COLLECTION_CLASS[world.id];
+        if (expectedClass) expect(state.bodyClass).toBe(expectedClass);
         expect(state.deadCredentialLinks).toBe(0);
         expect(state.experienceVisible).toBe(true);
       }
@@ -104,4 +162,44 @@ describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
       await page.close();
     }, 20_000);
   }
+
+  it("Variable Type Foundry keeps a long unbroken identity and project rail reachable", async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1512, height: 868 },
+    });
+    const profile = {
+      ...WORLD_TEST_PROFILE,
+      identity: {
+        ...WORLD_TEST_PROFILE.identity,
+        name: "joshwong197",
+        headline:
+          "Builds data tools and integration servers for New Zealand corporate records, legislation APIs, and document processing.",
+      },
+    };
+    const html = renderWorld("variable-type-foundry", profile, "joshwong197");
+    await page.setContent(html, { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(80);
+
+    const state = await page.evaluate(() => {
+      const side = document.querySelector<HTMLElement>(".ty-side");
+      const main = document.querySelector<HTMLElement>(".ty-main");
+      const firstProject = document.querySelector<HTMLElement>(".ty-card");
+      return {
+        viewportWidth: innerWidth,
+        bodyScrollWidth: document.body.scrollWidth,
+        side: side?.getBoundingClientRect().toJSON(),
+        main: main?.getBoundingClientRect().toJSON(),
+        firstProject: firstProject?.getBoundingClientRect().toJSON(),
+        projectCount: document.querySelectorAll(".ty-card").length,
+      };
+    });
+
+    expect(state.projectCount).toBe(9);
+    expect(state.bodyScrollWidth).toBeLessThanOrEqual(state.viewportWidth + 2);
+    expect(state.main?.right).toBeLessThanOrEqual(state.viewportWidth + 2);
+    expect(state.side?.left).toBeLessThan(state.viewportWidth);
+    expect(state.side?.right).toBeLessThanOrEqual(state.viewportWidth + 2);
+    expect(state.firstProject?.left).toBeLessThan(state.viewportWidth);
+    await page.close();
+  });
 });

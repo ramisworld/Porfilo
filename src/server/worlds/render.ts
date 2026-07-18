@@ -10,6 +10,57 @@ import { toWorldData, type WorldData } from "./data";
 
 const templateCache = new Map<WorldId, string>();
 
+const VARIABLE_COLLECTION = new Set<WorldId>([
+  "variable-type-foundry",
+  "isometric-microcity",
+  "modular-synthesizer",
+  "electromechanical-pinball",
+  "digital-loom",
+  "climate-engine",
+  "zen-systems-garden",
+  "darkroom",
+  "kinetic-sculpture-garden",
+  "seismic-archive",
+]);
+
+const VARIABLE_POSITIONS =
+  "const pos=[[8,60],[35,18],[68,16],[72,58],[41,70],[11,25],[54,42],[24,44],[78,38]]";
+
+/**
+ * Collection templates used to infer their active variant from the standalone
+ * preview filename. Public portfolios run in `iframe[srcdoc]`, so there is no
+ * filename and every collection silently selected its first variant. Bind the
+ * validated world id into that lookup while preserving standalone previews.
+ */
+function bindWorldIdentity(source: string, worldId: WorldId): string {
+  const pathname = JSON.stringify(`/world-prompts/${worldId}.html`);
+  let code = source.replaceAll("location.pathname", pathname);
+
+  // Four spatial worlds address this shared array directly. Their original
+  // six coordinates violated the product's nine-project contract.
+  if (VARIABLE_COLLECTION.has(worldId)) {
+    code = code.replace(
+      /const pos=\[\[10,61\],\[38,20\],\[69,18\],\[73,61\],\[43,70\],\[13,26\]\]/,
+      VARIABLE_POSITIONS,
+    );
+  }
+  return code;
+}
+
+function worldSafetyCss(worldId: WorldId): string {
+  if (worldId !== "variable-type-foundry") return "";
+  return `
+/* PORFILO TYPE FOUNDRY SAFETY — contain long, unbroken GitHub identities. */
+.ty{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);padding-bottom:92px}
+.ty-main,.ty-side,.ty-projects,.ty-card{min-width:0}
+.ty-main{container-type:inline-size}
+.ty-name{max-width:100%;font-size:clamp(16px,calc(135cqi / var(--porfilo-name-length,8)),220px);line-height:.72;white-space:nowrap}
+.ty-head{max-width:min(22ch,100%);font-size:clamp(28px,3vw,50px);line-height:.94;text-wrap:balance}
+.ty-tag{max-width:58ch}
+@media(max-width:820px){.ty{padding-bottom:0}.ty-name{font-size:clamp(16px,calc(135cqi / var(--porfilo-name-length,8)),105px);white-space:normal;overflow-wrap:anywhere}.ty-head{max-width:18ch}}
+`;
+}
+
 export function readWorldTemplate(worldId: WorldId): string {
   const cached = templateCache.get(worldId);
   if (cached) return cached;
@@ -102,6 +153,13 @@ document.querySelectorAll('a[href="#"]').forEach((link) => {
   replacement.innerHTML = link.innerHTML;
   link.replaceWith(replacement);
 });
+const porfiloTypeName = document.querySelector('.ty-name');
+if (porfiloTypeName) {
+  porfiloTypeName.style.setProperty(
+    '--porfilo-name-length',
+    String(Math.max(1, porfiloTypeName.textContent.trim().length)),
+  );
+}
 `;
   const end = code.lastIndexOf("</script>");
   if (end < 0) throw new Error("World has no closing script tag.");
@@ -112,13 +170,24 @@ export function renderWorld(
   worldId: WorldId,
   profileInput: ProfileData,
   githubUsername: string,
+  assetOrigin?: string,
 ): string {
   const profile = profileDataSchema.parse(profileInput);
   if (worldId === "terminal-nexus") {
-    return renderPortfolioPage(TERMINAL_NEXUS_SPEC, profile, ENGINE_VERSION);
+    return renderPortfolioPage(
+      TERMINAL_NEXUS_SPEC,
+      profile,
+      ENGINE_VERSION,
+      assetOrigin,
+    );
   }
   const data = toWorldData(profile, githubUsername);
-  let code = injectData(readWorldTemplate(worldId), data);
+  let code = injectData(
+    bindWorldIdentity(readWorldTemplate(worldId), worldId),
+    data,
+  );
+  const safetyCss = worldSafetyCss(worldId);
+  if (safetyCss) code = code.replace("</style>", `${safetyCss}</style>`);
   const extension = experienceExtension(worldId, data);
   if (extension) {
     code = code.replace("</style>", `${extension.css}</style>`);
@@ -129,14 +198,17 @@ export function renderWorld(
   return injectRuntimeHygiene(code);
 }
 
-export function renderStoredWorld(input: {
-  template: string;
-  profileData: unknown;
-  githubUsername: string;
-}): string | null {
+export function renderStoredWorld(
+  input: {
+    template: string;
+    profileData: unknown;
+    githubUsername: string;
+  },
+  assetOrigin?: string,
+): string | null {
   const worldId = normalizeWorldId(input.template);
   if (!worldId) return null;
   const profile = profileDataSchema.safeParse(input.profileData);
   if (!profile.success) return null;
-  return renderWorld(worldId, profile.data, input.githubUsername);
+  return renderWorld(worldId, profile.data, input.githubUsername, assetOrigin);
 }
