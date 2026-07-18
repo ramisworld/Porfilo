@@ -81,7 +81,12 @@ export async function capturePortfolioHeroJpeg(
   const browser = await chromium.launch({
     headless: true,
     executablePath: chromiumExecutable(),
-    args: ["--no-sandbox", "--disable-dev-shm-usage", "--use-gl=swiftshader"],
+    args: [
+      "--no-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--use-gl=swiftshader",
+    ],
   });
 
   try {
@@ -90,24 +95,34 @@ export async function capturePortfolioHeroJpeg(
       deviceScaleFactor: 1,
       colorScheme: "dark",
     });
-    await page.emulateMedia({ reducedMotion: "no-preference" });
+    // A social image needs the settled hero, never the animated boot screen.
+    // Reduced motion makes engine worlds reveal synchronously, which keeps
+    // headless Railway captures deterministic under CPU contention.
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setContent(withAssetBase(html), {
       waitUntil: "networkidle",
-      timeout: 15_000,
+      timeout: 25_000,
     });
     await page.waitForFunction(
       () =>
+        Boolean(document.querySelector("#ph-app")) ||
         document.body.innerText.trim().length > 20 ||
         Boolean(document.querySelector("canvas, svg")),
       undefined,
-      { timeout: 8_000 },
+      { timeout: 15_000 },
     );
 
     if (await page.locator("#ph-boot").count()) {
+      // Never fail a social preview simply because a decorative boot animation
+      // lingers. The hero below it is already mounted and is the artifact we
+      // want to capture.
       await page
         .locator("#ph-boot")
-        .waitFor({ state: "detached", timeout: 8_000 });
-      await page.waitForTimeout(350);
+        .waitFor({ state: "detached", timeout: 15_000 })
+        .catch(async () => {
+          await page.evaluate(() => document.querySelector("#ph-boot")?.remove());
+        });
+      await page.waitForTimeout(250);
     } else {
       // Self-contained worlds reveal their hero on their own timelines. This
       // mirrors the settled first viewport instead of capturing a blank frame.
@@ -126,6 +141,17 @@ export async function capturePortfolioHeroJpeg(
   } finally {
     await browser.close();
   }
+}
+
+/**
+ * Capture and persist a hero before a portfolio is shared. Generation and
+ * profile edits call this explicitly so social crawlers usually only read a
+ * finished JPEG from Postgres instead of creating a browser on demand.
+ */
+export async function primePortfolioHeroImage(
+  portfolio: HeroImagePortfolio,
+): Promise<void> {
+  await portfolioHeroBytes(portfolio);
 }
 
 async function createAndCache(

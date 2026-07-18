@@ -5,6 +5,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { profileDataSchema, type ProfileData } from "~/server/profile/model";
 import { normalizeWorldId } from "~/server/worlds/catalog";
 import { renderWorld } from "~/server/worlds/render";
+import { primePortfolioHeroImage } from "~/server/portfolio/hero-image";
 
 /**
  * Portfolio router — the authenticated user can read and manage their own
@@ -80,7 +81,7 @@ export const portfolioRouter = createTRPCRouter({
       const code = worldId
         ? renderWorld(worldId, payload, existing.githubUsername)
         : undefined;
-      await ctx.db.portfolio.update({
+      const updated = await ctx.db.portfolio.update({
         where: { id: existing.id },
         data: {
           profileData: JSON.parse(
@@ -91,6 +92,17 @@ export const portfolioRouter = createTRPCRouter({
           ogImageFingerprint: null,
         },
       });
+      try {
+        await primePortfolioHeroImage(updated);
+      } catch (error) {
+        // Preserve a successful profile edit if an optional social-image
+        // refresh is temporarily unavailable. The public route still emits a
+        // profile-specific fallback instead of returning a broken preview.
+        console.error("Failed to refresh portfolio hero image", {
+          portfolioId: updated.id,
+          error,
+        });
+      }
       return { ok: true, profileData: payload };
     }),
 });

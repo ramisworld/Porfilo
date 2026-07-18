@@ -1,5 +1,6 @@
 import { db } from "~/server/db";
 import { renderPorfiloLandingOgImage } from "~/server/og/porthub-landing";
+import { renderPortfolioHeroFallback } from "~/server/portfolio/hero-fallback";
 import { renderPortfolioHeroImage } from "~/server/portfolio/hero-image";
 
 export const runtime = "nodejs";
@@ -21,9 +22,6 @@ export default async function OgImage({
     return await renderPortfolioHeroImage(portfolio);
   } catch (error) {
     console.error("Failed to capture portfolio hero image", error);
-    return new Response("Portfolio preview is temporarily unavailable.", {
-      status: 503,
-      headers: { "Retry-After": "30" },
-    });
+    return renderPortfolioHeroFallback(portfolio);
   }
 }

@@ -8,6 +8,7 @@ import { chooseWorld } from "~/server/worlds/choose";
 import { renderWorld } from "~/server/worlds/render";
 import { logRunTotal, type UsageRecord } from "~/server/llm/cost";
 import { ENGINE_VERSION } from "~/engine/version";
+import { primePortfolioHeroImage } from "./hero-image";
 
 // DNS-safe lowercase slug for internal routing + legacy fallback.
 const newSlug = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 10);
@@ -121,7 +122,7 @@ export async function* runGeneration(
     // transaction so two concurrent requests can't both slip a row past the
     // pre-flight count in the route handler. Anonymous (ownerless)
     // generations skip this — there's no per-owner cap to enforce.
-    await db.$transaction(
+    const portfolioToPrime = await db.$transaction(
       async (tx) => {
         if (opts.replacePortfolioId) {
           if (!opts.ownerId) throw new Error("REPLACEMENT_REQUIRES_OWNER");
@@ -133,7 +134,7 @@ export async function* runGeneration(
           if (!existing) throw new Error("PORTFOLIO_NOT_FOUND");
 
           publishedSlug = existing.publicSubdomainSlug;
-          await tx.portfolio.update({
+          return await tx.portfolio.update({
             where: { id: opts.replacePortfolioId },
             data: {
               githubUsername: profile.user.login,
@@ -150,7 +151,6 @@ export async function* runGeneration(
               ogImageFingerprint: null,
             },
           });
-          return;
         }
 
         if (opts.ownerId) {
@@ -161,7 +161,7 @@ export async function* runGeneration(
             throw new Error("QUOTA_REACHED");
           }
         }
-        await tx.portfolio.create({
+        return await tx.portfolio.create({
           data: {
             ownerId: opts.ownerId,
             githubUsername: profile.user.login,
@@ -184,6 +184,19 @@ export async function* runGeneration(
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
+
+    yield { stage: "saving", message: "Capturing your share preview…" };
+    try {
+      await primePortfolioHeroImage(portfolioToPrime);
+    } catch (error) {
+      // The portfolio is valid even if its optional social screenshot cannot
+      // be captured right now. The share route provides a profile-specific
+      // fallback and logs the capture failure for operators.
+      console.error("Failed to pre-render portfolio hero image", {
+        portfolioId: portfolioToPrime.id,
+        error,
+      });
+    }
 
     logRunTotal({ username: profile.user.login, slug: publishedSlug }, usages);
     yield {

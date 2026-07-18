@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { renderPorfiloLandingOgImage } from "~/server/og/porthub-landing";
+import { renderPortfolioHeroFallback } from "~/server/portfolio/hero-fallback";
 import {
   findPortfolioBySlug,
   findPortfolioForHost,
@@ -63,9 +64,6 @@ export async function GET() {
     return await renderPortfolioHeroImage(portfolio);
   } catch (error) {
     console.error("Failed to capture portfolio hero image", error);
-    return new Response("Portfolio preview is temporarily unavailable.", {
-      status: 503,
-      headers: { "Retry-After": "30" },
-    });
+    return renderPortfolioHeroFallback(portfolio);
   }
 }
