@@ -33,10 +33,11 @@ describe("production security headers", () => {
     const csp = await productionCsp();
 
     expect(csp).toContain(
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://porfilo.com",
+      "script-src 'self' 'unsafe-inline' https://porfilo.com",
     );
     expect(csp).toContain(
       "style-src 'self' 'unsafe-inline' https://porfilo.com",
     );
+    expect(csp).not.toContain("'unsafe-eval'");
   });
 });

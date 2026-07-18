@@ -9,6 +9,7 @@ import {
   findPortfolioForHost,
 } from "~/server/portfolio/render-iframe";
 import { portfolioHeroImageVersion } from "~/server/portfolio/hero-image-version";
+import { appOrigin } from "~/lib/root-domain";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ export async function GET(
     }
   }
 
-  const portfolioHtml = buildPortfolioHtml(portfolio);
+  const portfolioHtml = buildPortfolioHtml(portfolio, appOrigin());
   if (!portfolioHtml) {
     return htmlResponse(portfolioNotFoundDocument(hostname), 404);
   }

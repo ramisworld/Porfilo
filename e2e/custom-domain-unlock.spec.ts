@@ -120,7 +120,7 @@ test("public portfolio routes expose correct status, metadata, and OG image", as
 
   const og = await request.get("/api/og");
   expect(og.status()).toBe(200);
-  expect(og.headers()["content-type"]).toContain("image/png");
+  expect(og.headers()["content-type"]).toContain("image/jpeg");
 
   const errors: string[] = [];
   page.on("console", (message) => {

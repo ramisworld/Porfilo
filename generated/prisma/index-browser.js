@@ -247,6 +247,25 @@ exports.Prisma.GenerationLockScalarFieldEnum = {
   expiresAt: 'expiresAt'
 };
 
+exports.Prisma.WorkSlotScalarFieldEnum = {
+  kind: 'kind',
+  slot: 'slot',
+  token: 'token',
+  expiresAt: 'expiresAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LlmSpendReservationScalarFieldEnum = {
+  id: 'id',
+  day: 'day',
+  status: 'status',
+  reservedMicros: 'reservedMicros',
+  actualMicros: 'actualMicros',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -288,7 +307,9 @@ exports.Prisma.ModelName = {
   GitHubCache: 'GitHubCache',
   RateLimitBucket: 'RateLimitBucket',
   FeatureAccess: 'FeatureAccess',
-  GenerationLock: 'GenerationLock'
+  GenerationLock: 'GenerationLock',
+  WorkSlot: 'WorkSlot',
+  LlmSpendReservation: 'LlmSpendReservation'
 };
 
 /**

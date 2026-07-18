@@ -32,6 +32,7 @@
     "test:worlds": "RUN_BROWSER_WORLD_TESTS=true vitest run src/server/profile/model.test.ts src/server/worlds/rank.test.ts src/server/worlds/render.test.ts src/server/worlds/render.browser.test.ts",
     "test:worlds:chooser:live": "RUN_LIVE_WORLD_CHOOSER=true node --env-file=.env --env-file=.env.local node_modules/vitest/vitest.mjs run src/server/worlds/choose.live.test.ts",
     "test:e2e": "playwright test",
+    "test:migrations": "node scripts/verify-migrations.mjs",
     "loadtest": "k6 run loadtest/porfilo-load.js",
     "typecheck": "tsc --noEmit"
   },

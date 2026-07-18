@@ -2,11 +2,17 @@ import type Stripe from "stripe";
 import { env } from "~/env";
 import { getStripe, isStripeConfigured } from "~/server/billing/stripe";
 import { failCheckout, fulfillCheckout } from "~/server/billing/fulfillment";
+import {
+  InvalidRequestBodyError,
+  readLimitedText,
+  RequestBodyTooLargeError,
+} from "~/server/http/request-body";
 
 // Stripe SDK + Prisma are Node-only; the webhook must read the raw body, so no
 // caching and always dynamic.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+const MAX_STRIPE_WEBHOOK_BYTES = 256 * 1024;
 
 /**
  * Stripe webhook — the ONLY place the custom-domain feature is unlocked.
@@ -25,10 +31,22 @@ export async function POST(req: Request): Promise<Response> {
     return new Response("Stripe is not configured.", { status: 503 });
   }
 
-  const body = await req.text();
   const signature = req.headers.get("stripe-signature");
   if (!signature) {
     return new Response("Missing stripe-signature header.", { status: 400 });
+  }
+
+  let body: string;
+  try {
+    body = await readLimitedText(req, MAX_STRIPE_WEBHOOK_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return new Response("Webhook payload is too large.", { status: 413 });
+    }
+    if (error instanceof InvalidRequestBodyError) {
+      return new Response("Invalid webhook payload.", { status: 400 });
+    }
+    throw error;
   }
 
   let event: Stripe.Event;
@@ -38,9 +56,8 @@ export async function POST(req: Request): Promise<Response> {
       signature,
       env.STRIPE_WEBHOOK_SECRET,
     );
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "invalid signature";
-    return new Response(`Webhook signature verification failed: ${message}`, {
+  } catch {
+    return new Response("Webhook signature verification failed.", {
       status: 400,
     });
   }

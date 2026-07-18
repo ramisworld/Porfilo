@@ -59,7 +59,11 @@ export async function GET() {
   }
 
   const portfolio = await portfolioForHost(hostname);
-  if (!portfolio) return await renderPorfiloLandingOgImage();
+  if (!portfolio?.isPublic) {
+    const response = await renderPorfiloLandingOgImage();
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  }
   try {
     return await renderPortfolioHeroImage(portfolio);
   } catch (error) {

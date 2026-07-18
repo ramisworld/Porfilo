@@ -22,7 +22,8 @@ export function renderPortfolioHeroFallback(
   const profile = parsed.success ? parsed.data : null;
   const name = profile?.identity.name ?? portfolio.githubUsername;
   const role = profile?.identity.role ?? "Developer";
-  const headline = profile?.identity.headline ?? "Building thoughtful software.";
+  const headline =
+    profile?.identity.headline ?? "Building thoughtful software.";
   const stackItems = profile?.stack.slice(0, 6) ?? [];
   const stack =
     stackItems.length > 0 ? stackItems.join("  ·  ") : "GitHub portfolio";

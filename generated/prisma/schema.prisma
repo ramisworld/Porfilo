@@ -108,6 +108,8 @@ model Portfolio {
   customDomain        CustomDomain?
 
   @@index([githubUsername])
+  // Supports scheduled pruning of expired anonymous claim previews.
+  @@index([ownerId, createdAt])
 }
 
 // A user-owned hostname (e.g. portfolio.max.com) attached to a Portfolio.
@@ -211,5 +213,36 @@ model GenerationLock {
   createdAt      DateTime @default(now())
   expiresAt      DateTime
 
+  @@index([expiresAt])
+}
+
+// Cross-replica leases for expensive bounded work (LLM generation and
+// Chromium hero capture). Expired leases can be reclaimed after a crashed
+// process, while the compound primary key gives each work kind fixed slots.
+model WorkSlot {
+  kind      String
+  slot      Int
+  token     String?
+  expiresAt DateTime?
+  updatedAt DateTime  @updatedAt
+
+  @@id([kind, slot])
+  @@index([kind, expiresAt])
+}
+
+// Durable daily LLM accounting. A row is reserved before any paid model call;
+// exact usage is recorded after each call and settled even when generation
+// later fails. Expired pending reservations retain recorded actual spend.
+model LlmSpendReservation {
+  id             String   @id @default(cuid())
+  day            String
+  status         String   @default("pending")
+  reservedMicros Int
+  actualMicros   Int      @default(0)
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([day, status, expiresAt])
   @@index([expiresAt])
 }

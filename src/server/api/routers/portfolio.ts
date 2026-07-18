@@ -6,6 +6,7 @@ import { profileDataSchema, type ProfileData } from "~/server/profile/model";
 import { normalizeWorldId } from "~/server/worlds/catalog";
 import { renderWorld } from "~/server/worlds/render";
 import { primePortfolioHeroImage } from "~/server/portfolio/hero-image";
+import { limit } from "~/server/ratelimit";
 
 /**
  * Portfolio router — the authenticated user can read and manage their own
@@ -39,7 +40,13 @@ export const portfolioRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const updated = await ctx.db.portfolio.updateMany({
         where: { ownerId: ctx.user.id },
-        data: { isPublic: input.isPublic },
+        data: {
+          isPublic: input.isPublic,
+          // A private portfolio must not retain visitor-facing share media.
+          ...(!input.isPublic
+            ? { ogImage: null, ogImageFingerprint: null }
+            : {}),
+        },
       });
       if (updated.count === 0) {
         throw new TRPCError({ code: "NOT_FOUND", message: "No portfolio." });
@@ -69,6 +76,16 @@ export const portfolioRouter = createTRPCRouter({
   updateProfileData: protectedProcedure
     .input(z.object({ profileData: profileDataSchema }))
     .mutation(async ({ ctx, input }) => {
+      const editLimit = await limit(`portfolio:edit:${ctx.user.id}`, {
+        window: "1m",
+        max: 12,
+      });
+      if (!editLimit.ok) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many edits. Wait a moment and try again.",
+        });
+      }
       const existing = await ctx.db.portfolio.findUnique({
         where: { ownerId: ctx.user.id },
         select: { id: true, template: true, githubUsername: true },
@@ -92,17 +109,15 @@ export const portfolioRouter = createTRPCRouter({
           ogImageFingerprint: null,
         },
       });
-      try {
-        await primePortfolioHeroImage(updated);
-      } catch (error) {
-        // Preserve a successful profile edit if an optional social-image
-        // refresh is temporarily unavailable. The public route still emits a
-        // profile-specific fallback instead of returning a broken preview.
+      // The edit is durable immediately. Share-image work is bounded by a
+      // cross-replica queue and refreshes asynchronously so Chromium cannot
+      // hold the mutation open or amplify repeated clicks.
+      void primePortfolioHeroImage(updated).catch((error) => {
         console.error("Failed to refresh portfolio hero image", {
           portfolioId: updated.id,
-          error,
+          error: error instanceof Error ? error.message : String(error),
         });
-      }
+      });
       return { ok: true, profileData: payload };
     }),
 });

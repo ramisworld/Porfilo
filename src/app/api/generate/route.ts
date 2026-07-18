@@ -6,25 +6,26 @@ import { getSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { limit } from "~/server/ratelimit";
 import { clientIp } from "~/server/client-ip";
-import {
-  tryAcquireGlobalSlot,
-  releaseGlobalSlot,
-} from "~/server/generation-guard";
-import { checkBudget } from "~/server/llm/cost";
+import { releaseGlobalSlot } from "~/server/generation-guard";
+import { admitGeneration } from "~/server/generation-admission";
 import {
   acquireGenerationLock,
   releaseGenerationLock,
 } from "~/server/generation-lock";
 import { runGeneration } from "~/server/portfolio/generate";
-import { pruneExpiredClaimablePortfolios } from "~/server/portfolio/claims";
 import { hasPremiumAccess } from "~/server/billing/access";
+import {
+  InvalidRequestBodyError,
+  readLimitedJson,
+  RequestBodyTooLargeError,
+} from "~/server/http/request-body";
+import {
+  recordReservedUsage,
+  reserveGenerationBudget,
+  settleGenerationBudget,
+} from "~/server/llm/cost";
 
-// Shared ceiling on generations started per hour, independent of any
-// client-derived identity. Backstops a per-IP rate-limit bypass across replicas.
-const GLOBAL_HOURLY_MAX = Math.max(
-  1,
-  Number(process.env.GLOBAL_GENERATIONS_PER_HOUR ?? 120),
-);
+const MAX_GENERATE_BODY_BYTES = 4 * 1024;
 
 // Prisma / Octokit / Anthropic are Node-only — do NOT run on the Edge runtime.
 export const runtime = "nodejs";
@@ -71,10 +72,19 @@ export async function POST(req: NextRequest) {
 
   let parsed: z.infer<typeof bodySchema>;
   try {
-    parsed = bodySchema.parse(await req.json());
+    parsed = bodySchema.parse(
+      await readLimitedJson(req, MAX_GENERATE_BODY_BYTES),
+    );
   } catch (e) {
+    if (e instanceof RequestBodyTooLargeError) {
+      return json({ error: "Request body is too large." }, 413);
+    }
     const msg =
-      e instanceof z.ZodError ? e.issues[0]?.message : "Invalid request";
+      e instanceof z.ZodError
+        ? e.issues[0]?.message
+        : e instanceof InvalidRequestBodyError
+          ? e.message
+          : "Invalid request";
     return json({ error: msg ?? "Invalid request" }, 400);
   }
   const { username, vibe, mode } = parsed;
@@ -129,16 +139,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Daily LLM budget kill-switch ───────────────────────────────────────
-  const budget = checkBudget();
-  if (budget) {
-    return json({ error: budget, code: "budget_reached" }, 503);
-  }
-
-  // Anonymous previews are claimable for 30 minutes. Prune expired token-bound
-  // rows opportunistically before accepting more generation work.
-  await pruneExpiredClaimablePortfolios();
-
   // ── Rate limits ────────────────────────────────────────────────────────
   //   - 3 generations / hour  keyed on user id (authed) or IP (anonymous)
   //   - 5 IP-bursts / minute    (catches scripted abuse on a shared NAT)
@@ -180,24 +180,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Charge the shared capacity bucket only after the caller-specific gates
-  // pass. A client blocked by its own quota can no longer exhaust capacity for
-  // every other user.
-  const globalHourly = await limit("gen:global:hour", {
-    window: "1h",
-    max: GLOBAL_HOURLY_MAX,
-  });
-  if (!globalHourly.ok) {
-    return json(
-      {
-        error: "We're at capacity right now. Please try again shortly.",
-        code: "at_capacity",
-      },
-      503,
-      { "retry-after": String(globalHourly.retryAfter) },
-    );
-  }
-
   // The generation lock table FKs to User, so it's only usable for signed-in
   // callers. Anonymous generation is protected by the IP/username limits above.
   if (ownerId) {
@@ -211,9 +193,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Global concurrency slot: the last gate before paid work ────────────
-  // Released in the stream's finally (covers success, error, and client abort).
-  if (!tryAcquireGlobalSlot()) {
+  // ── Cross-replica concurrency slot ─────────────────────────────────────
+  // Reserve scarce work before charging the global hourly counter. Rejected
+  // requests therefore cannot burn the entire application's generation quota.
+  const admission = await admitGeneration();
+  if (!admission.ok) {
     if (ownerId) await releaseGenerationLock(ownerId);
     return json(
       {
@@ -221,9 +205,19 @@ export async function POST(req: NextRequest) {
         code: "at_capacity",
       },
       503,
-      { "retry-after": "15" },
+      { "retry-after": String(admission.retryAfter) },
     );
   }
+  const generationLease = admission.lease;
+
+  // Atomically reserve daily spend only after every admission gate passes.
+  const budget = await reserveGenerationBudget();
+  if (!budget.ok) {
+    if (ownerId) await releaseGenerationLock(ownerId);
+    await releaseGlobalSlot(generationLease);
+    return json({ error: budget.message, code: "budget_reached" }, 503);
+  }
+  const budgetReservation = budget.reservation;
 
   // One-time claim token for anonymous runs. The plaintext is sent only to this
   // browser (in the `done` event); only its SHA-256 is persisted. Required at
@@ -308,6 +302,8 @@ export async function POST(req: NextRequest) {
         ownerId,
         claimNonceHash,
         replacePortfolioId,
+        onUsage: (usage) => recordReservedUsage(budgetReservation, usage),
+        signal: req.signal,
       })) {
         if (closed) break;
         // Attach the plaintext claim token to the terminal event only.
@@ -328,8 +324,11 @@ export async function POST(req: NextRequest) {
         ),
       );
     } finally {
+      await settleGenerationBudget(budgetReservation).catch((error) => {
+        console.error("[generate] failed to settle LLM budget", error);
+      });
       if (ownerId) await releaseGenerationLock(ownerId);
-      releaseGlobalSlot();
+      await releaseGlobalSlot(generationLease);
       clearInterval(heartbeat);
       await safeClose();
     }

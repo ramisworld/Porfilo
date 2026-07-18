@@ -64,10 +64,12 @@ export function renderPortfolioPage(
   spec: DesignSpec,
   data: ProfileData,
   version: string,
+  assetOrigin?: string,
 ): string {
   const sig = spec.signatureCss ? `<style>${spec.signatureCss}</style>` : "";
   const title = escapeHtml((data.identity.name ?? "Portfolio") + " — Portfolio");
-  const base = `//${ROOT_DOMAIN}/engine/${encodeURIComponent(version)}`;
+  const root = assetOrigin?.replace(/\/$/, "") ?? `//${ROOT_DOMAIN}`;
+  const base = `${root}/engine/${encodeURIComponent(version)}`;
   return (
     `<!DOCTYPE html><html lang="en"><head>` +
     `<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>` +

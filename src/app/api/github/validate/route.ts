@@ -6,9 +6,15 @@ import { githubUserExists } from "~/server/github/fetch";
 import { limit } from "~/server/ratelimit";
 import { clientIp } from "~/server/client-ip";
 import { db } from "~/server/db";
+import {
+  InvalidRequestBodyError,
+  readLimitedJson,
+  RequestBodyTooLargeError,
+} from "~/server/http/request-body";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+const MAX_VALIDATE_BODY_BYTES = 1024;
 
 const bodySchema = z.object({
   username: z
@@ -44,10 +50,19 @@ export async function POST(req: NextRequest) {
 
   let parsed: z.infer<typeof bodySchema>;
   try {
-    parsed = bodySchema.parse(await req.json());
+    parsed = bodySchema.parse(
+      await readLimitedJson(req, MAX_VALIDATE_BODY_BYTES),
+    );
   } catch (e) {
+    if (e instanceof RequestBodyTooLargeError) {
+      return json({ error: "Request body is too large.", exists: false }, 413);
+    }
     const msg =
-      e instanceof z.ZodError ? e.issues[0]?.message : "Invalid request";
+      e instanceof z.ZodError
+        ? e.issues[0]?.message
+        : e instanceof InvalidRequestBodyError
+          ? e.message
+          : "Invalid request";
     return json({ error: msg ?? "Invalid request", exists: false }, 400);
   }
 
@@ -79,6 +94,15 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const exists = await githubUserExists(parsed.username);
-  return json({ exists }, 200);
+  try {
+    const exists = await githubUserExists(parsed.username);
+    return json({ exists }, 200);
+  } catch (error) {
+    console.error("[github validate] upstream failure", error);
+    return json(
+      { error: "GitHub is temporarily unavailable. Try again.", exists: false },
+      503,
+      { "retry-after": "15" },
+    );
+  }
 }

@@ -6,7 +6,7 @@
 | ----------------- | ------------------------------------------------------------- |
 | `dashboard_reads` | The batched `domain.mine` + `billing.premiumAccess` query, ramped 0→1000 VUs |
 | `checkout_clicks` | Concurrent Premium CTA → `createPremiumCheckoutSession` |
-| `webhook_bursts`  | Signed `checkout.session.completed` deliveries incl. duplicates (idempotency under retries) |
+| `webhook_bursts`  | Duplicate signed delayed-payment failures through the idempotent DB path |
 
 ## Run
 
@@ -19,12 +19,11 @@ PEAK_VUS=1000 \
 k6 run loadtest/porfilo-load.js
 ```
 
-- `SESSION_COOKIE` — a logged-in cookie (copy from your browser dev tools). The
-  read/checkout scenarios are auth-protected; without it they exercise the 401
-  path (still a useful edge/auth baseline).
+- `SESSION_COOKIE` — a disposable staging user's logged-in cookie. It is
+  required; the test aborts rather than treating 401 responses as success.
 - `STRIPE_WEBHOOK_SECRET` — must match the app's, or webhook deliveries return
-  400 (signature) instead of 200. Idempotency is still observable via the app's
-  DB (one paid `FeatureAccess` row per session id regardless of retries).
+  400 instead of 200. Never run this test against production or use a live
+  customer's session.
 
 ## Thresholds (fail the run if breached)
 
@@ -37,7 +36,7 @@ k6 run loadtest/porfilo-load.js
 k6 prints p95/p99, error rate, and per-scenario latency at the end. Watch for:
 - rising `checkout_latency` p95 → Stripe API call is the tail; consider making
   session creation non-blocking or caching the "already unlocked" short-circuit.
-- `webhook` 5xx under burst → fulfilment contention; the guarded `updateMany`
-  should keep it flat.
+- any webhook response other than 200 → signature, configuration, or database
+  contention is failing the delivery contract.
 - DB connection saturation (Postgres `pg_stat_activity`) → the single Prisma pool
   is the first ceiling; see the implementation report's risks section.

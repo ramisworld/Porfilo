@@ -27,11 +27,10 @@ export async function GET(
     }
   }
 
-  const portfolioHtml = buildPortfolioHtml(portfolio);
-  if (!portfolioHtml) return htmlResponse(portfolioNotFoundDocument(slug), 404);
-
   const url = new URL(request.url);
   const canonicalUrl = `${url.protocol}//${url.host}`;
+  const portfolioHtml = buildPortfolioHtml(portfolio, url.origin);
+  if (!portfolioHtml) return htmlResponse(portfolioNotFoundDocument(slug), 404);
   return htmlResponse(
     portfolioDocument({
       portfolioHtml,

@@ -1,4 +1,7 @@
 import "server-only";
+import { Prisma } from "../../../generated/prisma";
+import { env } from "~/env";
+import { db } from "~/server/db";
 
 /**
  * Token + cost accounting for LLM calls. Every live generation logs exact tokens
@@ -76,10 +79,10 @@ export function logUsage(r: UsageRecord): void {
 export function logRunTotal(
   meta: { username: string; slug: string },
   records: UsageRecord[],
-): void {
+): number {
   if (records.length === 0) {
     console.log(`[cost] run ${meta.username} (${meta.slug}) — MOCK, $0.0000`);
-    return;
+    return 0;
   }
   const sum = (f: (r: UsageRecord) => number) =>
     records.reduce((a, r) => a + f(r), 0);
@@ -89,32 +92,43 @@ export function logRunTotal(
   console.log(
     `[cost] ═══ RUN TOTAL ${meta.username} (${meta.slug}): in=${inTok} out=${outTok} → $${total.toFixed(4)} ═══`,
   );
-  recordSpend(total);
+  return total;
 }
 
-// ───────────────────────── daily spend budget ──────────────────────────────
-// In-process, resets at UTC midnight. Hard kill-switch: when DAILY_LLM_BUDGET_USD
-// is exceeded, /api/generate refuses new runs until the day rolls over. This
-// protects the bill from a runaway loop or an attacker who got past rate limits.
+// ───────────────────── durable daily spend budget ──────────────────────────
+// Reservations are persisted before any paid model call. Serializable
+// transactions make the cap consistent across Railway replicas and restarts.
 
-let spendDay = utcDay();
-let spendUsd = 0;
-
-function utcDay() {
+function utcDay(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function rollIfNewDay() {
-  const today = utcDay();
-  if (today !== spendDay) {
-    spendDay = today;
-    spendUsd = 0;
-  }
+function toMicros(usd: number): number {
+  return Math.max(0, Math.round(usd * 1_000_000));
 }
 
-function recordSpend(usd: number) {
-  rollIfNewDay();
-  spendUsd += usd;
+function configuredCapUsd(): number | null {
+  const raw = env.DAILY_LLM_BUDGET_USD;
+  const explicit = raw ? Number.parseFloat(raw) : NaN;
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  return env.NODE_ENV === "production" ? PROD_DEFAULT_BUDGET_USD : null;
+}
+
+type SpendRow = {
+  status: string;
+  reservedMicros: number;
+  actualMicros: number;
+  expiresAt: Date;
+};
+
+export function committedSpendMicros(rows: SpendRow[], now: Date): number {
+  return rows.reduce((sum, row) => {
+    if (row.status === "settled") return sum + row.actualMicros;
+    if (row.expiresAt > now) {
+      return sum + Math.max(row.reservedMicros, row.actualMicros);
+    }
+    return sum + row.actualMicros;
+  }, 0);
 }
 
 // If the operator forgets to set DAILY_LLM_BUDGET_USD, production must NOT run
@@ -122,23 +136,112 @@ function recordSpend(usd: number) {
 // back to a conservative daily ceiling in production; dev stays uncapped.
 const PROD_DEFAULT_BUDGET_USD = 25;
 
-/** Returns `null` when there's headroom, or a reason string when the cap is reached. */
-export function checkBudget(): string | null {
-  rollIfNewDay();
-  const raw = process.env.DAILY_LLM_BUDGET_USD;
-  let cap = raw ? Number.parseFloat(raw) : NaN;
-  if (!Number.isFinite(cap) || cap <= 0) {
-    // No valid explicit cap: enforce a default in production, stay uncapped in dev.
-    if (process.env.NODE_ENV === "production") cap = PROD_DEFAULT_BUDGET_USD;
-    else return null;
-  }
-  if (spendUsd >= cap) {
-    return `Daily generation budget reached ($${spendUsd.toFixed(2)} / $${cap.toFixed(2)}). Try again tomorrow.`;
-  }
-  return null;
+export type BudgetReservation = { id: string };
+export type BudgetReservationResult =
+  | { ok: true; reservation: BudgetReservation | null }
+  | { ok: false; message: string };
+
+function isSerializationFailure(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2034"
+  );
 }
 
-export function currentSpendUsd() {
-  rollIfNewDay();
-  return spendUsd;
+/** Reserve budget before a generation can call Anthropic. */
+export async function reserveGenerationBudget(): Promise<BudgetReservationResult> {
+  if (env.MOCK_LLM === "true") return { ok: true, reservation: null };
+  const capUsd = configuredCapUsd();
+  if (capUsd === null) return { ok: true, reservation: null };
+
+  const capMicros = toMicros(capUsd);
+  const reservedMicros = toMicros(env.LLM_GENERATION_RESERVATION_USD);
+  if (reservedMicros > capMicros) {
+    return {
+      ok: false,
+      message: "Daily generation budget reached. Try again tomorrow.",
+    };
+  }
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      const reservation = await db.$transaction(
+        async (tx) => {
+          const now = new Date();
+          const rows = await tx.llmSpendReservation.findMany({
+            where: { day: utcDay() },
+            select: {
+              status: true,
+              reservedMicros: true,
+              actualMicros: true,
+              expiresAt: true,
+            },
+          });
+          const committedMicros = committedSpendMicros(rows, now);
+          if (committedMicros + reservedMicros > capMicros) return null;
+
+          return tx.llmSpendReservation.create({
+            data: {
+              day: utcDay(),
+              reservedMicros,
+              expiresAt: new Date(now.getTime() + 20 * 60 * 1000),
+            },
+            select: { id: true },
+          });
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+      return reservation
+        ? { ok: true, reservation }
+        : {
+            ok: false,
+            message: "Daily generation budget reached. Try again tomorrow.",
+          };
+    } catch (error) {
+      if (isSerializationFailure(error) && attempt < 3) continue;
+      throw error;
+    }
+  }
+
+  return {
+    ok: false,
+    message: "Daily generation budget reached. Try again tomorrow.",
+  };
+}
+
+/** Persist exact usage immediately after every successful model call. */
+export async function recordReservedUsage(
+  reservation: BudgetReservation | null,
+  usage: UsageRecord,
+): Promise<void> {
+  if (!reservation) return;
+  await db.llmSpendReservation.updateMany({
+    where: { id: reservation.id, status: "pending" },
+    data: { actualMicros: { increment: toMicros(usage.costUsd) } },
+  });
+}
+
+export async function settleGenerationBudget(
+  reservation: BudgetReservation | null,
+): Promise<void> {
+  if (!reservation) return;
+  await db.llmSpendReservation.updateMany({
+    where: { id: reservation.id, status: "pending" },
+    data: { status: "settled", expiresAt: new Date() },
+  });
+}
+
+export async function currentSpendUsd(): Promise<number> {
+  const now = new Date();
+  const rows = await db.llmSpendReservation.findMany({
+    where: { day: utcDay() },
+    select: {
+      status: true,
+      reservedMicros: true,
+      actualMicros: true,
+      expiresAt: true,
+    },
+  });
+  const micros = committedSpendMicros(rows, now);
+  return micros / 1_000_000;
 }

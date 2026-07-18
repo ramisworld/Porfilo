@@ -16,14 +16,17 @@ export type RenderablePortfolio = {
 
 export function buildPortfolioHtml(
   portfolio: RenderablePortfolio,
+  assetOrigin?: string,
 ): string | null {
   const parsedProfile = profileDataSchema.safeParse(portfolio.profileData);
-  let html = parsedProfile.success ? renderStoredWorld(portfolio) : null;
+  let html = parsedProfile.success
+    ? renderStoredWorld(portfolio, assetOrigin)
+    : null;
   if (!html && parsedProfile.success && portfolio.designSpec) {
     const parsed = designSpecSchema.safeParse(portfolio.designSpec);
     const spec = parsed.success ? parsed.data : DEFAULT_SPEC;
     const version = portfolio.engineVersion ?? ENGINE_VERSION;
-    html = renderPortfolioPage(spec, parsedProfile.data, version);
+    html = renderPortfolioPage(spec, parsedProfile.data, version, assetOrigin);
   } else if (!html && portfolio.code) {
     html = portfolio.code;
   }

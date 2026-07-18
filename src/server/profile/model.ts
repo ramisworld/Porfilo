@@ -1,5 +1,20 @@
 import { z } from "zod";
 
+/** Portfolio links are rendered into visitor-facing anchors. Only web URLs are safe. */
+export const safeWebUrlSchema = z
+  .string()
+  .url()
+  .superRefine((value, ctx) => {
+    const protocol = new URL(value).protocol;
+    if (protocol !== "https:" && protocol !== "http:") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "URL must use http or https",
+      });
+    }
+  })
+  .transform((value) => new URL(value).toString());
+
 /**
  * ProfileData — the editable "facts" layer (see docs/ARCHITECTURE.md §5).
  *
@@ -9,10 +24,10 @@ import { z } from "zod";
  */
 
 export const linksSchema = z.object({
-  github: z.string().url().optional(),
-  site: z.string().url().optional(),
-  x: z.string().url().optional(),
-  linkedin: z.string().url().optional(),
+  github: safeWebUrlSchema.optional(),
+  site: safeWebUrlSchema.optional(),
+  x: safeWebUrlSchema.optional(),
+  linkedin: safeWebUrlSchema.optional(),
   email: z.string().email().optional(),
 });
 
@@ -45,8 +60,8 @@ export const projectSchema = z.object({
   stars: z.number().int().nonnegative().optional(),
   /** Last meaningful project year from GitHub. Optional for legacy/manual rows. */
   year: z.number().int().min(1970).max(2100).optional(),
-  demoUrl: z.string().url().optional(),
-  repoUrl: z.string().url(),
+  demoUrl: safeWebUrlSchema.optional(),
+  repoUrl: safeWebUrlSchema,
 });
 
 export const experienceSchema = z.object({
@@ -57,7 +72,7 @@ export const experienceSchema = z.object({
   location: z.string().trim().max(100).optional(),
   summary: z.string().trim().max(600).optional(),
   highlights: z.array(z.string().trim().min(1).max(180)).max(6).optional(),
-  url: z.string().url().optional(),
+  url: safeWebUrlSchema.optional(),
 });
 
 // User-curated credentials (certifications / licenses).
@@ -71,7 +86,7 @@ export const credentialSchema = z.object({
   issuerKey: z.string().max(40).optional(),
   credentialId: z.string().max(80).optional(),
   year: z.number().int().min(1900).max(2100).optional(),
-  url: z.string().url().optional(),
+  url: safeWebUrlSchema.optional(),
   skills: z.array(z.string().min(1).max(40)).max(15).optional(),
 });
 

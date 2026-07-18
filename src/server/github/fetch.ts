@@ -194,6 +194,7 @@ async function fetchRepoDetail(
   gql: ReturnType<typeof client>,
   owner: string,
   repo: RepoNode,
+  signal?: AbortSignal,
 ): Promise<Pick<RawRepo, "readme" | "fileTree" | "manifest">> {
   const branch = repo.defaultBranch;
   if (!branch) return { readme: null, fileTree: [], manifest: null };
@@ -208,6 +209,7 @@ async function fetchRepoDetail(
       tree: `${branch}:`,
       pkg: `${branch}:package.json`,
       pyproject: `${branch}:pyproject.toml`,
+      request: { signal },
     });
     const r = res.repository;
     const readme =
@@ -247,11 +249,13 @@ export async function githubUserExists(username: string): Promise<boolean> {
       { login },
     );
     return Boolean(res.user?.id);
-  } catch {
-    // Treat network/transport errors as "unknown → assume true" so a flaky
-    // GitHub doesn't block legitimate users. The full fetch will surface a
-    // real error downstream if the user really doesn't exist.
-    return true;
+  } catch (error) {
+    // Do not turn an upstream outage into a false positive that consumes a
+    // generation slot and paid capacity. The validation route maps this to a
+    // temporary 503 so the caller can retry safely.
+    throw new Error("GitHub validation is temporarily unavailable.", {
+      cause: error,
+    });
   }
 }
 
@@ -259,7 +263,10 @@ export async function githubUserExists(username: string): Promise<boolean> {
  * Fetch + select + enrich a user's public GitHub into a RawProfile.
  * Cached per-username (1h TTL) to respect the 5,000 req/hr limit.
  */
-export async function fetchRawProfile(username: string): Promise<RawProfile> {
+export async function fetchRawProfile(
+  username: string,
+  signal?: AbortSignal,
+): Promise<RawProfile> {
   const login = username.trim().replace(/^@/, "");
 
   const cached = await db.gitHubCache.findUnique({ where: { username: login } });
@@ -268,7 +275,11 @@ export async function fetchRawProfile(username: string): Promise<RawProfile> {
   }
 
   const gql = client();
-  const data = await gql<ProfileQuery>(PROFILE_QUERY, { login });
+  signal?.throwIfAborted();
+  const data = await gql<ProfileQuery>(PROFILE_QUERY, {
+    login,
+    request: { signal },
+  });
   if (!data.user) {
     throw new Error(`GitHub user "${login}" not found.`);
   }
@@ -283,7 +294,7 @@ export async function fetchRawProfile(username: string): Promise<RawProfile> {
   const repos: RawRepo[] = await Promise.all(
     selected.map(async (r) => ({
       ...r,
-      ...(await fetchRepoDetail(gql, login, r)),
+      ...(await fetchRepoDetail(gql, login, r, signal)),
     })),
   );
 

@@ -68,6 +68,7 @@ function profileSummary(data: ProfileData | undefined) {
 export async function chooseWorld(
   vibe: string,
   data?: ProfileData,
+  signal?: AbortSignal,
 ): Promise<{ choice: WorldChoice; usage: UsageRecord | null }> {
   const fallback = deterministicChoice(vibe);
   if (isMock) return { choice: fallback, usage: null };
@@ -87,23 +88,26 @@ export async function chooseWorld(
     avoidWhen: world.antiCues,
   }));
 
-  const message = await anthropic().messages.create({
-    model: MODELS.chooser,
-    max_tokens: 360,
-    temperature: 0,
-    system: CHOOSER_SYSTEM,
-    messages: [
-      {
-        role: "user",
-        content: JSON.stringify({
-          vibe,
-          profile: profileSummary(data),
-          deterministicShortlist: ranked,
-          catalog,
-        }),
-      },
-    ],
-  });
+  const message = await anthropic().messages.create(
+    {
+      model: MODELS.chooser,
+      max_tokens: 360,
+      temperature: 0,
+      system: CHOOSER_SYSTEM,
+      messages: [
+        {
+          role: "user",
+          content: JSON.stringify({
+            vibe,
+            profile: profileSummary(data),
+            deterministicShortlist: ranked,
+            catalog,
+          }),
+        },
+      ],
+    },
+    { signal },
+  );
 
   const usage = buildUsageRecord(
     "world chooser (Haiku)",

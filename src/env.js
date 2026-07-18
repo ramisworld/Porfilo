@@ -19,6 +19,36 @@ export const env = createEnv({
     // Hard daily cap (USD). When the day's accumulated spend reaches this,
     // /api/generate returns 503 until UTC midnight. Leave unset to disable.
     DAILY_LLM_BUDGET_USD: z.string().optional(),
+    // Conservative amount reserved atomically before a generation starts. The
+    // exact recorded cost replaces this reservation when the run settles.
+    LLM_GENERATION_RESERVATION_USD: z.coerce
+      .number()
+      .positive()
+      .max(10)
+      .default(1),
+    GLOBAL_GENERATIONS_PER_HOUR: z.coerce
+      .number()
+      .int()
+      .positive()
+      .max(10_000)
+      .default(120),
+    MAX_CONCURRENT_GENERATIONS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .max(100)
+      .default(4),
+    MAX_CONCURRENT_HERO_CAPTURES: z.coerce
+      .number()
+      .int()
+      .positive()
+      .max(20)
+      .default(2),
+    TRUSTED_IP_HEADER: z
+      .enum(["x-forwarded-for", "cf-connecting-ip", "x-real-ip"])
+      .default("x-forwarded-for"),
+    // Enables POST /api/internal/maintenance for a Railway cron/service.
+    MAINTENANCE_SECRET: z.string().min(24).optional(),
 
     // Anthropic model IDs. Defaults match the architecture doc but can be
     // overridden per-environment (e.g. flip to a smaller model in dev / a
@@ -118,6 +148,12 @@ export const env = createEnv({
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     MOCK_LLM: process.env.MOCK_LLM,
     DAILY_LLM_BUDGET_USD: process.env.DAILY_LLM_BUDGET_USD,
+    LLM_GENERATION_RESERVATION_USD: process.env.LLM_GENERATION_RESERVATION_USD,
+    GLOBAL_GENERATIONS_PER_HOUR: process.env.GLOBAL_GENERATIONS_PER_HOUR,
+    MAX_CONCURRENT_GENERATIONS: process.env.MAX_CONCURRENT_GENERATIONS,
+    MAX_CONCURRENT_HERO_CAPTURES: process.env.MAX_CONCURRENT_HERO_CAPTURES,
+    TRUSTED_IP_HEADER: process.env.TRUSTED_IP_HEADER,
+    MAINTENANCE_SECRET: process.env.MAINTENANCE_SECRET,
     ANTHROPIC_MODEL_FACTS: process.env.ANTHROPIC_MODEL_FACTS,
     ANTHROPIC_MODEL_CHOOSER: process.env.ANTHROPIC_MODEL_CHOOSER,
     ANTHROPIC_MODEL_DESIGN: process.env.ANTHROPIC_MODEL_DESIGN,
@@ -154,3 +190,18 @@ export const env = createEnv({
    */
   emptyStringAsUndefined: true,
 });
+
+// Checkout without a webhook can collect money without granting access. Treat
+// partial Stripe configuration as a deployment error instead of a runtime bug.
+if (env.NODE_ENV === "production") {
+  if (env.STRIPE_SECRET_KEY && !env.STRIPE_WEBHOOK_SECRET) {
+    throw new Error(
+      "STRIPE_WEBHOOK_SECRET is required when STRIPE_SECRET_KEY is configured.",
+    );
+  }
+  if (env.STRIPE_WEBHOOK_SECRET && !env.STRIPE_SECRET_KEY) {
+    throw new Error(
+      "STRIPE_SECRET_KEY is required when STRIPE_WEBHOOK_SECRET is configured.",
+    );
+  }
+}

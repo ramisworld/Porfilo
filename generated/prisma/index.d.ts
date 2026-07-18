@@ -63,6 +63,16 @@ export type FeatureAccess = $Result.DefaultSelection<Prisma.$FeatureAccessPayloa
  * 
  */
 export type GenerationLock = $Result.DefaultSelection<Prisma.$GenerationLockPayload>
+/**
+ * Model WorkSlot
+ * 
+ */
+export type WorkSlot = $Result.DefaultSelection<Prisma.$WorkSlotPayload>
+/**
+ * Model LlmSpendReservation
+ * 
+ */
+export type LlmSpendReservation = $Result.DefaultSelection<Prisma.$LlmSpendReservationPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -281,6 +291,26 @@ export class PrismaClient<
     * ```
     */
   get generationLock(): Prisma.GenerationLockDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.workSlot`: Exposes CRUD operations for the **WorkSlot** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WorkSlots
+    * const workSlots = await prisma.workSlot.findMany()
+    * ```
+    */
+  get workSlot(): Prisma.WorkSlotDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.llmSpendReservation`: Exposes CRUD operations for the **LlmSpendReservation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LlmSpendReservations
+    * const llmSpendReservations = await prisma.llmSpendReservation.findMany()
+    * ```
+    */
+  get llmSpendReservation(): Prisma.LlmSpendReservationDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -731,7 +761,9 @@ export namespace Prisma {
     GitHubCache: 'GitHubCache',
     RateLimitBucket: 'RateLimitBucket',
     FeatureAccess: 'FeatureAccess',
-    GenerationLock: 'GenerationLock'
+    GenerationLock: 'GenerationLock',
+    WorkSlot: 'WorkSlot',
+    LlmSpendReservation: 'LlmSpendReservation'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -750,7 +782,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "portfolio" | "customDomain" | "gitHubCache" | "rateLimitBucket" | "featureAccess" | "generationLock"
+      modelProps: "user" | "session" | "account" | "verification" | "portfolio" | "customDomain" | "gitHubCache" | "rateLimitBucket" | "featureAccess" | "generationLock" | "workSlot" | "llmSpendReservation"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1494,6 +1526,154 @@ export namespace Prisma {
           }
         }
       }
+      WorkSlot: {
+        payload: Prisma.$WorkSlotPayload<ExtArgs>
+        fields: Prisma.WorkSlotFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WorkSlotFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WorkSlotFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload>
+          }
+          findFirst: {
+            args: Prisma.WorkSlotFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WorkSlotFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload>
+          }
+          findMany: {
+            args: Prisma.WorkSlotFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload>[]
+          }
+          create: {
+            args: Prisma.WorkSlotCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload>
+          }
+          createMany: {
+            args: Prisma.WorkSlotCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WorkSlotCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload>[]
+          }
+          delete: {
+            args: Prisma.WorkSlotDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload>
+          }
+          update: {
+            args: Prisma.WorkSlotUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload>
+          }
+          deleteMany: {
+            args: Prisma.WorkSlotDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WorkSlotUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WorkSlotUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload>[]
+          }
+          upsert: {
+            args: Prisma.WorkSlotUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkSlotPayload>
+          }
+          aggregate: {
+            args: Prisma.WorkSlotAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWorkSlot>
+          }
+          groupBy: {
+            args: Prisma.WorkSlotGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WorkSlotGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WorkSlotCountArgs<ExtArgs>
+            result: $Utils.Optional<WorkSlotCountAggregateOutputType> | number
+          }
+        }
+      }
+      LlmSpendReservation: {
+        payload: Prisma.$LlmSpendReservationPayload<ExtArgs>
+        fields: Prisma.LlmSpendReservationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LlmSpendReservationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LlmSpendReservationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload>
+          }
+          findFirst: {
+            args: Prisma.LlmSpendReservationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LlmSpendReservationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload>
+          }
+          findMany: {
+            args: Prisma.LlmSpendReservationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload>[]
+          }
+          create: {
+            args: Prisma.LlmSpendReservationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload>
+          }
+          createMany: {
+            args: Prisma.LlmSpendReservationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LlmSpendReservationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload>[]
+          }
+          delete: {
+            args: Prisma.LlmSpendReservationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload>
+          }
+          update: {
+            args: Prisma.LlmSpendReservationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload>
+          }
+          deleteMany: {
+            args: Prisma.LlmSpendReservationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LlmSpendReservationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LlmSpendReservationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload>[]
+          }
+          upsert: {
+            args: Prisma.LlmSpendReservationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LlmSpendReservationPayload>
+          }
+          aggregate: {
+            args: Prisma.LlmSpendReservationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLlmSpendReservation>
+          }
+          groupBy: {
+            args: Prisma.LlmSpendReservationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LlmSpendReservationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LlmSpendReservationCountArgs<ExtArgs>
+            result: $Utils.Optional<LlmSpendReservationCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1600,6 +1780,8 @@ export namespace Prisma {
     rateLimitBucket?: RateLimitBucketOmit
     featureAccess?: FeatureAccessOmit
     generationLock?: GenerationLockOmit
+    workSlot?: WorkSlotOmit
+    llmSpendReservation?: LlmSpendReservationOmit
   }
 
   /* Types for Logging */
@@ -12978,6 +13160,2107 @@ export namespace Prisma {
 
 
   /**
+   * Model WorkSlot
+   */
+
+  export type AggregateWorkSlot = {
+    _count: WorkSlotCountAggregateOutputType | null
+    _avg: WorkSlotAvgAggregateOutputType | null
+    _sum: WorkSlotSumAggregateOutputType | null
+    _min: WorkSlotMinAggregateOutputType | null
+    _max: WorkSlotMaxAggregateOutputType | null
+  }
+
+  export type WorkSlotAvgAggregateOutputType = {
+    slot: number | null
+  }
+
+  export type WorkSlotSumAggregateOutputType = {
+    slot: number | null
+  }
+
+  export type WorkSlotMinAggregateOutputType = {
+    kind: string | null
+    slot: number | null
+    token: string | null
+    expiresAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WorkSlotMaxAggregateOutputType = {
+    kind: string | null
+    slot: number | null
+    token: string | null
+    expiresAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WorkSlotCountAggregateOutputType = {
+    kind: number
+    slot: number
+    token: number
+    expiresAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WorkSlotAvgAggregateInputType = {
+    slot?: true
+  }
+
+  export type WorkSlotSumAggregateInputType = {
+    slot?: true
+  }
+
+  export type WorkSlotMinAggregateInputType = {
+    kind?: true
+    slot?: true
+    token?: true
+    expiresAt?: true
+    updatedAt?: true
+  }
+
+  export type WorkSlotMaxAggregateInputType = {
+    kind?: true
+    slot?: true
+    token?: true
+    expiresAt?: true
+    updatedAt?: true
+  }
+
+  export type WorkSlotCountAggregateInputType = {
+    kind?: true
+    slot?: true
+    token?: true
+    expiresAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WorkSlotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkSlot to aggregate.
+     */
+    where?: WorkSlotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkSlots to fetch.
+     */
+    orderBy?: WorkSlotOrderByWithRelationInput | WorkSlotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WorkSlotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkSlots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkSlots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WorkSlots
+    **/
+    _count?: true | WorkSlotCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: WorkSlotAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WorkSlotSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WorkSlotMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WorkSlotMaxAggregateInputType
+  }
+
+  export type GetWorkSlotAggregateType<T extends WorkSlotAggregateArgs> = {
+        [P in keyof T & keyof AggregateWorkSlot]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWorkSlot[P]>
+      : GetScalarType<T[P], AggregateWorkSlot[P]>
+  }
+
+
+
+
+  export type WorkSlotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkSlotWhereInput
+    orderBy?: WorkSlotOrderByWithAggregationInput | WorkSlotOrderByWithAggregationInput[]
+    by: WorkSlotScalarFieldEnum[] | WorkSlotScalarFieldEnum
+    having?: WorkSlotScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WorkSlotCountAggregateInputType | true
+    _avg?: WorkSlotAvgAggregateInputType
+    _sum?: WorkSlotSumAggregateInputType
+    _min?: WorkSlotMinAggregateInputType
+    _max?: WorkSlotMaxAggregateInputType
+  }
+
+  export type WorkSlotGroupByOutputType = {
+    kind: string
+    slot: number
+    token: string | null
+    expiresAt: Date | null
+    updatedAt: Date
+    _count: WorkSlotCountAggregateOutputType | null
+    _avg: WorkSlotAvgAggregateOutputType | null
+    _sum: WorkSlotSumAggregateOutputType | null
+    _min: WorkSlotMinAggregateOutputType | null
+    _max: WorkSlotMaxAggregateOutputType | null
+  }
+
+  type GetWorkSlotGroupByPayload<T extends WorkSlotGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WorkSlotGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WorkSlotGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WorkSlotGroupByOutputType[P]>
+            : GetScalarType<T[P], WorkSlotGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WorkSlotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    kind?: boolean
+    slot?: boolean
+    token?: boolean
+    expiresAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["workSlot"]>
+
+  export type WorkSlotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    kind?: boolean
+    slot?: boolean
+    token?: boolean
+    expiresAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["workSlot"]>
+
+  export type WorkSlotSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    kind?: boolean
+    slot?: boolean
+    token?: boolean
+    expiresAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["workSlot"]>
+
+  export type WorkSlotSelectScalar = {
+    kind?: boolean
+    slot?: boolean
+    token?: boolean
+    expiresAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WorkSlotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"kind" | "slot" | "token" | "expiresAt" | "updatedAt", ExtArgs["result"]["workSlot"]>
+
+  export type $WorkSlotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WorkSlot"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      kind: string
+      slot: number
+      token: string | null
+      expiresAt: Date | null
+      updatedAt: Date
+    }, ExtArgs["result"]["workSlot"]>
+    composites: {}
+  }
+
+  type WorkSlotGetPayload<S extends boolean | null | undefined | WorkSlotDefaultArgs> = $Result.GetResult<Prisma.$WorkSlotPayload, S>
+
+  type WorkSlotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WorkSlotFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WorkSlotCountAggregateInputType | true
+    }
+
+  export interface WorkSlotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WorkSlot'], meta: { name: 'WorkSlot' } }
+    /**
+     * Find zero or one WorkSlot that matches the filter.
+     * @param {WorkSlotFindUniqueArgs} args - Arguments to find a WorkSlot
+     * @example
+     * // Get one WorkSlot
+     * const workSlot = await prisma.workSlot.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WorkSlotFindUniqueArgs>(args: SelectSubset<T, WorkSlotFindUniqueArgs<ExtArgs>>): Prisma__WorkSlotClient<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WorkSlot that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WorkSlotFindUniqueOrThrowArgs} args - Arguments to find a WorkSlot
+     * @example
+     * // Get one WorkSlot
+     * const workSlot = await prisma.workSlot.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WorkSlotFindUniqueOrThrowArgs>(args: SelectSubset<T, WorkSlotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WorkSlotClient<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkSlot that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkSlotFindFirstArgs} args - Arguments to find a WorkSlot
+     * @example
+     * // Get one WorkSlot
+     * const workSlot = await prisma.workSlot.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WorkSlotFindFirstArgs>(args?: SelectSubset<T, WorkSlotFindFirstArgs<ExtArgs>>): Prisma__WorkSlotClient<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkSlot that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkSlotFindFirstOrThrowArgs} args - Arguments to find a WorkSlot
+     * @example
+     * // Get one WorkSlot
+     * const workSlot = await prisma.workSlot.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WorkSlotFindFirstOrThrowArgs>(args?: SelectSubset<T, WorkSlotFindFirstOrThrowArgs<ExtArgs>>): Prisma__WorkSlotClient<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WorkSlots that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkSlotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WorkSlots
+     * const workSlots = await prisma.workSlot.findMany()
+     * 
+     * // Get first 10 WorkSlots
+     * const workSlots = await prisma.workSlot.findMany({ take: 10 })
+     * 
+     * // Only select the `kind`
+     * const workSlotWithKindOnly = await prisma.workSlot.findMany({ select: { kind: true } })
+     * 
+     */
+    findMany<T extends WorkSlotFindManyArgs>(args?: SelectSubset<T, WorkSlotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WorkSlot.
+     * @param {WorkSlotCreateArgs} args - Arguments to create a WorkSlot.
+     * @example
+     * // Create one WorkSlot
+     * const WorkSlot = await prisma.workSlot.create({
+     *   data: {
+     *     // ... data to create a WorkSlot
+     *   }
+     * })
+     * 
+     */
+    create<T extends WorkSlotCreateArgs>(args: SelectSubset<T, WorkSlotCreateArgs<ExtArgs>>): Prisma__WorkSlotClient<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WorkSlots.
+     * @param {WorkSlotCreateManyArgs} args - Arguments to create many WorkSlots.
+     * @example
+     * // Create many WorkSlots
+     * const workSlot = await prisma.workSlot.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WorkSlotCreateManyArgs>(args?: SelectSubset<T, WorkSlotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WorkSlots and returns the data saved in the database.
+     * @param {WorkSlotCreateManyAndReturnArgs} args - Arguments to create many WorkSlots.
+     * @example
+     * // Create many WorkSlots
+     * const workSlot = await prisma.workSlot.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WorkSlots and only return the `kind`
+     * const workSlotWithKindOnly = await prisma.workSlot.createManyAndReturn({
+     *   select: { kind: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WorkSlotCreateManyAndReturnArgs>(args?: SelectSubset<T, WorkSlotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WorkSlot.
+     * @param {WorkSlotDeleteArgs} args - Arguments to delete one WorkSlot.
+     * @example
+     * // Delete one WorkSlot
+     * const WorkSlot = await prisma.workSlot.delete({
+     *   where: {
+     *     // ... filter to delete one WorkSlot
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WorkSlotDeleteArgs>(args: SelectSubset<T, WorkSlotDeleteArgs<ExtArgs>>): Prisma__WorkSlotClient<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WorkSlot.
+     * @param {WorkSlotUpdateArgs} args - Arguments to update one WorkSlot.
+     * @example
+     * // Update one WorkSlot
+     * const workSlot = await prisma.workSlot.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WorkSlotUpdateArgs>(args: SelectSubset<T, WorkSlotUpdateArgs<ExtArgs>>): Prisma__WorkSlotClient<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WorkSlots.
+     * @param {WorkSlotDeleteManyArgs} args - Arguments to filter WorkSlots to delete.
+     * @example
+     * // Delete a few WorkSlots
+     * const { count } = await prisma.workSlot.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WorkSlotDeleteManyArgs>(args?: SelectSubset<T, WorkSlotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkSlots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkSlotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WorkSlots
+     * const workSlot = await prisma.workSlot.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WorkSlotUpdateManyArgs>(args: SelectSubset<T, WorkSlotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkSlots and returns the data updated in the database.
+     * @param {WorkSlotUpdateManyAndReturnArgs} args - Arguments to update many WorkSlots.
+     * @example
+     * // Update many WorkSlots
+     * const workSlot = await prisma.workSlot.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WorkSlots and only return the `kind`
+     * const workSlotWithKindOnly = await prisma.workSlot.updateManyAndReturn({
+     *   select: { kind: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WorkSlotUpdateManyAndReturnArgs>(args: SelectSubset<T, WorkSlotUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WorkSlot.
+     * @param {WorkSlotUpsertArgs} args - Arguments to update or create a WorkSlot.
+     * @example
+     * // Update or create a WorkSlot
+     * const workSlot = await prisma.workSlot.upsert({
+     *   create: {
+     *     // ... data to create a WorkSlot
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WorkSlot we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WorkSlotUpsertArgs>(args: SelectSubset<T, WorkSlotUpsertArgs<ExtArgs>>): Prisma__WorkSlotClient<$Result.GetResult<Prisma.$WorkSlotPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WorkSlots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkSlotCountArgs} args - Arguments to filter WorkSlots to count.
+     * @example
+     * // Count the number of WorkSlots
+     * const count = await prisma.workSlot.count({
+     *   where: {
+     *     // ... the filter for the WorkSlots we want to count
+     *   }
+     * })
+    **/
+    count<T extends WorkSlotCountArgs>(
+      args?: Subset<T, WorkSlotCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WorkSlotCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WorkSlot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkSlotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WorkSlotAggregateArgs>(args: Subset<T, WorkSlotAggregateArgs>): Prisma.PrismaPromise<GetWorkSlotAggregateType<T>>
+
+    /**
+     * Group by WorkSlot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkSlotGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WorkSlotGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WorkSlotGroupByArgs['orderBy'] }
+        : { orderBy?: WorkSlotGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WorkSlotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWorkSlotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WorkSlot model
+   */
+  readonly fields: WorkSlotFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WorkSlot.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WorkSlotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WorkSlot model
+   */
+  interface WorkSlotFieldRefs {
+    readonly kind: FieldRef<"WorkSlot", 'String'>
+    readonly slot: FieldRef<"WorkSlot", 'Int'>
+    readonly token: FieldRef<"WorkSlot", 'String'>
+    readonly expiresAt: FieldRef<"WorkSlot", 'DateTime'>
+    readonly updatedAt: FieldRef<"WorkSlot", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WorkSlot findUnique
+   */
+  export type WorkSlotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkSlot to fetch.
+     */
+    where: WorkSlotWhereUniqueInput
+  }
+
+  /**
+   * WorkSlot findUniqueOrThrow
+   */
+  export type WorkSlotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkSlot to fetch.
+     */
+    where: WorkSlotWhereUniqueInput
+  }
+
+  /**
+   * WorkSlot findFirst
+   */
+  export type WorkSlotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkSlot to fetch.
+     */
+    where?: WorkSlotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkSlots to fetch.
+     */
+    orderBy?: WorkSlotOrderByWithRelationInput | WorkSlotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkSlots.
+     */
+    cursor?: WorkSlotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkSlots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkSlots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkSlots.
+     */
+    distinct?: WorkSlotScalarFieldEnum | WorkSlotScalarFieldEnum[]
+  }
+
+  /**
+   * WorkSlot findFirstOrThrow
+   */
+  export type WorkSlotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkSlot to fetch.
+     */
+    where?: WorkSlotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkSlots to fetch.
+     */
+    orderBy?: WorkSlotOrderByWithRelationInput | WorkSlotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkSlots.
+     */
+    cursor?: WorkSlotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkSlots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkSlots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkSlots.
+     */
+    distinct?: WorkSlotScalarFieldEnum | WorkSlotScalarFieldEnum[]
+  }
+
+  /**
+   * WorkSlot findMany
+   */
+  export type WorkSlotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkSlots to fetch.
+     */
+    where?: WorkSlotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkSlots to fetch.
+     */
+    orderBy?: WorkSlotOrderByWithRelationInput | WorkSlotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WorkSlots.
+     */
+    cursor?: WorkSlotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkSlots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkSlots.
+     */
+    skip?: number
+    distinct?: WorkSlotScalarFieldEnum | WorkSlotScalarFieldEnum[]
+  }
+
+  /**
+   * WorkSlot create
+   */
+  export type WorkSlotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * The data needed to create a WorkSlot.
+     */
+    data: XOR<WorkSlotCreateInput, WorkSlotUncheckedCreateInput>
+  }
+
+  /**
+   * WorkSlot createMany
+   */
+  export type WorkSlotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WorkSlots.
+     */
+    data: WorkSlotCreateManyInput | WorkSlotCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WorkSlot createManyAndReturn
+   */
+  export type WorkSlotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * The data used to create many WorkSlots.
+     */
+    data: WorkSlotCreateManyInput | WorkSlotCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WorkSlot update
+   */
+  export type WorkSlotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * The data needed to update a WorkSlot.
+     */
+    data: XOR<WorkSlotUpdateInput, WorkSlotUncheckedUpdateInput>
+    /**
+     * Choose, which WorkSlot to update.
+     */
+    where: WorkSlotWhereUniqueInput
+  }
+
+  /**
+   * WorkSlot updateMany
+   */
+  export type WorkSlotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WorkSlots.
+     */
+    data: XOR<WorkSlotUpdateManyMutationInput, WorkSlotUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkSlots to update
+     */
+    where?: WorkSlotWhereInput
+    /**
+     * Limit how many WorkSlots to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkSlot updateManyAndReturn
+   */
+  export type WorkSlotUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * The data used to update WorkSlots.
+     */
+    data: XOR<WorkSlotUpdateManyMutationInput, WorkSlotUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkSlots to update
+     */
+    where?: WorkSlotWhereInput
+    /**
+     * Limit how many WorkSlots to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkSlot upsert
+   */
+  export type WorkSlotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * The filter to search for the WorkSlot to update in case it exists.
+     */
+    where: WorkSlotWhereUniqueInput
+    /**
+     * In case the WorkSlot found by the `where` argument doesn't exist, create a new WorkSlot with this data.
+     */
+    create: XOR<WorkSlotCreateInput, WorkSlotUncheckedCreateInput>
+    /**
+     * In case the WorkSlot was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WorkSlotUpdateInput, WorkSlotUncheckedUpdateInput>
+  }
+
+  /**
+   * WorkSlot delete
+   */
+  export type WorkSlotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+    /**
+     * Filter which WorkSlot to delete.
+     */
+    where: WorkSlotWhereUniqueInput
+  }
+
+  /**
+   * WorkSlot deleteMany
+   */
+  export type WorkSlotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkSlots to delete
+     */
+    where?: WorkSlotWhereInput
+    /**
+     * Limit how many WorkSlots to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkSlot without action
+   */
+  export type WorkSlotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkSlot
+     */
+    select?: WorkSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkSlot
+     */
+    omit?: WorkSlotOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LlmSpendReservation
+   */
+
+  export type AggregateLlmSpendReservation = {
+    _count: LlmSpendReservationCountAggregateOutputType | null
+    _avg: LlmSpendReservationAvgAggregateOutputType | null
+    _sum: LlmSpendReservationSumAggregateOutputType | null
+    _min: LlmSpendReservationMinAggregateOutputType | null
+    _max: LlmSpendReservationMaxAggregateOutputType | null
+  }
+
+  export type LlmSpendReservationAvgAggregateOutputType = {
+    reservedMicros: number | null
+    actualMicros: number | null
+  }
+
+  export type LlmSpendReservationSumAggregateOutputType = {
+    reservedMicros: number | null
+    actualMicros: number | null
+  }
+
+  export type LlmSpendReservationMinAggregateOutputType = {
+    id: string | null
+    day: string | null
+    status: string | null
+    reservedMicros: number | null
+    actualMicros: number | null
+    expiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LlmSpendReservationMaxAggregateOutputType = {
+    id: string | null
+    day: string | null
+    status: string | null
+    reservedMicros: number | null
+    actualMicros: number | null
+    expiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LlmSpendReservationCountAggregateOutputType = {
+    id: number
+    day: number
+    status: number
+    reservedMicros: number
+    actualMicros: number
+    expiresAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LlmSpendReservationAvgAggregateInputType = {
+    reservedMicros?: true
+    actualMicros?: true
+  }
+
+  export type LlmSpendReservationSumAggregateInputType = {
+    reservedMicros?: true
+    actualMicros?: true
+  }
+
+  export type LlmSpendReservationMinAggregateInputType = {
+    id?: true
+    day?: true
+    status?: true
+    reservedMicros?: true
+    actualMicros?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LlmSpendReservationMaxAggregateInputType = {
+    id?: true
+    day?: true
+    status?: true
+    reservedMicros?: true
+    actualMicros?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LlmSpendReservationCountAggregateInputType = {
+    id?: true
+    day?: true
+    status?: true
+    reservedMicros?: true
+    actualMicros?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LlmSpendReservationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LlmSpendReservation to aggregate.
+     */
+    where?: LlmSpendReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LlmSpendReservations to fetch.
+     */
+    orderBy?: LlmSpendReservationOrderByWithRelationInput | LlmSpendReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LlmSpendReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LlmSpendReservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LlmSpendReservations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LlmSpendReservations
+    **/
+    _count?: true | LlmSpendReservationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: LlmSpendReservationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LlmSpendReservationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LlmSpendReservationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LlmSpendReservationMaxAggregateInputType
+  }
+
+  export type GetLlmSpendReservationAggregateType<T extends LlmSpendReservationAggregateArgs> = {
+        [P in keyof T & keyof AggregateLlmSpendReservation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLlmSpendReservation[P]>
+      : GetScalarType<T[P], AggregateLlmSpendReservation[P]>
+  }
+
+
+
+
+  export type LlmSpendReservationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LlmSpendReservationWhereInput
+    orderBy?: LlmSpendReservationOrderByWithAggregationInput | LlmSpendReservationOrderByWithAggregationInput[]
+    by: LlmSpendReservationScalarFieldEnum[] | LlmSpendReservationScalarFieldEnum
+    having?: LlmSpendReservationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LlmSpendReservationCountAggregateInputType | true
+    _avg?: LlmSpendReservationAvgAggregateInputType
+    _sum?: LlmSpendReservationSumAggregateInputType
+    _min?: LlmSpendReservationMinAggregateInputType
+    _max?: LlmSpendReservationMaxAggregateInputType
+  }
+
+  export type LlmSpendReservationGroupByOutputType = {
+    id: string
+    day: string
+    status: string
+    reservedMicros: number
+    actualMicros: number
+    expiresAt: Date
+    createdAt: Date
+    updatedAt: Date
+    _count: LlmSpendReservationCountAggregateOutputType | null
+    _avg: LlmSpendReservationAvgAggregateOutputType | null
+    _sum: LlmSpendReservationSumAggregateOutputType | null
+    _min: LlmSpendReservationMinAggregateOutputType | null
+    _max: LlmSpendReservationMaxAggregateOutputType | null
+  }
+
+  type GetLlmSpendReservationGroupByPayload<T extends LlmSpendReservationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LlmSpendReservationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LlmSpendReservationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LlmSpendReservationGroupByOutputType[P]>
+            : GetScalarType<T[P], LlmSpendReservationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LlmSpendReservationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    day?: boolean
+    status?: boolean
+    reservedMicros?: boolean
+    actualMicros?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["llmSpendReservation"]>
+
+  export type LlmSpendReservationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    day?: boolean
+    status?: boolean
+    reservedMicros?: boolean
+    actualMicros?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["llmSpendReservation"]>
+
+  export type LlmSpendReservationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    day?: boolean
+    status?: boolean
+    reservedMicros?: boolean
+    actualMicros?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["llmSpendReservation"]>
+
+  export type LlmSpendReservationSelectScalar = {
+    id?: boolean
+    day?: boolean
+    status?: boolean
+    reservedMicros?: boolean
+    actualMicros?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LlmSpendReservationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "day" | "status" | "reservedMicros" | "actualMicros" | "expiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["llmSpendReservation"]>
+
+  export type $LlmSpendReservationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LlmSpendReservation"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      day: string
+      status: string
+      reservedMicros: number
+      actualMicros: number
+      expiresAt: Date
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["llmSpendReservation"]>
+    composites: {}
+  }
+
+  type LlmSpendReservationGetPayload<S extends boolean | null | undefined | LlmSpendReservationDefaultArgs> = $Result.GetResult<Prisma.$LlmSpendReservationPayload, S>
+
+  type LlmSpendReservationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LlmSpendReservationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LlmSpendReservationCountAggregateInputType | true
+    }
+
+  export interface LlmSpendReservationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LlmSpendReservation'], meta: { name: 'LlmSpendReservation' } }
+    /**
+     * Find zero or one LlmSpendReservation that matches the filter.
+     * @param {LlmSpendReservationFindUniqueArgs} args - Arguments to find a LlmSpendReservation
+     * @example
+     * // Get one LlmSpendReservation
+     * const llmSpendReservation = await prisma.llmSpendReservation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LlmSpendReservationFindUniqueArgs>(args: SelectSubset<T, LlmSpendReservationFindUniqueArgs<ExtArgs>>): Prisma__LlmSpendReservationClient<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LlmSpendReservation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LlmSpendReservationFindUniqueOrThrowArgs} args - Arguments to find a LlmSpendReservation
+     * @example
+     * // Get one LlmSpendReservation
+     * const llmSpendReservation = await prisma.llmSpendReservation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LlmSpendReservationFindUniqueOrThrowArgs>(args: SelectSubset<T, LlmSpendReservationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LlmSpendReservationClient<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LlmSpendReservation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmSpendReservationFindFirstArgs} args - Arguments to find a LlmSpendReservation
+     * @example
+     * // Get one LlmSpendReservation
+     * const llmSpendReservation = await prisma.llmSpendReservation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LlmSpendReservationFindFirstArgs>(args?: SelectSubset<T, LlmSpendReservationFindFirstArgs<ExtArgs>>): Prisma__LlmSpendReservationClient<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LlmSpendReservation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmSpendReservationFindFirstOrThrowArgs} args - Arguments to find a LlmSpendReservation
+     * @example
+     * // Get one LlmSpendReservation
+     * const llmSpendReservation = await prisma.llmSpendReservation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LlmSpendReservationFindFirstOrThrowArgs>(args?: SelectSubset<T, LlmSpendReservationFindFirstOrThrowArgs<ExtArgs>>): Prisma__LlmSpendReservationClient<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LlmSpendReservations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmSpendReservationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LlmSpendReservations
+     * const llmSpendReservations = await prisma.llmSpendReservation.findMany()
+     * 
+     * // Get first 10 LlmSpendReservations
+     * const llmSpendReservations = await prisma.llmSpendReservation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const llmSpendReservationWithIdOnly = await prisma.llmSpendReservation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LlmSpendReservationFindManyArgs>(args?: SelectSubset<T, LlmSpendReservationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LlmSpendReservation.
+     * @param {LlmSpendReservationCreateArgs} args - Arguments to create a LlmSpendReservation.
+     * @example
+     * // Create one LlmSpendReservation
+     * const LlmSpendReservation = await prisma.llmSpendReservation.create({
+     *   data: {
+     *     // ... data to create a LlmSpendReservation
+     *   }
+     * })
+     * 
+     */
+    create<T extends LlmSpendReservationCreateArgs>(args: SelectSubset<T, LlmSpendReservationCreateArgs<ExtArgs>>): Prisma__LlmSpendReservationClient<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LlmSpendReservations.
+     * @param {LlmSpendReservationCreateManyArgs} args - Arguments to create many LlmSpendReservations.
+     * @example
+     * // Create many LlmSpendReservations
+     * const llmSpendReservation = await prisma.llmSpendReservation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LlmSpendReservationCreateManyArgs>(args?: SelectSubset<T, LlmSpendReservationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LlmSpendReservations and returns the data saved in the database.
+     * @param {LlmSpendReservationCreateManyAndReturnArgs} args - Arguments to create many LlmSpendReservations.
+     * @example
+     * // Create many LlmSpendReservations
+     * const llmSpendReservation = await prisma.llmSpendReservation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LlmSpendReservations and only return the `id`
+     * const llmSpendReservationWithIdOnly = await prisma.llmSpendReservation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LlmSpendReservationCreateManyAndReturnArgs>(args?: SelectSubset<T, LlmSpendReservationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LlmSpendReservation.
+     * @param {LlmSpendReservationDeleteArgs} args - Arguments to delete one LlmSpendReservation.
+     * @example
+     * // Delete one LlmSpendReservation
+     * const LlmSpendReservation = await prisma.llmSpendReservation.delete({
+     *   where: {
+     *     // ... filter to delete one LlmSpendReservation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LlmSpendReservationDeleteArgs>(args: SelectSubset<T, LlmSpendReservationDeleteArgs<ExtArgs>>): Prisma__LlmSpendReservationClient<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LlmSpendReservation.
+     * @param {LlmSpendReservationUpdateArgs} args - Arguments to update one LlmSpendReservation.
+     * @example
+     * // Update one LlmSpendReservation
+     * const llmSpendReservation = await prisma.llmSpendReservation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LlmSpendReservationUpdateArgs>(args: SelectSubset<T, LlmSpendReservationUpdateArgs<ExtArgs>>): Prisma__LlmSpendReservationClient<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LlmSpendReservations.
+     * @param {LlmSpendReservationDeleteManyArgs} args - Arguments to filter LlmSpendReservations to delete.
+     * @example
+     * // Delete a few LlmSpendReservations
+     * const { count } = await prisma.llmSpendReservation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LlmSpendReservationDeleteManyArgs>(args?: SelectSubset<T, LlmSpendReservationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LlmSpendReservations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmSpendReservationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LlmSpendReservations
+     * const llmSpendReservation = await prisma.llmSpendReservation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LlmSpendReservationUpdateManyArgs>(args: SelectSubset<T, LlmSpendReservationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LlmSpendReservations and returns the data updated in the database.
+     * @param {LlmSpendReservationUpdateManyAndReturnArgs} args - Arguments to update many LlmSpendReservations.
+     * @example
+     * // Update many LlmSpendReservations
+     * const llmSpendReservation = await prisma.llmSpendReservation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LlmSpendReservations and only return the `id`
+     * const llmSpendReservationWithIdOnly = await prisma.llmSpendReservation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LlmSpendReservationUpdateManyAndReturnArgs>(args: SelectSubset<T, LlmSpendReservationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LlmSpendReservation.
+     * @param {LlmSpendReservationUpsertArgs} args - Arguments to update or create a LlmSpendReservation.
+     * @example
+     * // Update or create a LlmSpendReservation
+     * const llmSpendReservation = await prisma.llmSpendReservation.upsert({
+     *   create: {
+     *     // ... data to create a LlmSpendReservation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LlmSpendReservation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LlmSpendReservationUpsertArgs>(args: SelectSubset<T, LlmSpendReservationUpsertArgs<ExtArgs>>): Prisma__LlmSpendReservationClient<$Result.GetResult<Prisma.$LlmSpendReservationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LlmSpendReservations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmSpendReservationCountArgs} args - Arguments to filter LlmSpendReservations to count.
+     * @example
+     * // Count the number of LlmSpendReservations
+     * const count = await prisma.llmSpendReservation.count({
+     *   where: {
+     *     // ... the filter for the LlmSpendReservations we want to count
+     *   }
+     * })
+    **/
+    count<T extends LlmSpendReservationCountArgs>(
+      args?: Subset<T, LlmSpendReservationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LlmSpendReservationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LlmSpendReservation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmSpendReservationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LlmSpendReservationAggregateArgs>(args: Subset<T, LlmSpendReservationAggregateArgs>): Prisma.PrismaPromise<GetLlmSpendReservationAggregateType<T>>
+
+    /**
+     * Group by LlmSpendReservation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LlmSpendReservationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LlmSpendReservationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LlmSpendReservationGroupByArgs['orderBy'] }
+        : { orderBy?: LlmSpendReservationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LlmSpendReservationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLlmSpendReservationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LlmSpendReservation model
+   */
+  readonly fields: LlmSpendReservationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LlmSpendReservation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LlmSpendReservationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LlmSpendReservation model
+   */
+  interface LlmSpendReservationFieldRefs {
+    readonly id: FieldRef<"LlmSpendReservation", 'String'>
+    readonly day: FieldRef<"LlmSpendReservation", 'String'>
+    readonly status: FieldRef<"LlmSpendReservation", 'String'>
+    readonly reservedMicros: FieldRef<"LlmSpendReservation", 'Int'>
+    readonly actualMicros: FieldRef<"LlmSpendReservation", 'Int'>
+    readonly expiresAt: FieldRef<"LlmSpendReservation", 'DateTime'>
+    readonly createdAt: FieldRef<"LlmSpendReservation", 'DateTime'>
+    readonly updatedAt: FieldRef<"LlmSpendReservation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LlmSpendReservation findUnique
+   */
+  export type LlmSpendReservationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * Filter, which LlmSpendReservation to fetch.
+     */
+    where: LlmSpendReservationWhereUniqueInput
+  }
+
+  /**
+   * LlmSpendReservation findUniqueOrThrow
+   */
+  export type LlmSpendReservationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * Filter, which LlmSpendReservation to fetch.
+     */
+    where: LlmSpendReservationWhereUniqueInput
+  }
+
+  /**
+   * LlmSpendReservation findFirst
+   */
+  export type LlmSpendReservationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * Filter, which LlmSpendReservation to fetch.
+     */
+    where?: LlmSpendReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LlmSpendReservations to fetch.
+     */
+    orderBy?: LlmSpendReservationOrderByWithRelationInput | LlmSpendReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LlmSpendReservations.
+     */
+    cursor?: LlmSpendReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LlmSpendReservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LlmSpendReservations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LlmSpendReservations.
+     */
+    distinct?: LlmSpendReservationScalarFieldEnum | LlmSpendReservationScalarFieldEnum[]
+  }
+
+  /**
+   * LlmSpendReservation findFirstOrThrow
+   */
+  export type LlmSpendReservationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * Filter, which LlmSpendReservation to fetch.
+     */
+    where?: LlmSpendReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LlmSpendReservations to fetch.
+     */
+    orderBy?: LlmSpendReservationOrderByWithRelationInput | LlmSpendReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LlmSpendReservations.
+     */
+    cursor?: LlmSpendReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LlmSpendReservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LlmSpendReservations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LlmSpendReservations.
+     */
+    distinct?: LlmSpendReservationScalarFieldEnum | LlmSpendReservationScalarFieldEnum[]
+  }
+
+  /**
+   * LlmSpendReservation findMany
+   */
+  export type LlmSpendReservationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * Filter, which LlmSpendReservations to fetch.
+     */
+    where?: LlmSpendReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LlmSpendReservations to fetch.
+     */
+    orderBy?: LlmSpendReservationOrderByWithRelationInput | LlmSpendReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LlmSpendReservations.
+     */
+    cursor?: LlmSpendReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LlmSpendReservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LlmSpendReservations.
+     */
+    skip?: number
+    distinct?: LlmSpendReservationScalarFieldEnum | LlmSpendReservationScalarFieldEnum[]
+  }
+
+  /**
+   * LlmSpendReservation create
+   */
+  export type LlmSpendReservationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * The data needed to create a LlmSpendReservation.
+     */
+    data: XOR<LlmSpendReservationCreateInput, LlmSpendReservationUncheckedCreateInput>
+  }
+
+  /**
+   * LlmSpendReservation createMany
+   */
+  export type LlmSpendReservationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LlmSpendReservations.
+     */
+    data: LlmSpendReservationCreateManyInput | LlmSpendReservationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LlmSpendReservation createManyAndReturn
+   */
+  export type LlmSpendReservationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * The data used to create many LlmSpendReservations.
+     */
+    data: LlmSpendReservationCreateManyInput | LlmSpendReservationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LlmSpendReservation update
+   */
+  export type LlmSpendReservationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * The data needed to update a LlmSpendReservation.
+     */
+    data: XOR<LlmSpendReservationUpdateInput, LlmSpendReservationUncheckedUpdateInput>
+    /**
+     * Choose, which LlmSpendReservation to update.
+     */
+    where: LlmSpendReservationWhereUniqueInput
+  }
+
+  /**
+   * LlmSpendReservation updateMany
+   */
+  export type LlmSpendReservationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LlmSpendReservations.
+     */
+    data: XOR<LlmSpendReservationUpdateManyMutationInput, LlmSpendReservationUncheckedUpdateManyInput>
+    /**
+     * Filter which LlmSpendReservations to update
+     */
+    where?: LlmSpendReservationWhereInput
+    /**
+     * Limit how many LlmSpendReservations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LlmSpendReservation updateManyAndReturn
+   */
+  export type LlmSpendReservationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * The data used to update LlmSpendReservations.
+     */
+    data: XOR<LlmSpendReservationUpdateManyMutationInput, LlmSpendReservationUncheckedUpdateManyInput>
+    /**
+     * Filter which LlmSpendReservations to update
+     */
+    where?: LlmSpendReservationWhereInput
+    /**
+     * Limit how many LlmSpendReservations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LlmSpendReservation upsert
+   */
+  export type LlmSpendReservationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * The filter to search for the LlmSpendReservation to update in case it exists.
+     */
+    where: LlmSpendReservationWhereUniqueInput
+    /**
+     * In case the LlmSpendReservation found by the `where` argument doesn't exist, create a new LlmSpendReservation with this data.
+     */
+    create: XOR<LlmSpendReservationCreateInput, LlmSpendReservationUncheckedCreateInput>
+    /**
+     * In case the LlmSpendReservation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LlmSpendReservationUpdateInput, LlmSpendReservationUncheckedUpdateInput>
+  }
+
+  /**
+   * LlmSpendReservation delete
+   */
+  export type LlmSpendReservationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+    /**
+     * Filter which LlmSpendReservation to delete.
+     */
+    where: LlmSpendReservationWhereUniqueInput
+  }
+
+  /**
+   * LlmSpendReservation deleteMany
+   */
+  export type LlmSpendReservationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LlmSpendReservations to delete
+     */
+    where?: LlmSpendReservationWhereInput
+    /**
+     * Limit how many LlmSpendReservations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LlmSpendReservation without action
+   */
+  export type LlmSpendReservationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LlmSpendReservation
+     */
+    select?: LlmSpendReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LlmSpendReservation
+     */
+    omit?: LlmSpendReservationOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -13147,6 +15430,31 @@ export namespace Prisma {
   export type GenerationLockScalarFieldEnum = (typeof GenerationLockScalarFieldEnum)[keyof typeof GenerationLockScalarFieldEnum]
 
 
+  export const WorkSlotScalarFieldEnum: {
+    kind: 'kind',
+    slot: 'slot',
+    token: 'token',
+    expiresAt: 'expiresAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WorkSlotScalarFieldEnum = (typeof WorkSlotScalarFieldEnum)[keyof typeof WorkSlotScalarFieldEnum]
+
+
+  export const LlmSpendReservationScalarFieldEnum: {
+    id: 'id',
+    day: 'day',
+    status: 'status',
+    reservedMicros: 'reservedMicros',
+    actualMicros: 'actualMicros',
+    expiresAt: 'expiresAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LlmSpendReservationScalarFieldEnum = (typeof LlmSpendReservationScalarFieldEnum)[keyof typeof LlmSpendReservationScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -13253,14 +15561,14 @@ export namespace Prisma {
    * Reference to a field of type 'Bytes'
    */
   export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
-
+    
 
 
   /**
    * Reference to a field of type 'Bytes[]'
    */
   export type ListBytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes[]'>
-
+    
 
 
   /**
@@ -14086,6 +16394,130 @@ export namespace Prisma {
     githubUsername?: StringWithAggregatesFilter<"GenerationLock"> | string
     createdAt?: DateTimeWithAggregatesFilter<"GenerationLock"> | Date | string
     expiresAt?: DateTimeWithAggregatesFilter<"GenerationLock"> | Date | string
+  }
+
+  export type WorkSlotWhereInput = {
+    AND?: WorkSlotWhereInput | WorkSlotWhereInput[]
+    OR?: WorkSlotWhereInput[]
+    NOT?: WorkSlotWhereInput | WorkSlotWhereInput[]
+    kind?: StringFilter<"WorkSlot"> | string
+    slot?: IntFilter<"WorkSlot"> | number
+    token?: StringNullableFilter<"WorkSlot"> | string | null
+    expiresAt?: DateTimeNullableFilter<"WorkSlot"> | Date | string | null
+    updatedAt?: DateTimeFilter<"WorkSlot"> | Date | string
+  }
+
+  export type WorkSlotOrderByWithRelationInput = {
+    kind?: SortOrder
+    slot?: SortOrder
+    token?: SortOrderInput | SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkSlotWhereUniqueInput = Prisma.AtLeast<{
+    kind_slot?: WorkSlotKindSlotCompoundUniqueInput
+    AND?: WorkSlotWhereInput | WorkSlotWhereInput[]
+    OR?: WorkSlotWhereInput[]
+    NOT?: WorkSlotWhereInput | WorkSlotWhereInput[]
+    kind?: StringFilter<"WorkSlot"> | string
+    slot?: IntFilter<"WorkSlot"> | number
+    token?: StringNullableFilter<"WorkSlot"> | string | null
+    expiresAt?: DateTimeNullableFilter<"WorkSlot"> | Date | string | null
+    updatedAt?: DateTimeFilter<"WorkSlot"> | Date | string
+  }, "kind_slot">
+
+  export type WorkSlotOrderByWithAggregationInput = {
+    kind?: SortOrder
+    slot?: SortOrder
+    token?: SortOrderInput | SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    _count?: WorkSlotCountOrderByAggregateInput
+    _avg?: WorkSlotAvgOrderByAggregateInput
+    _max?: WorkSlotMaxOrderByAggregateInput
+    _min?: WorkSlotMinOrderByAggregateInput
+    _sum?: WorkSlotSumOrderByAggregateInput
+  }
+
+  export type WorkSlotScalarWhereWithAggregatesInput = {
+    AND?: WorkSlotScalarWhereWithAggregatesInput | WorkSlotScalarWhereWithAggregatesInput[]
+    OR?: WorkSlotScalarWhereWithAggregatesInput[]
+    NOT?: WorkSlotScalarWhereWithAggregatesInput | WorkSlotScalarWhereWithAggregatesInput[]
+    kind?: StringWithAggregatesFilter<"WorkSlot"> | string
+    slot?: IntWithAggregatesFilter<"WorkSlot"> | number
+    token?: StringNullableWithAggregatesFilter<"WorkSlot"> | string | null
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"WorkSlot"> | Date | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"WorkSlot"> | Date | string
+  }
+
+  export type LlmSpendReservationWhereInput = {
+    AND?: LlmSpendReservationWhereInput | LlmSpendReservationWhereInput[]
+    OR?: LlmSpendReservationWhereInput[]
+    NOT?: LlmSpendReservationWhereInput | LlmSpendReservationWhereInput[]
+    id?: StringFilter<"LlmSpendReservation"> | string
+    day?: StringFilter<"LlmSpendReservation"> | string
+    status?: StringFilter<"LlmSpendReservation"> | string
+    reservedMicros?: IntFilter<"LlmSpendReservation"> | number
+    actualMicros?: IntFilter<"LlmSpendReservation"> | number
+    expiresAt?: DateTimeFilter<"LlmSpendReservation"> | Date | string
+    createdAt?: DateTimeFilter<"LlmSpendReservation"> | Date | string
+    updatedAt?: DateTimeFilter<"LlmSpendReservation"> | Date | string
+  }
+
+  export type LlmSpendReservationOrderByWithRelationInput = {
+    id?: SortOrder
+    day?: SortOrder
+    status?: SortOrder
+    reservedMicros?: SortOrder
+    actualMicros?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LlmSpendReservationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: LlmSpendReservationWhereInput | LlmSpendReservationWhereInput[]
+    OR?: LlmSpendReservationWhereInput[]
+    NOT?: LlmSpendReservationWhereInput | LlmSpendReservationWhereInput[]
+    day?: StringFilter<"LlmSpendReservation"> | string
+    status?: StringFilter<"LlmSpendReservation"> | string
+    reservedMicros?: IntFilter<"LlmSpendReservation"> | number
+    actualMicros?: IntFilter<"LlmSpendReservation"> | number
+    expiresAt?: DateTimeFilter<"LlmSpendReservation"> | Date | string
+    createdAt?: DateTimeFilter<"LlmSpendReservation"> | Date | string
+    updatedAt?: DateTimeFilter<"LlmSpendReservation"> | Date | string
+  }, "id">
+
+  export type LlmSpendReservationOrderByWithAggregationInput = {
+    id?: SortOrder
+    day?: SortOrder
+    status?: SortOrder
+    reservedMicros?: SortOrder
+    actualMicros?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: LlmSpendReservationCountOrderByAggregateInput
+    _avg?: LlmSpendReservationAvgOrderByAggregateInput
+    _max?: LlmSpendReservationMaxOrderByAggregateInput
+    _min?: LlmSpendReservationMinOrderByAggregateInput
+    _sum?: LlmSpendReservationSumOrderByAggregateInput
+  }
+
+  export type LlmSpendReservationScalarWhereWithAggregatesInput = {
+    AND?: LlmSpendReservationScalarWhereWithAggregatesInput | LlmSpendReservationScalarWhereWithAggregatesInput[]
+    OR?: LlmSpendReservationScalarWhereWithAggregatesInput[]
+    NOT?: LlmSpendReservationScalarWhereWithAggregatesInput | LlmSpendReservationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"LlmSpendReservation"> | string
+    day?: StringWithAggregatesFilter<"LlmSpendReservation"> | string
+    status?: StringWithAggregatesFilter<"LlmSpendReservation"> | string
+    reservedMicros?: IntWithAggregatesFilter<"LlmSpendReservation"> | number
+    actualMicros?: IntWithAggregatesFilter<"LlmSpendReservation"> | number
+    expiresAt?: DateTimeWithAggregatesFilter<"LlmSpendReservation"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"LlmSpendReservation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"LlmSpendReservation"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -14988,6 +17420,139 @@ export namespace Prisma {
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type WorkSlotCreateInput = {
+    kind: string
+    slot: number
+    token?: string | null
+    expiresAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type WorkSlotUncheckedCreateInput = {
+    kind: string
+    slot: number
+    token?: string | null
+    expiresAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type WorkSlotUpdateInput = {
+    kind?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    token?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkSlotUncheckedUpdateInput = {
+    kind?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    token?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkSlotCreateManyInput = {
+    kind: string
+    slot: number
+    token?: string | null
+    expiresAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type WorkSlotUpdateManyMutationInput = {
+    kind?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    token?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkSlotUncheckedUpdateManyInput = {
+    kind?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    token?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LlmSpendReservationCreateInput = {
+    id?: string
+    day: string
+    status?: string
+    reservedMicros: number
+    actualMicros?: number
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LlmSpendReservationUncheckedCreateInput = {
+    id?: string
+    day: string
+    status?: string
+    reservedMicros: number
+    actualMicros?: number
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LlmSpendReservationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    day?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reservedMicros?: IntFieldUpdateOperationsInput | number
+    actualMicros?: IntFieldUpdateOperationsInput | number
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LlmSpendReservationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    day?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reservedMicros?: IntFieldUpdateOperationsInput | number
+    actualMicros?: IntFieldUpdateOperationsInput | number
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LlmSpendReservationCreateManyInput = {
+    id?: string
+    day: string
+    status?: string
+    reservedMicros: number
+    actualMicros?: number
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LlmSpendReservationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    day?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reservedMicros?: IntFieldUpdateOperationsInput | number
+    actualMicros?: IntFieldUpdateOperationsInput | number
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LlmSpendReservationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    day?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    reservedMicros?: IntFieldUpdateOperationsInput | number
+    actualMicros?: IntFieldUpdateOperationsInput | number
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -15733,6 +18298,86 @@ export namespace Prisma {
     githubUsername?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
+  }
+
+  export type WorkSlotKindSlotCompoundUniqueInput = {
+    kind: string
+    slot: number
+  }
+
+  export type WorkSlotCountOrderByAggregateInput = {
+    kind?: SortOrder
+    slot?: SortOrder
+    token?: SortOrder
+    expiresAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkSlotAvgOrderByAggregateInput = {
+    slot?: SortOrder
+  }
+
+  export type WorkSlotMaxOrderByAggregateInput = {
+    kind?: SortOrder
+    slot?: SortOrder
+    token?: SortOrder
+    expiresAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkSlotMinOrderByAggregateInput = {
+    kind?: SortOrder
+    slot?: SortOrder
+    token?: SortOrder
+    expiresAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkSlotSumOrderByAggregateInput = {
+    slot?: SortOrder
+  }
+
+  export type LlmSpendReservationCountOrderByAggregateInput = {
+    id?: SortOrder
+    day?: SortOrder
+    status?: SortOrder
+    reservedMicros?: SortOrder
+    actualMicros?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LlmSpendReservationAvgOrderByAggregateInput = {
+    reservedMicros?: SortOrder
+    actualMicros?: SortOrder
+  }
+
+  export type LlmSpendReservationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    day?: SortOrder
+    status?: SortOrder
+    reservedMicros?: SortOrder
+    actualMicros?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LlmSpendReservationMinOrderByAggregateInput = {
+    id?: SortOrder
+    day?: SortOrder
+    status?: SortOrder
+    reservedMicros?: SortOrder
+    actualMicros?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LlmSpendReservationSumOrderByAggregateInput = {
+    reservedMicros?: SortOrder
+    actualMicros?: SortOrder
   }
 
   export type SessionCreateNestedManyWithoutUserInput = {

@@ -15,9 +15,16 @@ export default async function OgImage({
 }) {
   const { slug } = await params;
   const portfolio = await db.portfolio.findFirst({
-    where: { OR: [{ slug }, { publicSubdomainSlug: slug }] },
+    where: {
+      isPublic: true,
+      OR: [{ slug }, { publicSubdomainSlug: slug }],
+    },
   });
-  if (!portfolio) return await renderPorfiloLandingOgImage();
+  if (!portfolio) {
+    const response = await renderPorfiloLandingOgImage();
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  }
   try {
     return await renderPortfolioHeroImage(portfolio);
   } catch (error) {

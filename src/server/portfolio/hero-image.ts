@@ -4,6 +4,11 @@ import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { chromium } from "playwright-core";
 import { db } from "~/server/db";
+import {
+  releaseWorkSlot,
+  tryAcquireWorkSlot,
+  type WorkLease,
+} from "~/server/work-slots";
 import { buildPortfolioHtml } from "~/server/portfolio/render-html";
 import { PORTFOLIO_HERO_IMAGE_VERSION } from "./hero-image-version";
 
@@ -17,16 +22,46 @@ type HeroImagePortfolio = {
   code: string | null;
   ogImage: Uint8Array | null;
   ogImageFingerprint: string | null;
+  updatedAt: Date;
 };
 
 const globalState = globalThis as unknown as {
   porfiloHeroImageInflight?: Map<string, Promise<Uint8Array>>;
+  porfiloHeroImageQueueDepth?: number;
 };
 
 const inflight =
   globalState.porfiloHeroImageInflight ??
   new Map<string, Promise<Uint8Array>>();
 globalState.porfiloHeroImageInflight = inflight;
+
+const MAX_QUEUED_CAPTURES = 20;
+
+async function acquireHeroCaptureSlot(): Promise<WorkLease> {
+  const queued = globalState.porfiloHeroImageQueueDepth ?? 0;
+  if (queued >= MAX_QUEUED_CAPTURES) {
+    throw new Error("Hero capture queue is full.");
+  }
+  globalState.porfiloHeroImageQueueDepth = queued + 1;
+  const deadline = Date.now() + 20_000;
+  try {
+    while (Date.now() < deadline) {
+      const lease = await tryAcquireWorkSlot({
+        kind: "hero-capture",
+        maxConcurrent: Number(process.env.MAX_CONCURRENT_HERO_CAPTURES ?? 2),
+        leaseMs: 90_000,
+      });
+      if (lease) return lease;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    throw new Error("Hero capture queue timed out.");
+  } finally {
+    globalState.porfiloHeroImageQueueDepth = Math.max(
+      0,
+      (globalState.porfiloHeroImageQueueDepth ?? 1) - 1,
+    );
+  }
+}
 
 function fingerprint(html: string): string {
   return createHash("sha256")
@@ -120,7 +155,9 @@ export async function capturePortfolioHeroJpeg(
         .locator("#ph-boot")
         .waitFor({ state: "detached", timeout: 15_000 })
         .catch(async () => {
-          await page.evaluate(() => document.querySelector("#ph-boot")?.remove());
+          await page.evaluate(() =>
+            document.querySelector("#ph-boot")?.remove(),
+          );
         });
       await page.waitForTimeout(250);
     } else {
@@ -159,15 +196,22 @@ async function createAndCache(
   html: string,
   imageFingerprint: string,
 ): Promise<Uint8Array> {
-  const bytes = await capturePortfolioHeroJpeg(html);
-  await db.portfolio.update({
-    where: { id: portfolio.id },
-    data: {
-      ogImage: Buffer.from(bytes),
-      ogImageFingerprint: imageFingerprint,
-    },
-  });
-  return bytes;
+  const lease = await acquireHeroCaptureSlot();
+  try {
+    const bytes = await capturePortfolioHeroJpeg(html);
+    // An older capture must never overwrite a newer edit. updatedAt is the
+    // profile version that produced this exact HTML/fingerprint.
+    await db.portfolio.updateMany({
+      where: { id: portfolio.id, updatedAt: portfolio.updatedAt },
+      data: {
+        ogImage: Buffer.from(bytes),
+        ogImageFingerprint: imageFingerprint,
+      },
+    });
+    return bytes;
+  } finally {
+    await releaseWorkSlot(lease);
+  }
 }
 
 async function portfolioHeroBytes(
@@ -184,12 +228,13 @@ async function portfolioHeroBytes(
     return { bytes: portfolio.ogImage, fingerprint: imageFingerprint };
   }
 
-  let pending = inflight.get(imageFingerprint);
+  const inflightKey = `${portfolio.id}:${imageFingerprint}`;
+  let pending = inflight.get(inflightKey);
   if (!pending) {
     pending = createAndCache(portfolio, html, imageFingerprint).finally(() => {
-      inflight.delete(imageFingerprint);
+      inflight.delete(inflightKey);
     });
-    inflight.set(imageFingerprint, pending);
+    inflight.set(inflightKey, pending);
   }
 
   try {
@@ -215,8 +260,10 @@ export async function renderPortfolioHeroImage(
   return new Response(Buffer.from(bytes), {
     headers: {
       "Content-Type": "image/jpeg",
-      "Cache-Control":
-        "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+      // Keep public share media cacheable, but bound the exposure window if a
+      // portfolio is subsequently made private. The route itself also enforces
+      // isPublic before these bytes are reachable.
+      "Cache-Control": "public, max-age=300, s-maxage=300",
       ETag: `"${imageFingerprint}"`,
     },
   });

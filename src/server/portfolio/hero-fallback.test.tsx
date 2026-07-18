@@ -11,7 +11,9 @@ describe("portfolio hero fallback", () => {
     });
 
     expect(response.headers.get("content-type")).toContain("image/png");
-    const image = await sharp(Buffer.from(await response.arrayBuffer())).metadata();
+    const image = await sharp(
+      Buffer.from(await response.arrayBuffer()),
+    ).metadata();
     expect(image.width).toBe(1200);
     expect(image.height).toBe(630);
   });

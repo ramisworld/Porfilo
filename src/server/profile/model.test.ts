@@ -101,4 +101,37 @@ describe("profile data schema", () => {
       }).success,
     ).toBe(false);
   });
+
+  it.each([
+    "javascript:alert(1)",
+    "data:text/html,<script>alert(1)</script>",
+    "file:///etc/passwd",
+    "ftp://example.com/archive",
+  ])("rejects unsafe visitor-facing URL protocols: %s", (repoUrl) => {
+    expect(
+      profileDataSchema.safeParse({
+        ...legacyProfile,
+        projects: [{ ...legacyProfile.projects[0], repoUrl }],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("accepts and normalizes http and https links", () => {
+    const parsed = profileDataSchema.parse({
+      ...legacyProfile,
+      identity: {
+        ...legacyProfile.identity,
+        links: { github: "https://github.com/rami" },
+      },
+      projects: [
+        {
+          ...legacyProfile.projects[0],
+          repoUrl: "http://example.com/project",
+        },
+      ],
+    });
+
+    expect(parsed.identity.links.github).toBe("https://github.com/rami");
+    expect(parsed.projects[0]?.repoUrl).toBe("http://example.com/project");
+  });
 });

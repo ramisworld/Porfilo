@@ -27,7 +27,10 @@ const config = {
               "frame-ancestors 'self'",
               "form-action 'self'",
               "object-src 'none'",
-              `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${assetOrigin}`,
+              // Next hydration and self-contained portfolio srcdoc documents
+              // currently require inline scripts. Dynamic evaluation is not
+              // used anywhere and remains forbidden.
+              `script-src 'self' 'unsafe-inline' ${assetOrigin}`,
               `style-src 'self' 'unsafe-inline' ${assetOrigin}`,
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",

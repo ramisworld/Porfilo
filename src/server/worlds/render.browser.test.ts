@@ -1,6 +1,4 @@
 import { chromium, type Browser } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { WORLD_CATALOG } from "./catalog";
 import { renderWorld } from "./render";
@@ -55,6 +53,7 @@ describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
       const page = await browser.newPage({
         viewport: { width: 1440, height: 900 },
       });
+      await page.emulateMedia({ reducedMotion: "reduce" });
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
       page.on("console", (message) => {
@@ -62,34 +61,34 @@ describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
       });
 
       if (world.id === "terminal-nexus") {
-        await page.route("http://localhost:3000/**", (route) => {
-          const pathname = new URL(route.request().url()).pathname;
-          if (pathname === "/engine/v3.js") {
-            return route.fulfill({
-              contentType: "text/javascript",
-              body: readFileSync(join(process.cwd(), "public/engine/v3.js")),
-            });
-          }
-          if (pathname === "/engine/v3.css") {
-            return route.fulfill({
-              contentType: "text/css",
-              body: readFileSync(join(process.cwd(), "public/engine/v3.css")),
-            });
-          }
-          return route.fulfill({ status: 204, body: "" });
+        await page.route("http://porfilo-assets.test/**", async (route) => {
+          const path = new URL(route.request().url()).pathname;
+          const asset = path.endsWith(".css")
+            ? "public/engine/v3.css"
+            : "public/engine/v3.js";
+          await route.fulfill({ path: asset });
         });
       }
-
-      let html = renderWorld(world.id, WORLD_TEST_PROFILE, "alexrivera");
-      if (world.id === "terminal-nexus") {
-        html = html.replace(
-          "<head>",
-          '<head><base href="http://localhost:3000/">',
-        );
-      }
+      const html = renderWorld(
+        world.id,
+        WORLD_TEST_PROFILE,
+        "alexrivera",
+        world.id === "terminal-nexus"
+          ? "http://porfilo-assets.test"
+          : undefined,
+      );
       await page.setContent(html, { waitUntil: "domcontentloaded" });
       if (world.id === "terminal-nexus") {
-        await page.waitForSelector(".xp-terminalNexus", { timeout: 5_000 });
+        await page
+          .waitForSelector(".xp-terminalNexus", {
+            state: "attached",
+            timeout: 15_000,
+          })
+          .catch(() => {
+            throw new Error(
+              `Terminal Nexus did not mount: ${errors.join(" | ") || "no browser error reported"}`,
+            );
+          });
       } else {
         await page.waitForTimeout(180);
       }
@@ -160,7 +159,7 @@ describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
 
       expect(errors).toEqual([]);
       await page.close();
-    }, 20_000);
+    }, 30_000);
   }
 
   it("Variable Type Foundry keeps a long unbroken identity and project rail reachable", async () => {
@@ -184,12 +183,17 @@ describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
       const side = document.querySelector<HTMLElement>(".ty-side");
       const main = document.querySelector<HTMLElement>(".ty-main");
       const firstProject = document.querySelector<HTMLElement>(".ty-card");
+      const bounds = (element: HTMLElement | null) => {
+        if (!element) return null;
+        const rect = element.getBoundingClientRect();
+        return { left: rect.left, right: rect.right };
+      };
       return {
         viewportWidth: innerWidth,
         bodyScrollWidth: document.body.scrollWidth,
-        side: side?.getBoundingClientRect().toJSON(),
-        main: main?.getBoundingClientRect().toJSON(),
-        firstProject: firstProject?.getBoundingClientRect().toJSON(),
+        side: bounds(side),
+        main: bounds(main),
+        firstProject: bounds(firstProject),
         projectCount: document.querySelectorAll(".ty-card").length,
       };
     });

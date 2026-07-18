@@ -71,6 +71,9 @@ export interface RunGenerationOptions {
    * preserved; only generated content/design fields change.
    */
   replacePortfolioId?: string;
+  /** Persist exact provider usage as soon as each paid call succeeds. */
+  onUsage?: (usage: UsageRecord) => void | Promise<void>;
+  signal?: AbortSignal;
 }
 
 /**
@@ -84,10 +87,11 @@ export async function* runGeneration(
   opts: RunGenerationOptions,
 ): AsyncGenerator<GenerateEvent> {
   try {
+    opts.signal?.throwIfAborted();
     yield { stage: "fetching", message: "Reading your GitHub…" };
     let profile;
     try {
-      profile = await fetchRawProfile(username);
+      profile = await fetchRawProfile(username, opts.signal);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (/not found/i.test(msg)) {
@@ -102,16 +106,27 @@ export async function* runGeneration(
     }
 
     yield { stage: "curating", message: "Curating your best work…" };
+    opts.signal?.throwIfAborted();
 
     const usages: UsageRecord[] = [];
 
     yield { stage: "writing", message: "Writing your story…" };
-    const { data, usage: factsUsage } = await buildFacts(profile);
-    if (factsUsage) usages.push(factsUsage);
+    const { data, usage: factsUsage } = await buildFacts(profile, opts.signal);
+    if (factsUsage) {
+      usages.push(factsUsage);
+      await opts.onUsage?.(factsUsage);
+    }
 
     yield { stage: "designing", message: "Designing your site…" };
-    const { choice, usage: chooserUsage } = await chooseWorld(vibe, data);
-    if (chooserUsage) usages.push(chooserUsage);
+    const { choice, usage: chooserUsage } = await chooseWorld(
+      vibe,
+      data,
+      opts.signal,
+    );
+    if (chooserUsage) {
+      usages.push(chooserUsage);
+      await opts.onUsage?.(chooserUsage);
+    }
     const code = renderWorld(choice.worldId, data, profile.user.login);
 
     yield { stage: "saving", message: "Publishing preview URL…" };
@@ -215,10 +230,12 @@ export async function* runGeneration(
       };
       return;
     }
+    if (opts.signal?.aborted) return;
+    console.error("[generation] internal pipeline failure", err);
     yield {
       stage: "error",
       code: "internal",
-      error: err instanceof Error ? err.message : "Generation failed.",
+      error: "We couldn't generate that portfolio. Please try again.",
     };
   }
 }

@@ -339,6 +339,7 @@ function stripFences(s: string): string {
 
 async function liveFacts(
   profile: RawProfile,
+  signal?: AbortSignal,
 ): Promise<{ out: FactsOutput | null; usage: UsageRecord; reason?: string }> {
   const context = {
     bio: profile.user.bio,
@@ -353,12 +354,15 @@ async function liveFacts(
     })),
   };
 
-  const msg = await anthropic().messages.create({
-    model: MODELS.facts,
-    max_tokens: 1500,
-    system: FACTS_SYSTEM,
-    messages: [{ role: "user", content: JSON.stringify(context) }],
-  });
+  const msg = await anthropic().messages.create(
+    {
+      model: MODELS.facts,
+      max_tokens: 1500,
+      system: FACTS_SYSTEM,
+      messages: [{ role: "user", content: JSON.stringify(context) }],
+    },
+    { signal },
+  );
 
   // Log/record usage BEFORE parsing — we pay for the tokens regardless.
   const usage = buildUsageRecord("facts (Haiku)", MODELS.facts, msg.usage);
@@ -409,6 +413,7 @@ function deriveProfileStack(
 
 export async function buildFacts(
   profile: RawProfile,
+  signal?: AbortSignal,
 ): Promise<{ data: ProfileData; usage: UsageRecord | null }> {
   const languages = aggregateLanguages(profile.repos);
   const stats = pickStats(profile);
@@ -420,7 +425,7 @@ export async function buildFacts(
     out = mockFacts(profile, languages);
   } else {
     try {
-      const r = await liveFacts(profile);
+      const r = await liveFacts(profile, signal);
       usage = r.usage; // count Haiku spend even if its output was unusable
       if (r.out) {
         out = r.out;
@@ -429,6 +434,7 @@ export async function buildFacts(
         out = mockFacts(profile, languages);
       }
     } catch (e) {
+      if (signal?.aborted) throw e;
       console.warn(
         "[facts] fallback to mock (request failed):",
         e instanceof Error ? e.message : e,
