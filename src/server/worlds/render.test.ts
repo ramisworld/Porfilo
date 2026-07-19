@@ -4,8 +4,8 @@ import { renderStoredWorld, renderWorld } from "./render";
 import { WORLD_TEST_PROFILE } from "./test-profile";
 
 describe("approved world rendering", () => {
-  it("contains exactly 33 selectable worlds", () => {
-    expect(WORLD_CATALOG).toHaveLength(33);
+  it("contains exactly 36 selectable worlds", () => {
+    expect(WORLD_CATALOG).toHaveLength(36);
   });
 
   for (const world of WORLD_CATALOG) {
@@ -35,6 +35,17 @@ describe("approved world rendering", () => {
       "alexrivera",
     );
     expect(code).not.toContain('id="porfilo-experience"');
+  });
+
+  it("places experience before the final contact moment in new worlds", () => {
+    const code = renderWorld(
+      "shoji-light-house",
+      WORLD_TEST_PROFILE,
+      "alexrivera",
+    );
+    expect(code.indexOf('id="porfilo-experience"')).toBeLessThan(
+      code.indexOf('id="contact"'),
+    );
   });
 
   it("normalizes legacy Terminal Nexus identifiers onto the canonical world", () => {

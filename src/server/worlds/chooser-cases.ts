@@ -25,4 +25,28 @@ export const WORLD_CHOOSER_CASES: ReadonlyArray<{
     vibe: "A futuristic liquid chrome monolith made of reflective flowing metal.",
     expected: "liquid-chrome-monolith",
   },
+  {
+    vibe: "A premium dark Japanese ninja portfolio with a shinobi atmosphere, shoji geometry and stealth interactions.",
+    expected: "shoji-light-house",
+  },
+  {
+    vibe: "Give my portfolio a premium Japanese style with a ninja vibe.",
+    expected: "shoji-light-house",
+  },
+  {
+    vibe: "A dark Japanese shinobi portfolio with subtle stealth interactions.",
+    expected: "shoji-light-house",
+  },
+  {
+    vibe: "A sophisticated stealth portfolio framed by traditional shoji screens.",
+    expected: "shoji-light-house",
+  },
+  {
+    vibe: "A premium Swiss kinetic typography studio with a graphic design grid and interactive editorial composition.",
+    expected: "kinetic-type-bureau",
+  },
+  {
+    vibe: "A deep-sea sonar interface with a submarine research console, ocean telemetry and project signals.",
+    expected: "abyssal-signal-array",
+  },
 ];

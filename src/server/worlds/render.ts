@@ -191,9 +191,15 @@ export function renderWorld(
   const extension = experienceExtension(worldId, data);
   if (extension) {
     code = code.replace("</style>", `${extension.css}</style>`);
-    const scriptIndex = code.indexOf("<script>");
-    if (scriptIndex < 0) throw new Error(`World ${worldId} has no script tag.`);
-    code = `${code.slice(0, scriptIndex)}${extension.markup}${code.slice(scriptIndex)}`;
+    const slot = "<!-- PORFILO_EXPERIENCE_SLOT -->";
+    if (code.includes(slot)) {
+      code = code.replace(slot, extension.markup);
+    } else {
+      const scriptIndex = code.indexOf("<script>");
+      if (scriptIndex < 0)
+        throw new Error(`World ${worldId} has no script tag.`);
+      code = `${code.slice(0, scriptIndex)}${extension.markup}${code.slice(scriptIndex)}`;
+    }
   }
   return injectRuntimeHygiene(code);
 }
