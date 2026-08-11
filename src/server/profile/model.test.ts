@@ -80,6 +80,21 @@ describe("profile data schema", () => {
     expect(parsed.credentials[0]?.year).toBe(2025);
   });
 
+  it("accepts an optional PDF résumé asset", () => {
+    const parsed = profileDataSchema.parse({
+      ...legacyProfile,
+      resume: {
+        url: "https://porfilo.com/api/resume/demo",
+        fileName: "Rami-Resume.pdf",
+        mimeType: "application/pdf",
+        sizeBytes: 1024,
+        uploadedAt: "2026-08-11T00:00:00.000Z",
+      },
+    });
+
+    expect(parsed.resume?.fileName).toBe("Rami-Resume.pdf");
+  });
+
   it("rejects blank identity and project content", () => {
     expect(
       profileDataSchema.safeParse({

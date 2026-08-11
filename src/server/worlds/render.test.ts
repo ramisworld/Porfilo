@@ -59,4 +59,28 @@ describe("approved world rendering", () => {
     expect(code).toContain('"scene":"ghostObject"');
     expect(code).toContain("/engine/v3.js");
   });
+
+  it("renders Terminal Nexus headline and résumé affordances", () => {
+    const code = renderWorld(
+      "terminal-nexus",
+      {
+        ...WORLD_TEST_PROFILE,
+        identity: {
+          ...WORLD_TEST_PROFILE.identity,
+          headline: "Building reliable AI systems.",
+        },
+        resume: {
+          url: "https://porfilo.com/api/resume/demo",
+          fileName: "Rami-Resume.pdf",
+          mimeType: "application/pdf",
+          sizeBytes: 1024,
+          uploadedAt: "2026-08-11T00:00:00.000Z",
+        },
+      },
+      "alexrivera",
+    );
+
+    expect(code).toContain("Building reliable AI systems.");
+    expect(code).toContain("Rami-Resume.pdf");
+  });
 });

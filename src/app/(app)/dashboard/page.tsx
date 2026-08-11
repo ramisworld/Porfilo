@@ -20,6 +20,7 @@ export default async function DashboardPage() {
       slug: true,
       publicSubdomainSlug: true,
       githubUsername: true,
+      template: true,
       vibe: true,
       isPublic: true,
       views: true,
@@ -76,6 +77,7 @@ export default async function DashboardPage() {
         id={portfolio.id}
         slug={portfolio.publicSubdomainSlug}
         githubUsername={portfolio.githubUsername}
+        template={portfolio.template}
         vibe={portfolio.vibe}
         isPublic={portfolio.isPublic}
         views={portfolio.views}

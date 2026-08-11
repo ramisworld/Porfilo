@@ -3824,6 +3824,27 @@ body:has(.xp-ghost) {
   animation: tn-blink 1.05s steps(2) infinite;
   opacity: 0.78;
 }
+.xp-tn-headline {
+  max-width: 56ch;
+  margin: 14px 0 0 18px;
+  color: var(--neon2);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  letter-spacing: 0.04em;
+  opacity: 0.82;
+}
+.xp-tn-tkv-resume {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.xp-tn-tkv-resume:hover {
+  color: var(--neon);
+}
+.xp-tn-tkv-resume span i {
+  font-style: normal;
+  color: var(--neon);
+}
 @keyframes tn-blink {
   50% {
     opacity: 0;
@@ -5068,6 +5089,10 @@ body:has(.xp-ghost) {
   );
   transform: translateX(-110%);
   transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.xp-tn-hs-row-link {
+  color: inherit;
+  text-decoration: none;
 }
 .xp-tn-hs-row:hover {
   transform: translateY(-3px);

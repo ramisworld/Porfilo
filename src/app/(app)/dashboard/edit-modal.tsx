@@ -11,6 +11,7 @@ import {
   type Experience,
   type ProfileData,
   type Project,
+  type Resume,
   type Stat,
 } from "~/server/profile/model";
 import {
@@ -37,11 +38,13 @@ import styles from "./edit-modal.module.css";
 export function EditModal({
   initial,
   githubUsername,
+  template,
   onClose,
   onSaved,
 }: {
   initial: ProfileData;
   githubUsername: string;
+  template: string;
   onClose: () => void;
   /** Called after a successful save with the freshly-persisted payload. */
   onSaved: (saved: ProfileData) => void;
@@ -56,6 +59,11 @@ export function EditModal({
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
+  const isTerminalNexus =
+    template === "terminalNexus" || template === "terminal-nexus";
+  const tabs = isTerminalNexus
+    ? [...TABS, { id: "resume" as const, label: "Résumé" }]
+    : TABS;
   const savedTimer = useRef<number | undefined>(undefined);
 
   // Dirty = current form != last-saved baseline.
@@ -248,8 +256,10 @@ export function EditModal({
         <div className={styles.body}>
           {/* Section nav */}
           <nav className={styles.nav} aria-label="Portfolio sections">
-            <p className={styles.navLabel}>Sections / 06</p>
-            {TABS.map((t, index) => (
+            <p className={styles.navLabel}>
+              Sections / {String(tabs.length).padStart(2, "0")}
+            </p>
+            {tabs.map((t, index) => (
               <button
                 key={t.id}
                 type="button"
@@ -309,6 +319,22 @@ export function EditModal({
               <CredentialsSection
                 items={data.credentials ?? []}
                 onChange={(credentials) => setData({ ...data, credentials })}
+              />
+            )}
+            {tab === "resume" && isTerminalNexus && (
+              <ResumeSection
+                value={data.resume}
+                onPersisted={(next) => {
+                  setData(structuredClone(next));
+                  setBaseline(structuredClone(next));
+                  setSaved(true);
+                  window.clearTimeout(savedTimer.current);
+                  savedTimer.current = window.setTimeout(
+                    () => setSaved(false),
+                    2400,
+                  );
+                  onSaved(next);
+                }}
               />
             )}
           </div>
@@ -425,7 +451,9 @@ type TabId =
   | "stats"
   | "projects"
   | "experience"
-  | "credentials";
+  | "credentials"
+  | "resume";
+
 const TABS: Array<{ id: TabId; label: string }> = [
   { id: "identity", label: "Identity" },
   { id: "focusStack", label: "Focus & Stack" },
@@ -1064,6 +1092,131 @@ function CredentialsSection({
       >
         + Add credential ({items.length}/20)
       </AddButton>
+    </SectionShell>
+  );
+}
+
+function ResumeSection({
+  value,
+  onPersisted,
+}: {
+  value: Resume | undefined;
+  onPersisted: (next: ProfileData) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const upload = async (file: File) => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const form = new FormData();
+      form.set("file", file);
+      const response = await fetch("/api/portfolio/resume", {
+        method: "POST",
+        body: form,
+      });
+      const payload = (await response.json()) as {
+        profileData?: ProfileData;
+        error?: string;
+      };
+      if (!response.ok || !payload.profileData) {
+        throw new Error(payload.error ?? "Upload failed.");
+      }
+      onPersisted(payload.profileData);
+      setMessage("Uploaded and saved.");
+    } catch (uploadError) {
+      setMessage(
+        uploadError instanceof Error ? uploadError.message : "Upload failed.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async () => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const response = await fetch("/api/portfolio/resume", {
+        method: "DELETE",
+      });
+      const payload = (await response.json()) as {
+        profileData?: ProfileData;
+        error?: string;
+      };
+      if (!response.ok || !payload.profileData) {
+        throw new Error(payload.error ?? "Remove failed.");
+      }
+      onPersisted(payload.profileData);
+      setMessage("Résumé removed and saved.");
+    } catch (removeError) {
+      setMessage(
+        removeError instanceof Error ? removeError.message : "Remove failed.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <SectionShell
+      title="Résumé"
+      subtitle="Upload a PDF or DOCX, up to 5 MB. It appears only in Terminal Nexus."
+    >
+      {value ? (
+        <div className="flex items-center justify-between gap-3 rounded-xl bg-black/25 p-4 ring-1 ring-white/[0.06]">
+          <div className="min-w-0">
+            <p className="truncate font-mono text-[13px] text-white/85">
+              {value.fileName}
+            </p>
+            <p className="mt-1 text-[11px] text-white/45">
+              {value.mimeType === "application/pdf" ? "PDF" : "DOCX"} ·{" "}
+              {(value.sizeBytes / 1024).toFixed(0)} KB
+            </p>
+          </div>
+          <a
+            href={value.url}
+            target="_blank"
+            rel="noreferrer"
+            className="shrink-0 rounded-md border border-white/15 px-3 py-2 font-mono text-[11px] text-white/70 hover:border-emerald-300/60 hover:text-white"
+          >
+            Open ↗
+          </a>
+        </div>
+      ) : (
+        <p className="rounded-xl border border-dashed border-white/10 bg-black/15 px-4 py-5 text-[13px] text-white/55">
+          No résumé attached yet.
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="inline-flex cursor-pointer items-center rounded-md bg-white px-3 py-2 font-mono text-[11px] font-semibold text-black hover:bg-emerald-200">
+          {busy ? "Working…" : value ? "Replace file" : "Attach file"}
+          <input
+            type="file"
+            className="sr-only"
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            disabled={busy}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.currentTarget.value = "";
+              if (file) void upload(file);
+            }}
+          />
+        </label>
+        {value && (
+          <button
+            type="button"
+            onClick={() => void remove()}
+            disabled={busy}
+            className="rounded-md border border-white/10 px-3 py-2 font-mono text-[11px] text-white/55 hover:border-red-300/40 hover:text-white"
+          >
+            Remove
+          </button>
+        )}
+      </div>
+      {message && <p className="text-[11px] text-white/50">{message}</p>}
     </SectionShell>
   );
 }

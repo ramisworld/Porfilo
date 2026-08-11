@@ -90,6 +90,18 @@ export const credentialSchema = z.object({
   skills: z.array(z.string().min(1).max(40)).max(15).optional(),
 });
 
+/** Optional portfolio résumé asset. The bytes live on Portfolio; this is the public metadata. */
+export const resumeSchema = z.object({
+  url: safeWebUrlSchema,
+  fileName: z.string().trim().min(1).max(160),
+  mimeType: z.enum([
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ]),
+  sizeBytes: z.number().int().positive().max(5_242_880),
+  uploadedAt: z.string().datetime(),
+});
+
 export const profileDataSchema = z.object({
   identity: z.object({
     name: z.string().trim().min(1).max(120),
@@ -107,6 +119,7 @@ export const profileDataSchema = z.object({
   /** Optional and user-curated; an empty list removes the section completely. */
   experience: z.array(experienceSchema).max(12).default([]),
   credentials: z.array(credentialSchema).max(20).default([]),
+  resume: resumeSchema.optional(),
   /** Stable GitHub facts used by every world without parsing display labels. */
   github: z
     .object({
@@ -124,4 +137,5 @@ export type Stat = z.infer<typeof statSchema>;
 export type Project = z.infer<typeof projectSchema>;
 export type Experience = z.infer<typeof experienceSchema>;
 export type Credential = z.infer<typeof credentialSchema>;
+export type Resume = z.infer<typeof resumeSchema>;
 export type ProfileData = z.infer<typeof profileDataSchema>;

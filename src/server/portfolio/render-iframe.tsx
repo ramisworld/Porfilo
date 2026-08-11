@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "~/server/db";
 import { env } from "~/env";
+import { appOrigin } from "~/lib/root-domain";
 import { buildPortfolioHtml } from "./render-html";
 
 export { buildPortfolioHtml } from "./render-html";
@@ -13,7 +14,10 @@ export function buildPortfolioIframe(portfolio: {
   template: string;
   githubUsername: string;
 }): React.JSX.Element | null {
-  const html = buildPortfolioHtml(portfolio);
+  // The request may arrive through Railway with an internal host (for
+  // example localhost:8080). Portfolio engine assets must use the public app
+  // origin so nested preview frames do not render as a blank page.
+  const html = buildPortfolioHtml(portfolio, appOrigin());
   if (!html) return null;
 
   return (

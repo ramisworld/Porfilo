@@ -1,4 +1,4 @@
-import type { ProfileData } from "~/server/profile/model";
+import type { ProfileData, Resume } from "~/server/profile/model";
 
 export interface WorldData {
   identity: {
@@ -46,6 +46,7 @@ export interface WorldData {
     skills?: string[];
     url?: string;
   }>;
+  resume?: Resume;
 }
 
 function numericStat(data: ProfileData, matcher: RegExp): number | undefined {
@@ -138,5 +139,6 @@ export function toWorldData(
       skills: credential.skills,
       url: credential.url,
     })),
+    resume: profile.resume,
   };
 }

@@ -49,6 +49,7 @@
   .roleline{margin-top:16px;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--green);letter-spacing:.06em;}
   .roleline .rdot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:bl 1.6s steps(1) infinite;}
   .roleline .caret{width:9px;height:1.1em;background:var(--bright);animation:bl 1s steps(1) infinite;}
+  .headline{margin:12px 0 0 21px;max-width:56ch;color:var(--bright);font-size:12px;line-height:1.55;opacity:.82;}
 
   /* terminal card */
   .term{margin-top:34px;max-width:620px;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(10px);
@@ -148,6 +149,7 @@
     <div class="eyebrow">// SECURE_SHELL — <b>session established</b></div>
     <h1 class="name" id="name"></h1>
     <div class="roleline"><i class="rdot"></i><span id="role"></span><i class="caret"></i></div>
+    <div class="headline" id="headline"></div>
 
     <div class="term" id="term">
       <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span><span class="title">whoami.sh</span></div>
@@ -272,6 +274,7 @@ $('rail').innerHTML = items.map((it, i) => `<a href="#${it.id}" data-sec="${it.i
 $('name').textContent = brand;
 $('name').dataset.text = brand;
 $('role').textContent = id.role + ' · ' + id.location;
+$('headline').textContent = id.headline || '';
 $('ps').innerHTML = `<b>${esc(user)}</b>@porfilo<i> ~</i> $`;
 
 // ---- whoami readout ----

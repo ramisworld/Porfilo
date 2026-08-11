@@ -6402,10 +6402,12 @@ export namespace Prisma {
   }
 
   export type PortfolioAvgAggregateOutputType = {
+    resumeSizeBytes: number | null
     views: number | null
   }
 
   export type PortfolioSumAggregateOutputType = {
+    resumeSizeBytes: number | null
     views: number | null
   }
 
@@ -6419,6 +6421,11 @@ export namespace Prisma {
     engineVersion: string | null
     template: string | null
     code: string | null
+    resumeBytes: Bytes | null
+    resumeMimeType: string | null
+    resumeFileName: string | null
+    resumeSizeBytes: number | null
+    resumeUpdatedAt: Date | null
     ogImage: Bytes | null
     ogImageFingerprint: string | null
     isPublic: boolean | null
@@ -6438,6 +6445,11 @@ export namespace Prisma {
     engineVersion: string | null
     template: string | null
     code: string | null
+    resumeBytes: Bytes | null
+    resumeMimeType: string | null
+    resumeFileName: string | null
+    resumeSizeBytes: number | null
+    resumeUpdatedAt: Date | null
     ogImage: Bytes | null
     ogImageFingerprint: string | null
     isPublic: boolean | null
@@ -6459,6 +6471,11 @@ export namespace Prisma {
     engineVersion: number
     template: number
     code: number
+    resumeBytes: number
+    resumeMimeType: number
+    resumeFileName: number
+    resumeSizeBytes: number
+    resumeUpdatedAt: number
     ogImage: number
     ogImageFingerprint: number
     isPublic: number
@@ -6471,10 +6488,12 @@ export namespace Prisma {
 
 
   export type PortfolioAvgAggregateInputType = {
+    resumeSizeBytes?: true
     views?: true
   }
 
   export type PortfolioSumAggregateInputType = {
+    resumeSizeBytes?: true
     views?: true
   }
 
@@ -6488,6 +6507,11 @@ export namespace Prisma {
     engineVersion?: true
     template?: true
     code?: true
+    resumeBytes?: true
+    resumeMimeType?: true
+    resumeFileName?: true
+    resumeSizeBytes?: true
+    resumeUpdatedAt?: true
     ogImage?: true
     ogImageFingerprint?: true
     isPublic?: true
@@ -6507,6 +6531,11 @@ export namespace Prisma {
     engineVersion?: true
     template?: true
     code?: true
+    resumeBytes?: true
+    resumeMimeType?: true
+    resumeFileName?: true
+    resumeSizeBytes?: true
+    resumeUpdatedAt?: true
     ogImage?: true
     ogImageFingerprint?: true
     isPublic?: true
@@ -6528,6 +6557,11 @@ export namespace Prisma {
     engineVersion?: true
     template?: true
     code?: true
+    resumeBytes?: true
+    resumeMimeType?: true
+    resumeFileName?: true
+    resumeSizeBytes?: true
+    resumeUpdatedAt?: true
     ogImage?: true
     ogImageFingerprint?: true
     isPublic?: true
@@ -6636,6 +6670,11 @@ export namespace Prisma {
     engineVersion: string | null
     template: string
     code: string | null
+    resumeBytes: Bytes | null
+    resumeMimeType: string | null
+    resumeFileName: string | null
+    resumeSizeBytes: number | null
+    resumeUpdatedAt: Date | null
     ogImage: Bytes | null
     ogImageFingerprint: string | null
     isPublic: boolean
@@ -6676,6 +6715,11 @@ export namespace Prisma {
     engineVersion?: boolean
     template?: boolean
     code?: boolean
+    resumeBytes?: boolean
+    resumeMimeType?: boolean
+    resumeFileName?: boolean
+    resumeSizeBytes?: boolean
+    resumeUpdatedAt?: boolean
     ogImage?: boolean
     ogImageFingerprint?: boolean
     isPublic?: boolean
@@ -6699,6 +6743,11 @@ export namespace Prisma {
     engineVersion?: boolean
     template?: boolean
     code?: boolean
+    resumeBytes?: boolean
+    resumeMimeType?: boolean
+    resumeFileName?: boolean
+    resumeSizeBytes?: boolean
+    resumeUpdatedAt?: boolean
     ogImage?: boolean
     ogImageFingerprint?: boolean
     isPublic?: boolean
@@ -6721,6 +6770,11 @@ export namespace Prisma {
     engineVersion?: boolean
     template?: boolean
     code?: boolean
+    resumeBytes?: boolean
+    resumeMimeType?: boolean
+    resumeFileName?: boolean
+    resumeSizeBytes?: boolean
+    resumeUpdatedAt?: boolean
     ogImage?: boolean
     ogImageFingerprint?: boolean
     isPublic?: boolean
@@ -6743,6 +6797,11 @@ export namespace Prisma {
     engineVersion?: boolean
     template?: boolean
     code?: boolean
+    resumeBytes?: boolean
+    resumeMimeType?: boolean
+    resumeFileName?: boolean
+    resumeSizeBytes?: boolean
+    resumeUpdatedAt?: boolean
     ogImage?: boolean
     ogImageFingerprint?: boolean
     isPublic?: boolean
@@ -6752,7 +6811,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PortfolioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "slug" | "publicSubdomainSlug" | "vibe" | "profileData" | "designSpec" | "engineVersion" | "template" | "code" | "ogImage" | "ogImageFingerprint" | "isPublic" | "views" | "claimNonce" | "createdAt" | "updatedAt", ExtArgs["result"]["portfolio"]>
+  export type PortfolioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerId" | "githubUsername" | "slug" | "publicSubdomainSlug" | "vibe" | "profileData" | "designSpec" | "engineVersion" | "template" | "code" | "resumeBytes" | "resumeMimeType" | "resumeFileName" | "resumeSizeBytes" | "resumeUpdatedAt" | "ogImage" | "ogImageFingerprint" | "isPublic" | "views" | "claimNonce" | "createdAt" | "updatedAt", ExtArgs["result"]["portfolio"]>
   export type PortfolioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | Portfolio$ownerArgs<ExtArgs>
     customDomain?: boolean | Portfolio$customDomainArgs<ExtArgs>
@@ -6782,6 +6841,11 @@ export namespace Prisma {
       engineVersion: string | null
       template: string
       code: string | null
+      resumeBytes: Prisma.Bytes | null
+      resumeMimeType: string | null
+      resumeFileName: string | null
+      resumeSizeBytes: number | null
+      resumeUpdatedAt: Date | null
       ogImage: Prisma.Bytes | null
       ogImageFingerprint: string | null
       isPublic: boolean
@@ -7225,6 +7289,11 @@ export namespace Prisma {
     readonly engineVersion: FieldRef<"Portfolio", 'String'>
     readonly template: FieldRef<"Portfolio", 'String'>
     readonly code: FieldRef<"Portfolio", 'String'>
+    readonly resumeBytes: FieldRef<"Portfolio", 'Bytes'>
+    readonly resumeMimeType: FieldRef<"Portfolio", 'String'>
+    readonly resumeFileName: FieldRef<"Portfolio", 'String'>
+    readonly resumeSizeBytes: FieldRef<"Portfolio", 'Int'>
+    readonly resumeUpdatedAt: FieldRef<"Portfolio", 'DateTime'>
     readonly ogImage: FieldRef<"Portfolio", 'Bytes'>
     readonly ogImageFingerprint: FieldRef<"Portfolio", 'String'>
     readonly isPublic: FieldRef<"Portfolio", 'Boolean'>
@@ -15344,6 +15413,11 @@ export namespace Prisma {
     engineVersion: 'engineVersion',
     template: 'template',
     code: 'code',
+    resumeBytes: 'resumeBytes',
+    resumeMimeType: 'resumeMimeType',
+    resumeFileName: 'resumeFileName',
+    resumeSizeBytes: 'resumeSizeBytes',
+    resumeUpdatedAt: 'resumeUpdatedAt',
     ogImage: 'ogImage',
     ogImageFingerprint: 'ogImageFingerprint',
     isPublic: 'isPublic',
@@ -15917,6 +15991,11 @@ export namespace Prisma {
     engineVersion?: StringNullableFilter<"Portfolio"> | string | null
     template?: StringFilter<"Portfolio"> | string
     code?: StringNullableFilter<"Portfolio"> | string | null
+    resumeBytes?: BytesNullableFilter<"Portfolio"> | Bytes | null
+    resumeMimeType?: StringNullableFilter<"Portfolio"> | string | null
+    resumeFileName?: StringNullableFilter<"Portfolio"> | string | null
+    resumeSizeBytes?: IntNullableFilter<"Portfolio"> | number | null
+    resumeUpdatedAt?: DateTimeNullableFilter<"Portfolio"> | Date | string | null
     ogImage?: BytesNullableFilter<"Portfolio"> | Bytes | null
     ogImageFingerprint?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
@@ -15940,6 +16019,11 @@ export namespace Prisma {
     engineVersion?: SortOrderInput | SortOrder
     template?: SortOrder
     code?: SortOrderInput | SortOrder
+    resumeBytes?: SortOrderInput | SortOrder
+    resumeMimeType?: SortOrderInput | SortOrder
+    resumeFileName?: SortOrderInput | SortOrder
+    resumeSizeBytes?: SortOrderInput | SortOrder
+    resumeUpdatedAt?: SortOrderInput | SortOrder
     ogImage?: SortOrderInput | SortOrder
     ogImageFingerprint?: SortOrderInput | SortOrder
     isPublic?: SortOrder
@@ -15966,6 +16050,11 @@ export namespace Prisma {
     engineVersion?: StringNullableFilter<"Portfolio"> | string | null
     template?: StringFilter<"Portfolio"> | string
     code?: StringNullableFilter<"Portfolio"> | string | null
+    resumeBytes?: BytesNullableFilter<"Portfolio"> | Bytes | null
+    resumeMimeType?: StringNullableFilter<"Portfolio"> | string | null
+    resumeFileName?: StringNullableFilter<"Portfolio"> | string | null
+    resumeSizeBytes?: IntNullableFilter<"Portfolio"> | number | null
+    resumeUpdatedAt?: DateTimeNullableFilter<"Portfolio"> | Date | string | null
     ogImage?: BytesNullableFilter<"Portfolio"> | Bytes | null
     ogImageFingerprint?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
@@ -15989,6 +16078,11 @@ export namespace Prisma {
     engineVersion?: SortOrderInput | SortOrder
     template?: SortOrder
     code?: SortOrderInput | SortOrder
+    resumeBytes?: SortOrderInput | SortOrder
+    resumeMimeType?: SortOrderInput | SortOrder
+    resumeFileName?: SortOrderInput | SortOrder
+    resumeSizeBytes?: SortOrderInput | SortOrder
+    resumeUpdatedAt?: SortOrderInput | SortOrder
     ogImage?: SortOrderInput | SortOrder
     ogImageFingerprint?: SortOrderInput | SortOrder
     isPublic?: SortOrder
@@ -16018,6 +16112,11 @@ export namespace Prisma {
     engineVersion?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
     template?: StringWithAggregatesFilter<"Portfolio"> | string
     code?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
+    resumeBytes?: BytesNullableWithAggregatesFilter<"Portfolio"> | Bytes | null
+    resumeMimeType?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
+    resumeFileName?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
+    resumeSizeBytes?: IntNullableWithAggregatesFilter<"Portfolio"> | number | null
+    resumeUpdatedAt?: DateTimeNullableWithAggregatesFilter<"Portfolio"> | Date | string | null
     ogImage?: BytesNullableWithAggregatesFilter<"Portfolio"> | Bytes | null
     ogImageFingerprint?: StringNullableWithAggregatesFilter<"Portfolio"> | string | null
     isPublic?: BoolWithAggregatesFilter<"Portfolio"> | boolean
@@ -16871,6 +16970,11 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    resumeBytes?: Bytes | null
+    resumeMimeType?: string | null
+    resumeFileName?: string | null
+    resumeSizeBytes?: number | null
+    resumeUpdatedAt?: Date | string | null
     ogImage?: Bytes | null
     ogImageFingerprint?: string | null
     isPublic?: boolean
@@ -16894,6 +16998,11 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    resumeBytes?: Bytes | null
+    resumeMimeType?: string | null
+    resumeFileName?: string | null
+    resumeSizeBytes?: number | null
+    resumeUpdatedAt?: Date | string | null
     ogImage?: Bytes | null
     ogImageFingerprint?: string | null
     isPublic?: boolean
@@ -16915,6 +17024,11 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeBytes?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    resumeMimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeFileName?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeSizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    resumeUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
     ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
@@ -16938,6 +17052,11 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeBytes?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    resumeMimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeFileName?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeSizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    resumeUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
     ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
@@ -16960,6 +17079,11 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    resumeBytes?: Bytes | null
+    resumeMimeType?: string | null
+    resumeFileName?: string | null
+    resumeSizeBytes?: number | null
+    resumeUpdatedAt?: Date | string | null
     ogImage?: Bytes | null
     ogImageFingerprint?: string | null
     isPublic?: boolean
@@ -16980,6 +17104,11 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeBytes?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    resumeMimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeFileName?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeSizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    resumeUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
     ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
@@ -17001,6 +17130,11 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeBytes?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    resumeMimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeFileName?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeSizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    resumeUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
     ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
@@ -17933,6 +18067,17 @@ export namespace Prisma {
     not?: NestedBytesNullableFilter<$PrismaModel> | Bytes | null
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -17966,6 +18111,11 @@ export namespace Prisma {
     engineVersion?: SortOrder
     template?: SortOrder
     code?: SortOrder
+    resumeBytes?: SortOrder
+    resumeMimeType?: SortOrder
+    resumeFileName?: SortOrder
+    resumeSizeBytes?: SortOrder
+    resumeUpdatedAt?: SortOrder
     ogImage?: SortOrder
     ogImageFingerprint?: SortOrder
     isPublic?: SortOrder
@@ -17976,6 +18126,7 @@ export namespace Prisma {
   }
 
   export type PortfolioAvgOrderByAggregateInput = {
+    resumeSizeBytes?: SortOrder
     views?: SortOrder
   }
 
@@ -17989,6 +18140,11 @@ export namespace Prisma {
     engineVersion?: SortOrder
     template?: SortOrder
     code?: SortOrder
+    resumeBytes?: SortOrder
+    resumeMimeType?: SortOrder
+    resumeFileName?: SortOrder
+    resumeSizeBytes?: SortOrder
+    resumeUpdatedAt?: SortOrder
     ogImage?: SortOrder
     ogImageFingerprint?: SortOrder
     isPublic?: SortOrder
@@ -18008,6 +18164,11 @@ export namespace Prisma {
     engineVersion?: SortOrder
     template?: SortOrder
     code?: SortOrder
+    resumeBytes?: SortOrder
+    resumeMimeType?: SortOrder
+    resumeFileName?: SortOrder
+    resumeSizeBytes?: SortOrder
+    resumeUpdatedAt?: SortOrder
     ogImage?: SortOrder
     ogImageFingerprint?: SortOrder
     isPublic?: SortOrder
@@ -18018,6 +18179,7 @@ export namespace Prisma {
   }
 
   export type PortfolioSumOrderByAggregateInput = {
+    resumeSizeBytes?: SortOrder
     views?: SortOrder
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
@@ -18081,6 +18243,22 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedBytesNullableFilter<$PrismaModel>
     _max?: NestedBytesNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -18650,6 +18828,14 @@ export namespace Prisma {
     set?: Bytes | null
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -18940,6 +19126,33 @@ export namespace Prisma {
     _max?: NestedBytesNullableFilter<$PrismaModel>
   }
 
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -19048,6 +19261,11 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    resumeBytes?: Bytes | null
+    resumeMimeType?: string | null
+    resumeFileName?: string | null
+    resumeSizeBytes?: number | null
+    resumeUpdatedAt?: Date | string | null
     ogImage?: Bytes | null
     ogImageFingerprint?: string | null
     isPublic?: boolean
@@ -19069,6 +19287,11 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    resumeBytes?: Bytes | null
+    resumeMimeType?: string | null
+    resumeFileName?: string | null
+    resumeSizeBytes?: number | null
+    resumeUpdatedAt?: Date | string | null
     ogImage?: Bytes | null
     ogImageFingerprint?: string | null
     isPublic?: boolean
@@ -19240,6 +19463,11 @@ export namespace Prisma {
     engineVersion?: StringNullableFilter<"Portfolio"> | string | null
     template?: StringFilter<"Portfolio"> | string
     code?: StringNullableFilter<"Portfolio"> | string | null
+    resumeBytes?: BytesNullableFilter<"Portfolio"> | Bytes | null
+    resumeMimeType?: StringNullableFilter<"Portfolio"> | string | null
+    resumeFileName?: StringNullableFilter<"Portfolio"> | string | null
+    resumeSizeBytes?: IntNullableFilter<"Portfolio"> | number | null
+    resumeUpdatedAt?: DateTimeNullableFilter<"Portfolio"> | Date | string | null
     ogImage?: BytesNullableFilter<"Portfolio"> | Bytes | null
     ogImageFingerprint?: StringNullableFilter<"Portfolio"> | string | null
     isPublic?: BoolFilter<"Portfolio"> | boolean
@@ -19638,6 +19866,11 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    resumeBytes?: Bytes | null
+    resumeMimeType?: string | null
+    resumeFileName?: string | null
+    resumeSizeBytes?: number | null
+    resumeUpdatedAt?: Date | string | null
     ogImage?: Bytes | null
     ogImageFingerprint?: string | null
     isPublic?: boolean
@@ -19660,6 +19893,11 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    resumeBytes?: Bytes | null
+    resumeMimeType?: string | null
+    resumeFileName?: string | null
+    resumeSizeBytes?: number | null
+    resumeUpdatedAt?: Date | string | null
     ogImage?: Bytes | null
     ogImageFingerprint?: string | null
     isPublic?: boolean
@@ -19696,6 +19934,11 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeBytes?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    resumeMimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeFileName?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeSizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    resumeUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
     ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
@@ -19718,6 +19961,11 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeBytes?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    resumeMimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeFileName?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeSizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    resumeUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
     ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
@@ -19907,6 +20155,11 @@ export namespace Prisma {
     engineVersion?: string | null
     template?: string
     code?: string | null
+    resumeBytes?: Bytes | null
+    resumeMimeType?: string | null
+    resumeFileName?: string | null
+    resumeSizeBytes?: number | null
+    resumeUpdatedAt?: Date | string | null
     ogImage?: Bytes | null
     ogImageFingerprint?: string | null
     isPublic?: boolean
@@ -20015,6 +20268,11 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeBytes?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    resumeMimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeFileName?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeSizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    resumeUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
     ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
@@ -20036,6 +20294,11 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeBytes?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    resumeMimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeFileName?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeSizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    resumeUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
     ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean
@@ -20057,6 +20320,11 @@ export namespace Prisma {
     engineVersion?: NullableStringFieldUpdateOperationsInput | string | null
     template?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeBytes?: NullableBytesFieldUpdateOperationsInput | Bytes | null
+    resumeMimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeFileName?: NullableStringFieldUpdateOperationsInput | string | null
+    resumeSizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    resumeUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     ogImage?: NullableBytesFieldUpdateOperationsInput | Bytes | null
     ogImageFingerprint?: NullableStringFieldUpdateOperationsInput | string | null
     isPublic?: BoolFieldUpdateOperationsInput | boolean

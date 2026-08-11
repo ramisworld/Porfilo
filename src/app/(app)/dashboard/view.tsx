@@ -14,6 +14,7 @@ export function DashboardView(props: {
   id: string;
   slug: string;
   githubUsername: string;
+  template: string;
   vibe: string;
   isPublic: boolean;
   views: number;
@@ -246,6 +247,7 @@ export function DashboardView(props: {
         <EditModal
           initial={profileData}
           githubUsername={props.githubUsername}
+          template={props.template}
           onClose={() => setEditorOpen(false)}
           onSaved={handleSaved}
         />

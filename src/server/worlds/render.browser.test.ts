@@ -165,6 +165,41 @@ describe.skipIf(!runBrowser).sequential("browser world regression loop", () => {
     }, 30_000);
   }
 
+  it("Terminal Nexus renders the headline and optional résumé affordances", async () => {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.route("http://porfilo-assets.test/**", async (route) => {
+      const path = new URL(route.request().url()).pathname;
+      const asset = path.endsWith(".css")
+        ? "public/engine/v3.css"
+        : "public/engine/v3.js";
+      await route.fulfill({ path: asset });
+    });
+    const html = renderWorld(
+      "terminal-nexus",
+      {
+        ...WORLD_TEST_PROFILE,
+        resume: {
+          url: "https://porfilo.com/api/resume/demo",
+          fileName: "Rami-Resume.pdf",
+          mimeType: "application/pdf",
+          sizeBytes: 1024,
+          uploadedAt: "2026-08-11T00:00:00.000Z",
+        },
+      },
+      "alexrivera",
+      "http://porfilo-assets.test",
+    );
+    await page.setContent(html, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".xp-terminalNexus", { state: "attached" });
+    expect(await page.locator(".xp-tn-headline").innerText()).toContain(
+      WORLD_TEST_PROFILE.identity.headline,
+    );
+    expect(await page.locator(".xp-tn-tkv-resume").count()).toBe(1);
+    expect(await page.locator(".xp-tn-hs-row-link").count()).toBe(1);
+    await page.close();
+  }, 30_000);
+
   it("Variable Type Foundry keeps a long unbroken identity and project rail reachable", async () => {
     const page = await browser.newPage({
       viewport: { width: 1512, height: 868 },
