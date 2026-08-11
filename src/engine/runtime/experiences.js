@@ -34,6 +34,9 @@
   function headline(data) {
     return identity(data).headline || "Building on the internet.";
   }
+  function resume(data) {
+    return data.resume && data.resume.url ? data.resume : null;
+  }
   // strip a github URL down to the bare handle (…/ramisworld → ramisworld)
   function ghHandle(data) {
     var g = github(data);
@@ -466,6 +469,7 @@
     var user = brand.toLowerCase();
     var gh = ghHandle(data);
     var stackStr = tnStack(data);
+    var resumeAsset = resume(data);
 
     var experienceItems = arr(data.experience).slice(0, 8);
     var hasExperience = experienceItems.length > 0;
@@ -537,6 +541,15 @@
       tnKv("stack", stackStr) +
       tnKv("email", email(data)) +
       tnKv("github", gh ? "@" + gh : "") +
+      (resumeAsset
+        ? '<a class="xp-tn-tkv xp-tn-tkv-resume" href="' +
+          esc(resumeAsset.url) +
+          '" target="_blank" rel="noreferrer" aria-label="Open ' +
+          esc(resumeAsset.fileName) +
+          '"><em>resume</em><span>' +
+          esc(resumeAsset.fileName) +
+          ' <i aria-hidden="true">&#8599;</i></span></a>'
+        : "") +
       "</div>";
     var term =
       '<div class="xp-tn-term reveal" id="ph-term">' +
@@ -620,6 +633,9 @@
       '<div class="xp-tn-roleline"><i class="xp-tn-role-dot"></i><span class="xp-tn-role">' +
       esc(role(data)) +
       '</span><span class="xp-tn-caret"></span></div>' +
+      '<p class="xp-tn-headline">' +
+      esc(headline(data)) +
+      "</p>" +
       term +
       // Non-interactive scroll cue — a white mouse-wheel hint with a
       // chevron, purely decorative. pointer-events:none on the wrapper means
@@ -692,15 +708,26 @@
       // here as a "GITHUB … COPY" row was visually misleading (the value
       // people expect to copy from a labelled MAIL row is a mail address).
       '<div class="xp-tn-hs-grid">' +
-      '<button class="xp-tn-hs-row xp-copy" data-copy="' +
-      esc(email(data)) +
-      '" data-magnetic>' +
-      '<span class="xp-tn-hs-k">MAIL</span>' +
-      '<span class="xp-tn-hs-v">' +
-      esc(email(data)) +
-      "</span>" +
-      '<span class="xp-tn-hs-act"><b>COPY</b><i>&#10697;</i></span>' +
-      "</button>" +
+      (email(data)
+        ? '<button class="xp-tn-hs-row xp-copy" data-copy="' +
+          esc(email(data)) +
+          '" data-magnetic>' +
+          '<span class="xp-tn-hs-k">MAIL</span>' +
+          '<span class="xp-tn-hs-v">' +
+          esc(email(data)) +
+          "</span>" +
+          '<span class="xp-tn-hs-act"><b>COPY</b><i>&#10697;</i></span>' +
+          "</button>"
+        : "") +
+      (resumeAsset
+        ? '<a class="xp-tn-hs-row xp-tn-hs-row-link" href="' +
+          esc(resumeAsset.url) +
+          '" target="_blank" rel="noreferrer" data-magnetic aria-label="Open ' +
+          esc(resumeAsset.fileName) +
+          '"><span class="xp-tn-hs-k">RESUME</span><span class="xp-tn-hs-v">' +
+          esc(resumeAsset.fileName) +
+          '</span><span class="xp-tn-hs-act"><b>OPEN</b><i>&#8599;</i></span></a>'
+        : "") +
       "</div>" +
       // -- secondary social links (open in new tab). Keep GitHub centered
       // between X/Twitter and LinkedIn when all three are present.
@@ -1837,6 +1864,8 @@
     var stackStr = tnStack(data);
     var projs = arr(data.projects).slice(0, 9);
     var ident = identity(data);
+    var resumeAsset = resume(data);
+    var resumeName = resumeAsset ? resumeAsset.fileName : "resume.pdf";
     var contactTxt =
       "name:   " +
       (ident.name || user) +
@@ -1845,6 +1874,7 @@
       "\nemail:  " +
       email(data) +
       (links(data).github ? "\ngithub: " + links(data).github : "") +
+      (resumeAsset ? "\nresume: " + resumeAsset.url : "") +
       "\n";
     var skillsTxt = langs.length ? langs.join("\n") + "\n" : "(none)\n";
     var projectsJson = JSON.stringify(
@@ -1894,6 +1924,15 @@
           "projects.json": { type: "file", text: projectsJson + "\n" },
           "contact.txt": { type: "file", text: contactTxt },
           "credentials.txt": { type: "file", text: credsTxt },
+          ...(resumeAsset
+            ? {
+                [resumeName]: {
+                  type: "asset",
+                  url: resumeAsset.url,
+                  size: resumeAsset.sizeBytes,
+                },
+              }
+            : {}),
           ".bashrc": {
             type: "file",
             text: "# minimal\nalias ll='ls -lA'\nalias la='ls -A'\nexport PS1='\\u@\\h:\\w$ '\n",
@@ -1989,7 +2028,7 @@
             var c = node.children[n];
             var isDir = c.type === "dir";
             var perm = isDir ? "drwxr-xr-x" : "-rw-r--r--";
-            var size = isDir ? 0 : (c.text || "").length;
+            var size = isDir ? 0 : c.size || (c.text || "").length;
             return (
               '<span class="xp-tn-tperm">' +
               perm +
@@ -2037,7 +2076,7 @@
       help: function () {
         return (
           "commands: ls, ls -a, ls -l, ls -la, pwd, whoami, cat &lt;file&gt;, " +
-          "echo &lt;text&gt;, cd &lt;dir&gt;, clear, history, date, uname [-a], " +
+          "open &lt;file&gt;, echo &lt;text&gt;, cd &lt;dir&gt;, clear, history, date, uname [-a], " +
           "man &lt;cmd&gt;, exit"
         );
       },
@@ -2061,7 +2100,7 @@
               escHtml(target || "") +
               "': No such file or directory",
           };
-        if (node.type === "file") return target || "";
+        if (node.type !== "dir") return target || "";
         return fmtLs(node, opts);
       },
       pwd: function () {
@@ -2084,6 +2123,14 @@
                 escHtml(a) +
                 ": No such file or directory</span>"
               );
+            if (n.type === "asset")
+              return (
+                '<span class="xp-tn-terr">cat: ' +
+                escHtml(a) +
+                ": binary file (use open " +
+                escHtml(a) +
+                ")</span>"
+              );
             if (n.type !== "file")
               return (
                 '<span class="xp-tn-terr">cat: ' +
@@ -2093,6 +2140,18 @@
             return escHtml(n.text);
           })
           .join("\n");
+      },
+      open: function (args) {
+        var target = args[0] || resumeName;
+        var n = resolve(target);
+        if (!n)
+          return {
+            err: "open: " + escHtml(target) + ": No such file or directory",
+          };
+        if (n.type !== "asset" || !n.url)
+          return { err: "open: " + escHtml(target) + ": Not an openable asset" };
+        window.open(n.url, "_blank", "noopener");
+        return "opening " + escHtml(target) + "...";
       },
       echo: function (args) {
         return escHtml(args.join(" "));
@@ -2168,6 +2227,9 @@
       // is a no-op for the visual but acknowledged so it doesn't read as an
       // error.
       return "ok";
+    };
+    CMD.resume = function () {
+      return CMD.open([resumeName]);
     };
 
     function run(raw) {

@@ -93,6 +93,13 @@ model Portfolio {
   engineVersion  String?
   template       String         @default("terminalNexus")
   code           String?        @db.Text
+  // Optional résumé upload. Metadata is mirrored in profileData; bytes stay out
+  // of the generated HTML and are served through /api/resume/:slug.
+  resumeBytes     Bytes?
+  resumeMimeType  String?
+  resumeFileName  String?
+  resumeSizeBytes Int?
+  resumeUpdatedAt DateTime?
   // Cached social preview captured from this portfolio's actual rendered hero.
   ogImage        Bytes?
   ogImageFingerprint String?

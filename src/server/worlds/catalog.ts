@@ -35,6 +35,9 @@ export const WORLD_IDS = [
   "memory-palace",
   "kinetic-bauhaus-factory",
   "polar-night-expedition",
+  "shoji-light-house",
+  "kinetic-type-bureau",
+  "abyssal-signal-array",
 ] as const;
 
 export type WorldId = (typeof WORLD_IDS)[number];
@@ -743,6 +746,83 @@ export const WORLD_CATALOG: readonly WorldDefinition[] = [
       foreground: "#e7f6ff",
       accent: "#6ed3ff",
       muted: "#6f8998",
+    },
+  },
+  {
+    id: "shoji-light-house",
+    name: "Shōji Shadow House",
+    concept:
+      "A premium Japanese shadow house where a reactive shinobi instrument reveals project missions, technical disciplines, and a cinematic night gate.",
+    cues: [
+      "shoji light house",
+      "shoji shadow house",
+      "shoji screens",
+      "ninja",
+      "ninja vibe",
+      "shinobi",
+      "japanese style",
+      "dark japanese",
+      "stealth portfolio",
+      "premium japanese",
+      "premium ninja vibe",
+      "shinobi portfolio",
+      "modern japanese shadow",
+      "japanese architecture",
+      "washi paper",
+      "dark premium japanese",
+    ],
+    antiCues: ["raked sand", "zen garden", "cyberpunk japan"],
+    theme: {
+      background: "#090908",
+      foreground: "#e9dfca",
+      accent: "#d14d38",
+      muted: "#8e897d",
+    },
+  },
+  {
+    id: "kinetic-type-bureau",
+    name: "Kinetic Type Bureau",
+    concept:
+      "A premium Swiss motion studio where draggable registration marks recompose a dense typographic portfolio machine.",
+    cues: [
+      "kinetic type bureau",
+      "kinetic typography",
+      "swiss motion design",
+      "typographic portfolio",
+      "graphic design grid",
+      "editorial motion",
+      "international style",
+      "bauhaus typography",
+    ],
+    antiCues: ["glassmorphism", "cyberpunk terminal", "japanese ninja"],
+    theme: {
+      background: "#eeeade",
+      foreground: "#11110f",
+      accent: "#173dff",
+      muted: "#716e64",
+    },
+  },
+  {
+    id: "abyssal-signal-array",
+    name: "Abyssal Signal Array",
+    concept:
+      "A deep-sea command instrument where projects surface as operable sonar contacts inside a dense oceanographic console.",
+    cues: [
+      "abyssal signal array",
+      "deep sea portfolio",
+      "sonar interface",
+      "submarine console",
+      "ocean technology",
+      "underwater radar",
+      "marine research",
+      "bioluminescent data",
+    ],
+    antiCues: ["glassmorphism", "cyberpunk terminal", "space mission"],
+    theme: {
+      background: "#001113",
+      foreground: "#c8e3da",
+      accent: "#dfff45",
+      muted: "#6f9690",
     },
   },
 ] as const satisfies readonly WorldDefinition[];

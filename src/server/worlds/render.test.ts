@@ -4,8 +4,8 @@ import { renderStoredWorld, renderWorld } from "./render";
 import { WORLD_TEST_PROFILE } from "./test-profile";
 
 describe("approved world rendering", () => {
-  it("contains exactly 33 selectable worlds", () => {
-    expect(WORLD_CATALOG).toHaveLength(33);
+  it("contains exactly 36 selectable worlds", () => {
+    expect(WORLD_CATALOG).toHaveLength(36);
   });
 
   for (const world of WORLD_CATALOG) {
@@ -37,6 +37,17 @@ describe("approved world rendering", () => {
     expect(code).not.toContain('id="porfilo-experience"');
   });
 
+  it("places experience before the final contact moment in new worlds", () => {
+    const code = renderWorld(
+      "shoji-light-house",
+      WORLD_TEST_PROFILE,
+      "alexrivera",
+    );
+    expect(code.indexOf('id="porfilo-experience"')).toBeLessThan(
+      code.indexOf('id="contact"'),
+    );
+  });
+
   it("normalizes legacy Terminal Nexus identifiers onto the canonical world", () => {
     expect(normalizeWorldId("terminalNexus")).toBe("terminal-nexus");
     const code = renderStoredWorld({
@@ -47,5 +58,29 @@ describe("approved world rendering", () => {
     expect(code).toContain('"experience":"terminalNexus"');
     expect(code).toContain('"scene":"ghostObject"');
     expect(code).toContain("/engine/v3.js");
+  });
+
+  it("renders Terminal Nexus headline and résumé affordances", () => {
+    const code = renderWorld(
+      "terminal-nexus",
+      {
+        ...WORLD_TEST_PROFILE,
+        identity: {
+          ...WORLD_TEST_PROFILE.identity,
+          headline: "Building reliable AI systems.",
+        },
+        resume: {
+          url: "https://porfilo.com/api/resume/demo",
+          fileName: "Rami-Resume.pdf",
+          mimeType: "application/pdf",
+          sizeBytes: 1024,
+          uploadedAt: "2026-08-11T00:00:00.000Z",
+        },
+      },
+      "alexrivera",
+    );
+
+    expect(code).toContain("Building reliable AI systems.");
+    expect(code).toContain("Rami-Resume.pdf");
   });
 });
